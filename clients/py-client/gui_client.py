@@ -2,7 +2,7 @@ import cocos
 
 from layers import MouseDisplay
 
-from comm import connect, send_to_server, start_message_queue_thread, start_receiver_thread
+from common.comm import connect, send_to_server, start_message_queue_thread, start_receiver_thread
 from messages import PlayerLogin
 
 DEFAULT_WIDTH = 800

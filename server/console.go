@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	// https://github.com/c-bata/go-prompt
 	"github.com/c-bata/go-prompt"
 )
 

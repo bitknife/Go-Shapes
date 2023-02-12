@@ -19,8 +19,8 @@ func handleConnection(conn net.Conn) {
 	/**
 	First packet must be a login request.
 	*/
-	messageType, message := receivePackageFromConnection(conn)
-	playerLogin := core.AuthenticateClient(messageType, message)
+	packageData := receivePackageDataFromConnection(conn)
+	playerLogin := core.AuthenticateClient(packageData)
 	if playerLogin == nil {
 		conn.Close()
 		return
@@ -59,44 +59,44 @@ func makeAndRegisterChannels(playerLogin *core.PlayerLogin) (chan core.Dispatche
 
 func receivePacketsRoutine(conn net.Conn, playerLogin *core.PlayerLogin, fromClient chan core.DispatcherMessage) {
 	for {
-		messageType, messageData := receivePackageFromConnection(conn)
+		messageData := receivePackageDataFromConnection(conn)
 
-		if messageType == 0 {
+		if messageData == nil {
 			// Communication error?
-			log.Println("ERROR from receivePackageFromConnection()!")
+			log.Println("ERROR from receivePackageDataFromConnection()!")
 
-			// TODO: Improve
+			// TODO: Improve, recover or disconnect/cleanup and let player reconnect etc.
 			conn.Close()
 			return
 		}
 
 		// Ok got a valid message, pass that to the dispatcher
-		dm := core.DispatcherMessage{SourceID: playerLogin.Username, Type: messageType, Data: messageData}
+		dm := core.DispatcherMessage{SourceID: playerLogin.Username, Data: messageData}
 		fromClient <- dm
 	}
 }
 
-func receivePackageFromConnection(conn net.Conn) (int, []byte) {
+func receivePackageDataFromConnection(conn net.Conn) []byte {
 	/**
 	Waits for the header and returns the type and []byte representing the package.
 	*/
 	// printReceivedBuffer(messageData, messageType)
 
 	// Allocate header
-	header := make([]byte, 2)
+	header := make([]byte, 1)
 
 	// First read the two byte header
-	_, err := io.ReadAtLeast(conn, header, 2)
+	_, err := io.ReadAtLeast(conn, header, 1)
 
 	if err != nil {
 		// Broken connection, client ugly shutdown etc.
 		log.Print("Error reading from:", conn.RemoteAddr(), "reason was: ", err)
 		log.Print("Closing!", conn)
-		return 0, nil
+		return nil
 	}
 
 	messageSize := header[0]
-	messageType := int(header[1])
+	// messageType := int(header[1])
 
 	// Allocate for packet
 	messageData := make([]byte, messageSize)
@@ -104,7 +104,7 @@ func receivePackageFromConnection(conn net.Conn) (int, []byte) {
 	// And read the packet
 	_, err = io.ReadFull(conn, messageData)
 
-	return messageType, messageData
+	return messageData
 }
 
 func sendPackagesRoutine(conn net.Conn, toClient chan core.DispatcherMessage) {

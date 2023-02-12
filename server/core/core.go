@@ -12,10 +12,10 @@ func clientPinger() {
 
 	for {
 		time.Sleep(1000 * time.Millisecond)
-		packetData := buildPingPacket()
+		wb := buildPingWireBytes()
 
 		// Prepare a common packet first
-		dm := DispatcherMessage{SourceID: "", Type: int(MType_PING_EVENT), Data: packetData}
+		dm := DispatcherMessage{SourceID: "CORE", Data: wb}
 
 		usernames := GetConnectedUsernames()
 		for _, username := range usernames {

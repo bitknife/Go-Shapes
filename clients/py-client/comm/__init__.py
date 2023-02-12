@@ -1,7 +1,8 @@
 import queue
 import messages
-import tcp_client
 import threading
+
+from comm import tcp_client
 
 comm_queue = queue.Queue()
 
@@ -36,9 +37,9 @@ def _build_packet(game_message):
     :param game_message:
     :return:
     """
-    gm_id = get_type_id(game_message)
+
     msg_bytes = bytes(game_message)
-    header = bytes([len(msg_bytes), gm_id])
+    header = bytes([len(msg_bytes)])
     return header + msg_bytes
 
 

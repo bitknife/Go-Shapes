@@ -3,9 +3,6 @@ module main
 go 1.19
 
 require (
-	bitknife.se/core v0.0.0-00010101000000-000000000000
-	bitknife.se/game v0.0.0-00010101000000-000000000000
-	bitknife.se/socketserver v0.0.0-00010101000000-000000000000
 	github.com/c-bata/go-prompt v0.2.6
 )
 
@@ -20,9 +17,3 @@ require (
 	golang.org/x/sys v0.0.0-20200918174421-af09f7315aff // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 )
-
-replace bitknife.se/socketserver => ./socketserver
-
-replace bitknife.se/core => ./core
-
-replace bitknife.se/game => ./game

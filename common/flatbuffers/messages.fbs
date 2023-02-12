@@ -1,0 +1,21 @@
+namespace messages;
+
+
+table PlayerLogin {
+    username: string;
+    password: string;
+}
+
+table Ping {
+    sent_time: float;
+    bounce_time: float;
+    received_time: float;
+}
+
+union Messages { PlayerLogin, Ping }
+
+table MessageHolder {
+    the_message: Messages;
+}
+
+root_type MessageHolder;

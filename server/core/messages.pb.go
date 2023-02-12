@@ -20,65 +20,13 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type MType int32
-
-const (
-	MType_UNKNOWN      MType = 0
-	MType_PLAYER_LOGIN MType = 1
-	MType_MOUSE_EVENT  MType = 2
-	MType_PING_EVENT   MType = 3
-)
-
-// Enum value maps for MType.
-var (
-	MType_name = map[int32]string{
-		0: "UNKNOWN",
-		1: "PLAYER_LOGIN",
-		2: "MOUSE_EVENT",
-		3: "PING_EVENT",
-	}
-	MType_value = map[string]int32{
-		"UNKNOWN":      0,
-		"PLAYER_LOGIN": 1,
-		"MOUSE_EVENT":  2,
-		"PING_EVENT":   3,
-	}
-)
-
-func (x MType) Enum() *MType {
-	p := new(MType)
-	*p = x
-	return p
-}
-
-func (x MType) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (MType) Descriptor() protoreflect.EnumDescriptor {
-	return file_messages_proto_enumTypes[0].Descriptor()
-}
-
-func (MType) Type() protoreflect.EnumType {
-	return &file_messages_proto_enumTypes[0]
-}
-
-func (x MType) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use MType.Descriptor instead.
-func (MType) EnumDescriptor() ([]byte, []int) {
-	return file_messages_proto_rawDescGZIP(), []int{0}
-}
-
 type PlayerLogin struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Username string `common:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
-	Password string `common:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	Password string `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
 }
 
 func (x *PlayerLogin) Reset() {
@@ -127,91 +75,20 @@ func (x *PlayerLogin) GetPassword() string {
 	return ""
 }
 
-type MouseEvent struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	X          int32 `common:"varint,1,opt,name=x,proto3" json:"x,omitempty"`
-	Y          int32 `common:"varint,2,opt,name=y,proto3" json:"y,omitempty"`
-	LeftClick  bool  `common:"varint,3,opt,name=left_click,json=leftClick,proto3" json:"left_click,omitempty"`
-	RightClick bool  `common:"varint,4,opt,name=right_click,json=rightClick,proto3" json:"right_click,omitempty"`
-}
-
-func (x *MouseEvent) Reset() {
-	*x = MouseEvent{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_messages_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *MouseEvent) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MouseEvent) ProtoMessage() {}
-
-func (x *MouseEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_messages_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use MouseEvent.ProtoReflect.Descriptor instead.
-func (*MouseEvent) Descriptor() ([]byte, []int) {
-	return file_messages_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *MouseEvent) GetX() int32 {
-	if x != nil {
-		return x.X
-	}
-	return 0
-}
-
-func (x *MouseEvent) GetY() int32 {
-	if x != nil {
-		return x.Y
-	}
-	return 0
-}
-
-func (x *MouseEvent) GetLeftClick() bool {
-	if x != nil {
-		return x.LeftClick
-	}
-	return false
-}
-
-func (x *MouseEvent) GetRightClick() bool {
-	if x != nil {
-		return x.RightClick
-	}
-	return false
-}
-
 type Ping struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	SentEpoch     uint64 `common:"varint,1,opt,name=sentEpoch,proto3" json:"sentEpoch,omitempty"`
-	BounceEpoch   uint64 `common:"varint,2,opt,name=bounceEpoch,proto3" json:"bounceEpoch,omitempty"`
-	ReceivedEpoch uint64 `common:"varint,3,opt,name=receivedEpoch,proto3" json:"receivedEpoch,omitempty"`
+	Sent     float32 `protobuf:"fixed32,1,opt,name=sent,proto3" json:"sent,omitempty"`
+	Bounced  float32 `protobuf:"fixed32,2,opt,name=bounced,proto3" json:"bounced,omitempty"`
+	Received float32 `protobuf:"fixed32,3,opt,name=received,proto3" json:"received,omitempty"`
 }
 
 func (x *Ping) Reset() {
 	*x = Ping{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_messages_proto_msgTypes[2]
+		mi := &file_messages_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -224,7 +101,7 @@ func (x *Ping) String() string {
 func (*Ping) ProtoMessage() {}
 
 func (x *Ping) ProtoReflect() protoreflect.Message {
-	mi := &file_messages_proto_msgTypes[2]
+	mi := &file_messages_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -237,29 +114,110 @@ func (x *Ping) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Ping.ProtoReflect.Descriptor instead.
 func (*Ping) Descriptor() ([]byte, []int) {
+	return file_messages_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *Ping) GetSent() float32 {
+	if x != nil {
+		return x.Sent
+	}
+	return 0
+}
+
+func (x *Ping) GetBounced() float32 {
+	if x != nil {
+		return x.Bounced
+	}
+	return 0
+}
+
+func (x *Ping) GetReceived() float32 {
+	if x != nil {
+		return x.Received
+	}
+	return 0
+}
+
+type Packet struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Types that are assignable to TheMessage:
+	//
+	//	*Packet_PlayerLogin
+	//	*Packet_Ping
+	TheMessage isPacket_TheMessage `protobuf_oneof:"the_message"`
+}
+
+func (x *Packet) Reset() {
+	*x = Packet{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_messages_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Packet) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Packet) ProtoMessage() {}
+
+func (x *Packet) ProtoReflect() protoreflect.Message {
+	mi := &file_messages_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Packet.ProtoReflect.Descriptor instead.
+func (*Packet) Descriptor() ([]byte, []int) {
 	return file_messages_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *Ping) GetSentEpoch() uint64 {
-	if x != nil {
-		return x.SentEpoch
+func (m *Packet) GetTheMessage() isPacket_TheMessage {
+	if m != nil {
+		return m.TheMessage
 	}
-	return 0
+	return nil
 }
 
-func (x *Ping) GetBounceEpoch() uint64 {
-	if x != nil {
-		return x.BounceEpoch
+func (x *Packet) GetPlayerLogin() *PlayerLogin {
+	if x, ok := x.GetTheMessage().(*Packet_PlayerLogin); ok {
+		return x.PlayerLogin
 	}
-	return 0
+	return nil
 }
 
-func (x *Ping) GetReceivedEpoch() uint64 {
-	if x != nil {
-		return x.ReceivedEpoch
+func (x *Packet) GetPing() *Ping {
+	if x, ok := x.GetTheMessage().(*Packet_Ping); ok {
+		return x.Ping
 	}
-	return 0
+	return nil
 }
+
+type isPacket_TheMessage interface {
+	isPacket_TheMessage()
+}
+
+type Packet_PlayerLogin struct {
+	PlayerLogin *PlayerLogin `protobuf:"bytes,2,opt,name=playerLogin,proto3,oneof"`
+}
+
+type Packet_Ping struct {
+	Ping *Ping `protobuf:"bytes,3,opt,name=ping,proto3,oneof"`
+}
+
+func (*Packet_PlayerLogin) isPacket_TheMessage() {}
+
+func (*Packet_Ping) isPacket_TheMessage() {}
 
 var File_messages_proto protoreflect.FileDescriptor
 
@@ -270,26 +228,20 @@ var file_messages_proto_rawDesc = []byte{
 	0x72, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x75, 0x73, 0x65,
 	0x72, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x1a, 0x0a, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72,
 	0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72,
-	0x64, 0x22, 0x68, 0x0a, 0x0a, 0x4d, 0x6f, 0x75, 0x73, 0x65, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x12,
-	0x0c, 0x0a, 0x01, 0x78, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x01, 0x78, 0x12, 0x0c, 0x0a,
-	0x01, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x01, 0x79, 0x12, 0x1d, 0x0a, 0x0a, 0x6c,
-	0x65, 0x66, 0x74, 0x5f, 0x63, 0x6c, 0x69, 0x63, 0x6b, 0x18, 0x03, 0x20, 0x01, 0x28, 0x08, 0x52,
-	0x09, 0x6c, 0x65, 0x66, 0x74, 0x43, 0x6c, 0x69, 0x63, 0x6b, 0x12, 0x1f, 0x0a, 0x0b, 0x72, 0x69,
-	0x67, 0x68, 0x74, 0x5f, 0x63, 0x6c, 0x69, 0x63, 0x6b, 0x18, 0x04, 0x20, 0x01, 0x28, 0x08, 0x52,
-	0x0a, 0x72, 0x69, 0x67, 0x68, 0x74, 0x43, 0x6c, 0x69, 0x63, 0x6b, 0x22, 0x6c, 0x0a, 0x04, 0x50,
-	0x69, 0x6e, 0x67, 0x12, 0x1c, 0x0a, 0x09, 0x73, 0x65, 0x6e, 0x74, 0x45, 0x70, 0x6f, 0x63, 0x68,
-	0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x09, 0x73, 0x65, 0x6e, 0x74, 0x45, 0x70, 0x6f, 0x63,
-	0x68, 0x12, 0x20, 0x0a, 0x0b, 0x62, 0x6f, 0x75, 0x6e, 0x63, 0x65, 0x45, 0x70, 0x6f, 0x63, 0x68,
-	0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x52, 0x0b, 0x62, 0x6f, 0x75, 0x6e, 0x63, 0x65, 0x45, 0x70,
-	0x6f, 0x63, 0x68, 0x12, 0x24, 0x0a, 0x0d, 0x72, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65, 0x64, 0x45,
-	0x70, 0x6f, 0x63, 0x68, 0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x52, 0x0d, 0x72, 0x65, 0x63, 0x65,
-	0x69, 0x76, 0x65, 0x64, 0x45, 0x70, 0x6f, 0x63, 0x68, 0x2a, 0x47, 0x0a, 0x05, 0x4d, 0x54, 0x79,
-	0x70, 0x65, 0x12, 0x0b, 0x0a, 0x07, 0x55, 0x4e, 0x4b, 0x4e, 0x4f, 0x57, 0x4e, 0x10, 0x00, 0x12,
-	0x10, 0x0a, 0x0c, 0x50, 0x4c, 0x41, 0x59, 0x45, 0x52, 0x5f, 0x4c, 0x4f, 0x47, 0x49, 0x4e, 0x10,
-	0x01, 0x12, 0x0f, 0x0a, 0x0b, 0x4d, 0x4f, 0x55, 0x53, 0x45, 0x5f, 0x45, 0x56, 0x45, 0x4e, 0x54,
-	0x10, 0x02, 0x12, 0x0e, 0x0a, 0x0a, 0x50, 0x49, 0x4e, 0x47, 0x5f, 0x45, 0x56, 0x45, 0x4e, 0x54,
-	0x10, 0x03, 0x42, 0x10, 0x5a, 0x0e, 0x2e, 0x2f, 0x73, 0x6f, 0x63, 0x6b, 0x65, 0x74, 0x73, 0x65,
-	0x72, 0x76, 0x65, 0x72, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x64, 0x22, 0x50, 0x0a, 0x04, 0x50, 0x69, 0x6e, 0x67, 0x12, 0x12, 0x0a, 0x04, 0x73, 0x65, 0x6e,
+	0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x02, 0x52, 0x04, 0x73, 0x65, 0x6e, 0x74, 0x12, 0x18, 0x0a,
+	0x07, 0x62, 0x6f, 0x75, 0x6e, 0x63, 0x65, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x02, 0x52, 0x07,
+	0x62, 0x6f, 0x75, 0x6e, 0x63, 0x65, 0x64, 0x12, 0x1a, 0x0a, 0x08, 0x72, 0x65, 0x63, 0x65, 0x69,
+	0x76, 0x65, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x02, 0x52, 0x08, 0x72, 0x65, 0x63, 0x65, 0x69,
+	0x76, 0x65, 0x64, 0x22, 0x78, 0x0a, 0x06, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x12, 0x39, 0x0a,
+	0x0b, 0x70, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x0b, 0x32, 0x15, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x50, 0x6c,
+	0x61, 0x79, 0x65, 0x72, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x48, 0x00, 0x52, 0x0b, 0x70, 0x6c, 0x61,
+	0x79, 0x65, 0x72, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x12, 0x24, 0x0a, 0x04, 0x70, 0x69, 0x6e, 0x67,
+	0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x73, 0x2e, 0x50, 0x69, 0x6e, 0x67, 0x48, 0x00, 0x52, 0x04, 0x70, 0x69, 0x6e, 0x67, 0x42, 0x0d,
+	0x0a, 0x0b, 0x74, 0x68, 0x65, 0x5f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x42, 0x08, 0x5a,
+	0x06, 0x2e, 0x2f, 0x63, 0x6f, 0x72, 0x65, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -304,20 +256,20 @@ func file_messages_proto_rawDescGZIP() []byte {
 	return file_messages_proto_rawDescData
 }
 
-var file_messages_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_messages_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_messages_proto_goTypes = []interface{}{
-	(MType)(0),          // 0: messages.MType
-	(*PlayerLogin)(nil), // 1: messages.PlayerLogin
-	(*MouseEvent)(nil),  // 2: messages.MouseEvent
-	(*Ping)(nil),        // 3: messages.Ping
+	(*PlayerLogin)(nil), // 0: messages.PlayerLogin
+	(*Ping)(nil),        // 1: messages.Ping
+	(*Packet)(nil),      // 2: messages.Packet
 }
 var file_messages_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0, // 0: messages.Packet.playerLogin:type_name -> messages.PlayerLogin
+	1, // 1: messages.Packet.ping:type_name -> messages.Ping
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_messages_proto_init() }
@@ -339,18 +291,6 @@ func file_messages_proto_init() {
 			}
 		}
 		file_messages_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MouseEvent); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_messages_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Ping); i {
 			case 0:
 				return &v.state
@@ -362,20 +302,35 @@ func file_messages_proto_init() {
 				return nil
 			}
 		}
+		file_messages_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Packet); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+	}
+	file_messages_proto_msgTypes[2].OneofWrappers = []interface{}{
+		(*Packet_PlayerLogin)(nil),
+		(*Packet_Ping)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_messages_proto_rawDesc,
-			NumEnums:      1,
+			NumEnums:      0,
 			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_messages_proto_goTypes,
 		DependencyIndexes: file_messages_proto_depIdxs,
-		EnumInfos:         file_messages_proto_enumTypes,
 		MessageInfos:      file_messages_proto_msgTypes,
 	}.Build()
 	File_messages_proto = out.File

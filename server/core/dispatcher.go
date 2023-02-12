@@ -5,7 +5,6 @@ import "log"
 type DispatcherMessage struct {
 	// SourceID is for now the Username
 	SourceID string
-	Type     int
 	Data     []byte
 }
 
@@ -52,8 +51,6 @@ func toClientDispatcher(message DispatcherMessage) {
 func fromClientHandler(in chan DispatcherMessage) {
 	for {
 		dm := <-in
-		log.Println("Dispatcher got message of type", dm.Type, "from:", dm.SourceID)
-
-		// Route Message into Core etc.
+		log.Println("Dispatcher got message from:", dm.SourceID)
 	}
 }

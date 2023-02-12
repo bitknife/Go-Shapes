@@ -17,6 +17,7 @@ And source it, or re-launch your shell. Head over back here and do:
 This will also install the protobuf/capnproto libraries needed for the stub generation of the common directory.
 
 ## Running the server
+
 For development purposes you should be able to do:
 
     go run main.go

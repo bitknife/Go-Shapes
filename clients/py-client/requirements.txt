@@ -2,4 +2,3 @@ cocos2d
 imgui[cocos2d]
 betterproto[compiler]
 betterproto
-pycapnp

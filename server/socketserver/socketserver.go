@@ -3,6 +3,7 @@ package socketserver
 import (
 	"bitknife.se/core"
 	"fmt"
+	"google.golang.org/protobuf/proto"
 	"io"
 	"log"
 	"net"
@@ -71,7 +72,8 @@ func receivePacketsRoutine(conn net.Conn, playerLogin *core.PlayerLogin, fromCli
 		}
 
 		// Ok got a valid message, pass that to the dispatcher
-		dm := core.DispatcherMessage{SourceID: playerLogin.Username, Data: packageData}
+		packet := core.BytesToPacket(packageData)
+		dm := core.DispatcherMessage{SourceID: playerLogin.Username, Packet: packet}
 		fromClient <- dm
 	}
 }
@@ -96,7 +98,6 @@ func receivePackageDataFromConnection(conn net.Conn) []byte {
 	}
 
 	packageSize := header[0]
-	// messageType := int(header[1])
 
 	// Allocate for packet
 	packetData := make([]byte, packageSize)
@@ -110,15 +111,27 @@ func receivePackageDataFromConnection(conn net.Conn) []byte {
 func sendPackagesRoutine(conn net.Conn, toClient chan core.DispatcherMessage) {
 	for {
 		dm := <-toClient
-
-		packet := dm.Data
-
-		_, err := conn.Write(packet)
+		_, err := conn.Write(buildWirePacket(dm.Packet))
 		if err != nil {
 			log.Println("Error writing packet: ")
 			return
 		}
 	}
+}
+
+func buildWirePacket(packet *core.Packet) []byte {
+	/**
+	Marshals a core Packet into []bytes and prepends it with length
+	this is the Wire-format sent over the socket
+	*/
+	marshal, err := proto.Marshal(packet)
+	if err != nil {
+		return nil
+	}
+	header := make([]byte, 1)
+	header[0] = byte(len(marshal))
+	wirePacket := append(header, marshal...)
+	return wirePacket
 }
 
 func Start() {

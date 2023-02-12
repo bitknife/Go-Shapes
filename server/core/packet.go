@@ -5,26 +5,22 @@ import (
 	"time"
 )
 
-func BytesToPacket(buffer []byte) Packet {
+func BytesToPacket(buffer []byte) *Packet {
 	packet := Packet{}
-	proto.Unmarshal(buffer, &packet)
-	return packet
+	err := proto.Unmarshal(buffer, &packet)
+	if err != nil {
+		return nil
+	}
+	return &packet
 }
 
-func buildPingWireBytes() []byte {
+func buildPingPacket() *Packet {
+	// A Ping message placed in a Packet, works for now
 	ping := Ping{}
 	ping.Sent = float32(time.Now().UnixMicro())
 
 	packet := Packet{
 		TheMessage: &Packet_Ping{&ping},
 	}
-
-	marshal, err := proto.Marshal(&packet)
-	if err != nil {
-		return nil
-	}
-	header := make([]byte, 1)
-	header[0] = byte(len(marshal))
-	wirePacket := append(header, marshal...)
-	return wirePacket
+	return &packet
 }

@@ -5,7 +5,7 @@ import "log"
 type DispatcherMessage struct {
 	// SourceID is for now the Username
 	SourceID string
-	Data     []byte
+	Packet   *Packet
 }
 
 /**
@@ -51,8 +51,7 @@ func toClientDispatcher(message DispatcherMessage) {
 func fromClientHandler(in chan DispatcherMessage) {
 	for {
 		dm := <-in
-		packet := BytesToPacket(dm.Data)
-		log.Println("Dispatcher got", packet.GetTheMessage(), "from:", dm.SourceID)
+		log.Println("Dispatcher got", dm.Packet.GetTheMessage(), "from:", dm.SourceID)
 
 		/**
 		TODO: Switch on packet type?

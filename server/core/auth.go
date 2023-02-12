@@ -13,7 +13,7 @@ func AuthenticateClient(packageData []byte) *PlayerLogin {
 	  Called from the socketserver layer during initial connection.
 	*/
 
-	playerLogin := bytesToPlayerLogin(packageData)
+	playerLogin := BytesToPacket(packageData).GetPlayerLogin()
 
 	// TODO: Check vs player-db etc.
 	if playerLogin.Password == STATIC_PASSWORD {
@@ -24,12 +24,4 @@ func AuthenticateClient(packageData []byte) *PlayerLogin {
 	}
 	//	log.Println("ACCESS DENIED: Invalid message type", messageType, "when authenticating.")
 	return nil
-}
-
-func bytesToPlayerLogin(messageData []byte) *PlayerLogin {
-	/**
-	Works for now.
-	*/
-	packet := BytesToPacket(messageData)
-	return packet.GetPlayerLogin()
 }

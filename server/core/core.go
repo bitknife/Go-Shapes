@@ -4,6 +4,10 @@ import (
 	"time"
 )
 
+const (
+	PING_INTERVAL = 1000
+)
+
 func Start() {
 	go clientPinger()
 }
@@ -11,12 +15,11 @@ func Start() {
 func clientPinger() {
 
 	for {
-		time.Sleep(1000 * time.Millisecond)
-		wb := buildPingWireBytes()
+		time.Sleep(PING_INTERVAL * time.Millisecond)
 
-		// Prepare a common packet first
-		dm := DispatcherMessage{SourceID: "CORE", Data: wb}
+		dm := DispatcherMessage{SourceID: "CORE", Packet: buildPingPacket()}
 
+		// TODO: Improve? for each connected client
 		usernames := GetConnectedUsernames()
 		for _, username := range usernames {
 			dm.SourceID = username

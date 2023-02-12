@@ -51,6 +51,11 @@ func toClientDispatcher(message DispatcherMessage) {
 func fromClientHandler(in chan DispatcherMessage) {
 	for {
 		dm := <-in
-		log.Println("Dispatcher got message from:", dm.SourceID)
+		packet := BytesToPacket(dm.Data)
+		log.Println("Dispatcher got", packet.GetTheMessage(), "from:", dm.SourceID)
+
+		/**
+		TODO: Switch on packet type?
+		*/
 	}
 }

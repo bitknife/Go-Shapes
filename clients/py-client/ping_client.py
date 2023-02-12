@@ -10,6 +10,7 @@ PASSWORD = 'welcome'
 
 PING_INTERVAL = 1
 
+
 def main():
 
     connect()
@@ -26,7 +27,7 @@ def main():
 
     print("Sending pings, interval: %s sec" % PING_INTERVAL)
     while True:
-        packet = Packet(ping=Ping())
+        packet = Packet(ping=Ping(sent=time.time()))
         send_to_server(packet)
         time.sleep(PING_INTERVAL)
 

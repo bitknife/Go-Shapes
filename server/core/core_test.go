@@ -1,7 +1,6 @@
-package socketserver
+package core
 
 import (
-	"bitknife.se/core"
 	"encoding/hex"
 	"fmt"
 	"log"
@@ -10,8 +9,8 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func TestProtocolBuffers(t *testing.T) {
-	playerLogin := core.PlayerLogin{
+func TestPackets(t *testing.T) {
+	playerLogin := PlayerLogin{
 		Username: "Tester",
 		Password: "s33cret!",
 	}
@@ -23,9 +22,18 @@ func TestProtocolBuffers(t *testing.T) {
 	encodedStr := hex.EncodeToString(out)
 	fmt.Println("Encoded to: ", encodedStr)
 
-	playerLoginCopy := core.PlayerLogin{}
+	playerLoginCopy := PlayerLogin{}
 	err = proto.Unmarshal(out, &playerLoginCopy)
 
 	fmt.Println("Username: ", playerLoginCopy.Username)
 	fmt.Println("Password: ", playerLoginCopy.Password)
+}
+
+func TestTypeSwitch(t *testing.T) {
+	// Given: create a packet
+
+	// When: Switch on the type
+
+	// Then: Ensure correct type
+
 }

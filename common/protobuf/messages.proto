@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package messages;
+
+option go_package = "./socketserver";
+
+enum MType {
+    UNKNOWN = 0;
+    PLAYER_LOGIN = 1;
+    MOUSE_EVENT = 2;
+    PING_EVENT = 3;
+}
+
+message PlayerLogin {
+    string username = 1;
+    string password = 2;
+}
+
+message MouseEvent {
+    int32 x = 1;
+    int32 y = 2;
+    bool left_click = 3;
+    bool right_click = 4;
+}
+
+message Ping {
+    uint64 sentEpoch = 1;
+    uint64 bounceEpoch = 2;
+    uint64 receivedEpoch = 3;
+}

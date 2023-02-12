@@ -20,6 +20,15 @@ class Ping(betterproto.Message):
 
 
 @dataclass
+class MouseEvent(betterproto.Message):
+    x: int = betterproto.int32_field(1)
+    y: int = betterproto.int32_field(2)
+    left_click: bool = betterproto.bool_field(3)
+    right_click: bool = betterproto.bool_field(4)
+
+
+@dataclass
 class Packet(betterproto.Message):
-    player_login: "PlayerLogin" = betterproto.message_field(2, group="the_message")
-    ping: "Ping" = betterproto.message_field(3, group="the_message")
+    player_login: "PlayerLogin" = betterproto.message_field(1, group="the_message")
+    ping: "Ping" = betterproto.message_field(2, group="the_message")
+    mouse_event: "MouseEvent" = betterproto.message_field(3, group="the_message")

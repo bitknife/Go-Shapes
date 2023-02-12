@@ -16,12 +16,18 @@ func AuthenticateClient(packageData []byte) *PlayerLogin {
 	playerLogin := BytesToPacket(packageData).GetPlayerLogin()
 
 	// TODO: Check vs player-db etc.
-	if playerLogin.Password == STATIC_PASSWORD {
-		log.Println("ACCESS GRANTED FOR Username:", playerLogin.Username)
-		return playerLogin
+	if playerLogin == nil {
+		log.Println("ACCESS DENIED: First packet was not a playerLogin!")
+		return nil
 	} else {
-		log.Println("ACCESS DENIED FOR Username:", playerLogin.Username, ": Invalid password:", playerLogin.Password)
+		if playerLogin.Password == STATIC_PASSWORD {
+			log.Println("ACCESS GRANTED FOR Username:", playerLogin.Username)
+			return playerLogin
+		} else {
+			log.Println("ACCESS DENIED FOR Username:", playerLogin.Username, ": Invalid password:", playerLogin.Password)
+		}
 	}
+
 	//	log.Println("ACCESS DENIED: Invalid message type", messageType, "when authenticating.")
 	return nil
 }

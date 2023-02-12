@@ -11,11 +11,27 @@ The game consists of different client and server applications.
 The main game-server is written in the language Go. Server developers should continue with [README.md](server/README.md)
 for that sub-project.
 
+For now it is a single process with an upper and lower layer.
+
+Later, the upper game layer will be separated from the socket-severs by a fast distributed messaging server,
+right now leaning towards Apach Pulsar for this:
+
+https://pulsar.apache.org/
+
+Contenders for this are still:
+
+- Apache Kafka
+- RabbitMQ
+- Redis
+ 
 ### Web server
 [TODO]
 
 Not started, but I imagine the game having a web-server for user-registration/management and possibly a web-based game
 client as well (built from the Unit project).
+
+### Util servers
+Expect to have log-server, metric-server etc.
 
 ## Clients
 ### Main C# Unity game client

@@ -1,6 +1,5 @@
 import unittest
 
-from comm import get_type_id
 import messages
 
 

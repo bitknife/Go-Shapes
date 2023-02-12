@@ -43,19 +43,6 @@ def _build_packet(game_message):
     return header + msg_bytes
 
 
-def get_type_id(game_message):
-
-    match(type(game_message)):
-        case messages.PlayerLogin:
-            return messages.MType.PLAYER_LOGIN
-
-        case messages.MouseEvent:
-            return messages.MType.MOUSE_EVENT
-
-        case _:
-            raise Exception("Unsupported message type: %s" % type(game_message))
-
-
 def process_queue():
     #
     # Will block until an item arrives
@@ -67,6 +54,7 @@ def process_queue():
 
         if item['direction'] == 'SERVER':
             packet = _build_packet(item['game_message'])
+            # print("Sending %s" % packet)
             gc.send(packet)
         elif item['direction'] == 'CLIENT':
             # From server, coming here

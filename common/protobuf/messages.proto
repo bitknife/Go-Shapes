@@ -17,9 +17,9 @@ message PlayerLogin {
 }
 
 message Ping {
-    float sent = 1;
-    float bounced = 2;
-    float received = 3;
+    uint64 sent = 1;
+    uint64 bounced = 2;
+    uint64 received = 3;
 }
 
 message MouseEvent {

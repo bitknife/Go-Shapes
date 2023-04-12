@@ -1,0 +1,10 @@
+go 1.19
+
+use (
+	.
+	./server/socketserver
+	./server/core
+	./server/game
+	./shared
+	./client
+)

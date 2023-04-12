@@ -1,6 +1,7 @@
 package core
 
 import (
+	"bitknife.se/wtf/shared"
 	"encoding/hex"
 	"fmt"
 	"log"
@@ -10,7 +11,7 @@ import (
 )
 
 func TestPackets(t *testing.T) {
-	playerLogin := PlayerLogin{
+	playerLogin := shared.PlayerLogin{
 		Username: "Tester",
 		Password: "s33cret!",
 	}
@@ -22,7 +23,7 @@ func TestPackets(t *testing.T) {
 	encodedStr := hex.EncodeToString(out)
 	fmt.Println("Encoded to: ", encodedStr)
 
-	playerLoginCopy := PlayerLogin{}
+	playerLoginCopy := shared.PlayerLogin{}
 	err = proto.Unmarshal(out, &playerLoginCopy)
 
 	fmt.Println("Username: ", playerLoginCopy.Username)

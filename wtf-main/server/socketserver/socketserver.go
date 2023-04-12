@@ -4,8 +4,6 @@ import (
 	"bitknife.se/wtf/server/core"
 	"bitknife.se/wtf/shared"
 	"fmt"
-	"google.golang.org/protobuf/proto"
-	"io"
 	"log"
 	"net"
 )
@@ -18,10 +16,17 @@ const (
 
 func handleConnection(conn net.Conn) {
 	// shared.PlayerLogin{}
+
 	/**
 	First packet must be a login request.
 	*/
-	packageData := receivePackageDataFromConnection(conn)
+	packageData := shared.ReceivePackageDataFromConnection(conn)
+	if packageData == nil {
+		log.Print("Got nil from connection, closing!")
+		conn.Close()
+		return
+	}
+
 	playerLogin := core.AuthenticateClient(packageData)
 	if playerLogin == nil {
 		conn.Close()
@@ -41,98 +46,23 @@ func handleConnection(conn net.Conn) {
 	fromClient, toClient := makeAndRegisterChannels(playerLogin)
 
 	// Main packet receiver
-	go receivePacketsRoutine(conn, playerLogin, fromClient)
+	//go receivePacketsRoutine(conn, playerLogin, fromClient)
+	go shared.PacketReceiver(conn, fromClient)
 
 	// Main packet sender
-	go sendPackagesRoutine(conn, toClient)
-
+	//go sendPackagesRoutine(conn, toClient)
+	go shared.PacketSender(conn, toClient)
 }
 
-func makeAndRegisterChannels(playerLogin *shared.PlayerLogin) (chan core.DispatcherMessage, chan core.DispatcherMessage) {
-	fromClient := make(chan core.DispatcherMessage)
-	toClient := make(chan core.DispatcherMessage)
+func makeAndRegisterChannels(playerLogin *shared.PlayerLogin) (chan []byte, chan []byte) {
+	fromClient := make(chan []byte)
+	toClient := make(chan []byte)
 
 	// And register channels on the Dispatcher in the core layer
 	core.RegisterToClientChannel(playerLogin.Username, toClient)
 	core.RegisterFromClientChannel(playerLogin.Username, fromClient)
 
 	return fromClient, toClient
-}
-
-func receivePacketsRoutine(conn net.Conn, playerLogin *shared.PlayerLogin, fromClient chan core.DispatcherMessage) {
-	for {
-		packageData := receivePackageDataFromConnection(conn)
-
-		if packageData == nil {
-			// Communication error?
-			log.Println("ERROR from receivePacketsRoutine()")
-
-			// TODO: Improve, recover or disconnect/cleanup and let player reconnect etc.
-			conn.Close()
-			return
-		}
-
-		// Ok got a valid message, pass that to the dispatcher
-		packet := shared.BytesToPacket(packageData)
-		dm := core.DispatcherMessage{SourceID: playerLogin.Username, Packet: packet}
-		fromClient <- dm
-	}
-}
-
-func receivePackageDataFromConnection(conn net.Conn) []byte {
-	/**
-	Waits for the header and returns the type and []byte representing the package.
-	*/
-	// printReceivedBuffer(packetData, messageType)
-
-	// Allocate header
-	header := make([]byte, 1)
-
-	// First read the two byte header
-	_, err := io.ReadAtLeast(conn, header, 1)
-
-	if err != nil {
-		// Broken connection, client ugly shutdown etc.
-		log.Print("Error reading from:", conn.RemoteAddr(), "reason was: ", err)
-		log.Print("Closing!", conn)
-		return nil
-	}
-
-	packageSize := header[0]
-
-	// Allocate for packet
-	packetData := make([]byte, packageSize)
-
-	// And read the packet
-	_, err = io.ReadFull(conn, packetData)
-
-	return packetData
-}
-
-func sendPackagesRoutine(conn net.Conn, toClient chan core.DispatcherMessage) {
-	for {
-		dm := <-toClient
-		_, err := conn.Write(buildWirePacket(dm.Packet))
-		if err != nil {
-			log.Println("Error writing packet: ")
-			conn.Close()
-		}
-	}
-}
-
-func buildWirePacket(packet *shared.Packet) []byte {
-	/**
-	Marshals a core Packet into []bytes and prepends it with length
-	this is the Wire-format sent over the socket
-	*/
-	marshal, err := proto.Marshal(packet)
-	if err != nil {
-		return nil
-	}
-	header := make([]byte, 1)
-	header[0] = byte(len(marshal))
-	wirePacket := append(header, marshal...)
-	return wirePacket
 }
 
 func Run() {

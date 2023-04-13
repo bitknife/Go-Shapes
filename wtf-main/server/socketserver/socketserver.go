@@ -3,7 +3,6 @@ package socketserver
 import (
 	"bitknife.se/wtf/server/core"
 	"bitknife.se/wtf/shared"
-	"fmt"
 	"log"
 	"net"
 )
@@ -72,7 +71,7 @@ func Run() {
 		// Note: call to Fatal will do os.Exit(1).
 		log.Fatal(err)
 	}
-	fmt.Println("Server up on", HOST, ":", PORT)
+	log.Println("Server up on", HOST, ":", PORT)
 	defer listen.Close()
 
 	for {

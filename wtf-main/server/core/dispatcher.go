@@ -40,6 +40,11 @@ func RegisterFromClientChannel(username string, fromClient chan []byte) {
 	go fromClientHandler(username, fromClient)
 }
 
+func UnRegisterClientChannels(username string) {
+	delete(ToClientChannels, username)
+	delete(FromClientChannels, username)
+}
+
 func toClientDispatcher(username string, packet *shared.Packet) {
 	// Look up the channel in the registry, and then send message
 	toClientChannel := ToClientChannels[username]
@@ -49,6 +54,12 @@ func toClientDispatcher(username string, packet *shared.Packet) {
 func fromClientHandler(username string, in chan []byte) {
 	for {
 		buffer := <-in
+		if buffer == nil {
+			log.Println("Unregistering client:", username)
+			UnRegisterClientChannels(username)
+			return
+		}
+
 		packet := shared.BytesToPacket(buffer)
 		log.Println("Dispatcher got", packet.GetTheMessage(), "from:", username)
 

@@ -3,12 +3,13 @@ package main
 import (
 	"bitknife.se/wtf/shared"
 	"log"
+	"net"
 )
 
-func SetUpNetworking(username string, password string) (chan []byte, chan []byte) {
+func SetUpNetworking(host string, port string, username string, password string) (chan []byte, chan []byte, net.Conn) {
 
 	// Connects
-	conn := shared.Connect(HOST, PORT)
+	conn := shared.Connect(host, port)
 
 	fromServer := make(chan []byte)
 	toServer := make(chan []byte)
@@ -28,7 +29,7 @@ func SetUpNetworking(username string, password string) (chan []byte, chan []byte
 	go shared.PacketSender(conn, toServer)
 	go shared.PacketReceiver(conn, fromServer)
 
-	return fromServer, toServer
+	return fromServer, toServer, conn
 }
 
 func HandlePacketsFromServer(fromServer chan []byte, toServer chan []byte) {
@@ -38,11 +39,12 @@ func HandlePacketsFromServer(fromServer chan []byte, toServer chan []byte) {
 
 		if packet.GetPing() != nil {
 			sent := packet.GetPing().Sent
-			log.Println("Got ", sent)
+			log.Println("Got Ping from server:", sent)
 			pP := shared.BuildPingPacket()
 			toServer <- shared.PacketToBytes(pP)
-		} else if packet.GetPlayerLogin() != nil {
+		} else if packet != nil {
 			// TODO for each packet type and
+			log.Println("Received packet we can not yet handle.")
 		}
 	}
 }

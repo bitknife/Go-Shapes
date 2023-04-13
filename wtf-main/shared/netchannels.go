@@ -29,13 +29,18 @@ func PacketReceiver(conn net.Conn, incoming chan []byte) {
 		packageData := ReceivePackageDataFromConnection(conn)
 
 		if packageData == nil {
-			// Communication error?
-			log.Println("ERROR from receivePacketsRoutine()")
+			// Communication error, broken pipe etc
+			log.Println("Broken pipe (got nil packet)... disconnecting and forcing cleanup.")
 
-			// TODO: Improve, recover or disconnect/cleanup and let player reconnect etc.
+			// Will trigger cleanup in above layers
+			incoming <- nil
+
 			conn.Close()
+
 			return
 		}
+
+		// "Nice" disconnect will be handeled by above layer
 
 		// Ok got a valid message, pass that to the dispatcher
 		incoming <- packageData
@@ -63,7 +68,7 @@ func ReceivePackageDataFromConnection(conn net.Conn) []byte {
 
 	if err != nil {
 		// Broken connection, client ugly shutdown etc.
-		log.Print("Error reading from:", conn.RemoteAddr(), "reason was: ", err)
+		// log.Print("Error reading from:", conn.RemoteAddr(), "reason was: ", err)
 		return nil
 	}
 
@@ -82,7 +87,6 @@ func PacketSender(conn net.Conn, outgoing chan []byte) {
 
 	for {
 		wirePacket := <-outgoing
-		log.Println("Sending...")
 		_, err := conn.Write(wirePacket)
 		if err != nil {
 			log.Println("Error writing packet: ")

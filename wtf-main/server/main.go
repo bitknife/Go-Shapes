@@ -4,6 +4,7 @@ import (
 	"bitknife.se/wtf/server/core"
 	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/server/socketserver"
+	"bitknife.se/wtf/shared"
 	"log"
 	"os"
 	"os/signal"
@@ -30,6 +31,8 @@ func startServer() {
 	  the channels and to/from each socket.
 	*/
 	go socketserver.Run()
+
+	go shared.PrintStats()
 
 }
 

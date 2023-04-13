@@ -4,14 +4,22 @@ import (
 	"bitknife.se/wtf/server/core"
 	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/server/socketserver"
-	"bitknife.se/wtf/shared"
+	flags "github.com/spf13/pflag"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
+const (
+	HOST = "localhost"
+	PORT = "7777"
+	TYPE = "tcp"
+)
+
 func startServer() {
+	pingIntervalMsec := flags.IntP("ping_interval_msec", "p", 10000, "Interval in milliseconds to ping clients.")
+	flags.Parse()
 
 	// Fancy console for the future!
 	// go StartConsole()
@@ -24,15 +32,17 @@ func startServer() {
 	/**
 	This is the layer separating sockets from the game.
 	*/
-	go core.Run()
+	go core.Run(*pingIntervalMsec)
 
 	/**
 	  Handles the TCP connections, moving messages through
 	  the channels and to/from each socket.
 	*/
-	go socketserver.Run()
+	log.Println("Starting server on", HOST, ":", PORT)
 
-	go shared.PrintStats()
+	go socketserver.Run(HOST, PORT)
+
+	go PrintStats(5)
 
 }
 

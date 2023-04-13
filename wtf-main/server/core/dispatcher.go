@@ -21,6 +21,16 @@ func GetConnectedUsernames() []string {
 	return getAllKeysFromMap(ToClientChannels)
 }
 
+func HasChannel(username string) bool {
+	if _, ok := ToClientChannels[username]; ok {
+		return true
+	}
+	if _, ok := FromClientChannels[username]; ok {
+		return true
+	}
+	return false
+}
+
 func getAllKeysFromMap(theMap map[string]chan []byte) []string {
 	keys := make([]string, 0, len(theMap))
 	for k := range theMap {
@@ -41,8 +51,14 @@ func RegisterFromClientChannel(username string, fromClient chan []byte) {
 }
 
 func UnRegisterClientChannels(username string) {
-	delete(ToClientChannels, username)
-	delete(FromClientChannels, username)
+	if channel, ok := ToClientChannels[username]; ok {
+		close(channel)
+		delete(ToClientChannels, username)
+	}
+	if channel, ok := FromClientChannels[username]; ok {
+		close(channel)
+		delete(FromClientChannels, username)
+	}
 }
 
 func toClientDispatcher(username string, packet *shared.Packet) {
@@ -55,13 +71,17 @@ func fromClientHandler(username string, in chan []byte) {
 	for {
 		buffer := <-in
 		if buffer == nil {
-			log.Println("Unregistering client:", username)
+			log.Println("fromClientHandler(): Unregistering client:", username)
 			UnRegisterClientChannels(username)
 			return
 		}
 
 		packet := shared.BytesToPacket(buffer)
-		log.Println("Dispatcher got", packet.GetTheMessage(), "from:", username)
+
+		if packet == nil {
+
+		}
+		// log.Println("Dispatcher got", packet.GetTheMessage(), "from:", username)
 
 		/**
 		A possible good pattern would be to publish client events on a topic w. Candidate keys could be:

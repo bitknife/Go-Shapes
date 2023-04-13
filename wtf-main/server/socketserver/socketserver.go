@@ -7,12 +7,6 @@ import (
 	"net"
 )
 
-const (
-	HOST = "localhost"
-	PORT = "7777"
-	TYPE = "tcp"
-)
-
 func handleConnection(conn net.Conn) {
 	// shared.PlayerLogin{}
 
@@ -26,8 +20,19 @@ func handleConnection(conn net.Conn) {
 		return
 	}
 
-	playerLogin := core.AuthenticateClient(packageData)
-	if playerLogin == nil {
+	// Disconnect any existing
+	playerLogin := shared.BytesToPacket(packageData).GetPlayerLogin()
+	if core.HasChannel(playerLogin.Username) {
+		// TODO: Could close the existing, or close this new one
+		log.Println("Username", playerLogin.Username, "already connected, denying access!")
+		conn.Close()
+		return
+
+		//core.UnRegisterClientChannels(playerLogin.Username)
+	}
+
+	accessGranted := core.AuthenticateClient(playerLogin)
+	if accessGranted == false {
 		conn.Close()
 		return
 	}
@@ -64,14 +69,13 @@ func makeAndRegisterChannels(playerLogin *shared.PlayerLogin) (chan []byte, chan
 	return fromClient, toClient
 }
 
-func Run() {
+func Run(host string, port string) {
 
-	listen, err := net.Listen(TYPE, HOST+":"+PORT)
+	listen, err := net.Listen("tcp", host+":"+port)
 	if err != nil {
 		// Note: call to Fatal will do os.Exit(1).
 		log.Fatal(err)
 	}
-	log.Println("Server up on", HOST, ":", PORT)
 	defer listen.Close()
 
 	for {

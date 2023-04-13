@@ -10,7 +10,7 @@ const (
 	PING_INTERVAL_SEC = 5
 )
 
-func Run() {
+func Run(pingIntervalMsec int) {
 	/**
 	Core routine(s) are responsible for all things _NOT_ related to "gamey" stuff.
 		- Housekeeping
@@ -19,13 +19,13 @@ func Run() {
 	*/
 
 	// Just an example for now
-	go broadCastPing()
+	go broadCastPing(pingIntervalMsec)
 }
 
-func broadCastPing() {
+func broadCastPing(ping_interval_msec int) {
 
 	for {
-		time.Sleep(PING_INTERVAL_SEC * time.Second)
+		time.Sleep(time.Duration(ping_interval_msec) * time.Millisecond)
 
 		usernames := GetConnectedUsernames()
 		go func() {

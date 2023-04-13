@@ -87,10 +87,17 @@ func PacketSender(conn net.Conn, outgoing chan []byte) {
 
 	for {
 		wirePacket := <-outgoing
+		if wirePacket == nil {
+			log.Println("PacketSender(): Nil packet from channel. Aborting ")
+			conn.Close()
+			return
+		}
 		_, err := conn.Write(wirePacket)
 		if err != nil {
-			log.Println("Error writing packet: ")
+			// Happens when server
+			log.Println("PacketSender(): Error writing packet ")
 			conn.Close()
+			return
 		}
 	}
 }

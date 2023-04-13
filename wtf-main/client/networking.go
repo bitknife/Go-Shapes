@@ -4,11 +4,13 @@ import (
 	"bitknife.se/wtf/shared"
 	"log"
 	"net"
+	"syscall"
 )
 
 func SetUpNetworking(host string, port string, username string, password string) (chan []byte, chan []byte, net.Conn) {
 
 	// Connects
+	log.Println("Connecting to game server at", host+":"+port, "as", username)
 	conn := shared.Connect(host, port)
 
 	fromServer := make(chan []byte)
@@ -35,6 +37,11 @@ func SetUpNetworking(host string, port string, username string, password string)
 func HandlePacketsFromServer(fromServer chan []byte, toServer chan []byte) {
 	for {
 		receivedData := <-fromServer
+
+		if receivedData == nil {
+			// This is server disconnecting, raise SIGINT to trigger exit handler
+			syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+		}
 		packet := shared.BytesToPacket(receivedData)
 
 		if packet.GetPing() != nil {

@@ -4,7 +4,7 @@ import (
 	"runtime"
 )
 
-func CollectStats() map[string]interface{} {
+func CollectGoStats() map[string]interface{} {
 	var stats map[string]interface{}
 	stats = make(map[string]interface{})
 

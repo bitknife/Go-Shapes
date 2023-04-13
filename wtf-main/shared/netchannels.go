@@ -4,12 +4,35 @@ import (
 	"io"
 	"log"
 	"net"
+	"sync/atomic"
 )
 
 import (
 	"fmt"
 	"os"
 )
+
+var bytesSent *int64 = new(int64)
+var bytesReceived *int64 = new(int64)
+var packetsSent *int64 = new(int64)
+var packetsReceived *int64 = new(int64)
+
+type NetStats struct {
+	BytesSent       int64
+	BytesReceived   int64
+	PacketsSent     int64
+	PacketsReceived int64
+}
+
+func GetStats() *NetStats {
+	currentStats := NetStats{
+		BytesSent:       *bytesSent,
+		BytesReceived:   *bytesReceived,
+		PacketsSent:     *packetsSent,
+		PacketsReceived: *packetsReceived,
+	}
+	return &currentStats
+}
 
 func Connect(host string, port string) net.Conn {
 
@@ -80,6 +103,10 @@ func ReceivePackageDataFromConnection(conn net.Conn) []byte {
 	// And read the packet
 	_, err = io.ReadFull(conn, packetData)
 
+	// Stats
+	atomic.AddInt64(packetsReceived, 1)
+	atomic.AddInt64(bytesReceived, int64(len(packetData)+1))
+
 	return packetData
 }
 
@@ -99,5 +126,9 @@ func PacketSender(conn net.Conn, outgoing chan []byte) {
 			conn.Close()
 			return
 		}
+
+		// Stats
+		atomic.AddInt64(packetsSent, 1)
+		atomic.AddInt64(bytesSent, int64(len(wirePacket)))
 	}
 }

@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package messages;
+
+option go_package = "./shared";
+
+/*
+    None game-related messages
+ */
+
+message PlayerLogin {
+    string username = 1;
+    string password = 2;
+}
+
+message PlayerLogout {
+    string username = 1;
+}
+
+message Ping {
+    uint64 sent = 1;
+    uint64 bounced = 2;
+    uint64 received = 3;
+}
+
+message MouseEvent {
+    int32 x = 1;
+    int32 y = 2;
+    bool left_click = 3;
+    bool right_click = 4;
+}
+
+/*
+    GameObjectEvent:
+        Manages lifecycle and basic properties of GameObjects.
+        Other more specific events for certain classes sets more
+            specific attributes.
+
+    Some terminology:
+    - Only server can CREATE and DELETE.
+    - Clients SPAWNS or REMOVES representations.
+
+    - Clients can request update of objects by sending to server.
+*/
+message GameObjectEvent {
+    int64 id = 1;
+
+    // What class (on client typically) to spawn.
+    string class = 2;
+
+    // If explicit action, like create, delete, hide, show etc.
+    string action = 3;
+
+    // Translation within current
+    int32 x = 4;
+    int32 y = 5;
+    int32 z = 6;
+    // Width and height
+    int32 w = 7;
+    int32 h = 8;
+    // Rotation in degrees
+    int32 r = 9;
+
+    // Initial values for this specific class to be set during this action
+    map<string, string> attributes = 10;
+}
+
+/*
+    https://protobuf.dev/programming-guides/proto3/#maps
+ */
+message SetGameObjectAttributes {
+    int64 id = 1;
+    map<string, string> attributes = 2;
+}
+
+message Packet {
+    oneof payload {
+        PlayerLogin playerLogin = 1;
+        PlayerLogout playerLogout = 2;
+        Ping ping = 3;
+        MouseEvent mouseEvent = 4;
+
+        GameObjectEvent gameObjectEvent = 5;
+        SetGameObjectAttributes setGameObjectAttributes = 6;
+    }
+}

@@ -41,7 +41,7 @@ func BuildPingPacket() *Packet {
 	ping.Sent = uint64(time.Now().UnixMicro())
 
 	packet := Packet{
-		TheMessage: &Packet_Ping{&ping},
+		Payload: &Packet_Ping{&ping},
 	}
 	return &packet
 }
@@ -52,7 +52,7 @@ func BuildLoginPacket(username string, password string) *Packet {
 		Password: password,
 	}
 	packet := Packet{
-		TheMessage: &Packet_PlayerLogin{&login},
+		Payload: &Packet_PlayerLogin{&login},
 	}
 	return &packet
 }

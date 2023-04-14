@@ -27,22 +27,52 @@ const (
 	scale        = 64
 )
 
-type MousePosition struct {
+/*
+NOTE:
+
+MousePosition is a the game object shared with server. (Model)
+EBMousePosition is the graphical Ebiten representation of the Game Object. (View)
+
+Thoughts on multi player approach.
+
+All game objects must be created by the server and given an ID.
+Updates to game objects are done by certain related events:
+
+	For example, spatial stuff
+
+	Rotate {
+		id, deg
+	}
+
+	Translate {
+		id, x, y
+	}
+
+	Other events?
+	Create {
+		id
+	}
+
+	Destroy {
+		id
+	}
+*/
+type EBMousePosition struct {
 	x, y int
 }
 
-func (mp *MousePosition) Init() {
+func (mp *EBMousePosition) Init() {
 	x, y := ebiten.CursorPosition()
 	mp.x = x
 	mp.y = y
 }
 
-func (mp *MousePosition) Update(x, y int) {
+func (mp *EBMousePosition) Update(x, y int) {
 	mp.x = x
 	mp.y = y
 }
 
-func (mp *MousePosition) Draw(screen *ebiten.Image) {
+func (mp *EBMousePosition) Draw(screen *ebiten.Image) {
 	c := color.RGBA{
 		R: uint8(0xff),
 		G: uint8(0x00),
@@ -53,7 +83,7 @@ func (mp *MousePosition) Draw(screen *ebiten.Image) {
 }
 
 type Game struct {
-	mp MousePosition
+	mp EBMousePosition
 }
 
 // NewGame is the constructor
@@ -67,6 +97,12 @@ func NewGame() *Game {
 // Update is called every tick (1/60 [s] by default).
 func (g *Game) Update() error {
 	x, y := ebiten.CursorPosition()
+
+	// Send all updates from THIS client to server here (async!)
+
+	// Get all updates from server from the current local model
+
+	// Update all
 	g.mp.Update(x, y)
 	return nil
 }
@@ -87,6 +123,7 @@ func RunEbitenApplication() {
 
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("We The Forsaken")
+	ebiten.SetFullscreen(false)
 
 	theGame := NewGame()
 

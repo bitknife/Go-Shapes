@@ -66,6 +66,12 @@ func main() {
 		log.Println("Starting headless client")
 		waitForExitSignals(conn)
 	} else {
+		/* Runs on Main thread
+		DOC:
+			https://pkg.go.dev/github.com/hajimehoshi/ebiten/v2
+
+			https://ebitengine.org/en/documents/cheatsheet.html
+		*/
 		ebiten.RunEbitenApplication()
 	}
 

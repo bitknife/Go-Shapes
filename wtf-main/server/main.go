@@ -4,6 +4,7 @@ import (
 	"bitknife.se/wtf/server/core"
 	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/server/socketserver"
+	"fmt"
 	flags "github.com/spf13/pflag"
 	"log"
 	"os"
@@ -12,14 +13,33 @@ import (
 )
 
 const (
-	HOST = "localhost"
+	HOST = "0.0.0.0"
 	PORT = "7777"
 	TYPE = "tcp"
 )
 
+var version = "0.1a"
+
+func printSplash() {
+	// Read entire file content, giving us little control but
+	// making it very simple. No need to close the file.
+	content, err := os.ReadFile("motif.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Convert []byte to string and print to screen
+	text := string(content)
+	fmt.Println(text)
+	fmt.Println("                                                               version", version)
+}
+
 func startServer() {
-	pingIntervalMsec := flags.IntP("ping_interval_msec", "p", 10000, "Interval in milliseconds to ping clients.")
+	pingIntervalMsec := flags.IntP("ping_interval_msec", "p", 10000,
+		"Interval in milliseconds to ping clients.")
 	flags.Parse()
+
+	printSplash()
 
 	// Fancy console for the future!
 	// go StartConsole()
@@ -39,6 +59,7 @@ func startServer() {
 	  the channels and to/from each socket.
 	*/
 	log.Println("Starting server on", HOST, ":", PORT)
+	log.Println("Ping interval", *pingIntervalMsec, "msec.")
 
 	go socketserver.Run(HOST, PORT)
 

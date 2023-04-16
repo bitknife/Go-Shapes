@@ -8,27 +8,32 @@ import (
 )
 
 /*
-	EBDot is the graphical representation of a corresponding GameObject. (View)
+EBDot is the graphical representation of a corresponding GameObject. (View)
 */
-
-type EbitenObject struct {
+type EBGameObject struct {
 	// Read-only!
 	gob *shared.GameObject
 
 	// Other properties _NOT_ synced to server could be kept here (read-write)
 }
 
-func (ebObj *EbitenObject) Init(gob *shared.GameObject) {
+func (ebObj *EBGameObject) Init(gob *shared.GameObject) {
 	ebObj.gob = gob
 }
 
-func (ebObj *EbitenObject) Draw(screen *ebiten.Image) {
-	if ebObj.gob.Kind == "Dot" {
+func (ebObj *EBGameObject) Draw(screen *ebiten.Image) {
+	if ebObj.gob.Kind == shared.GOK_DOT {
 		DrawDot(ebObj, screen)
+	}
+	switch ebObj.gob.Kind {
+	case shared.GOK_DOT:
+		DrawDot(ebObj, screen)
+	case shared.GOK_LOCAL_DOT:
+		DrawLocalDot(ebObj, screen)
 	}
 }
 
-func DrawDot(ebObj *EbitenObject, screen *ebiten.Image) {
+func DrawDot(ebObj *EBGameObject, screen *ebiten.Image) {
 	c := color.RGBA{
 		R: uint8(0xff),
 		G: uint8(0x00),
@@ -36,4 +41,14 @@ func DrawDot(ebObj *EbitenObject, screen *ebiten.Image) {
 		A: 0xff}
 
 	vector.DrawFilledCircle(screen, float32(ebObj.gob.X), float32(ebObj.gob.Y), 5, c, true)
+}
+
+func DrawLocalDot(ebObj *EBGameObject, screen *ebiten.Image) {
+	c := color.RGBA{
+		R: uint8(0xff),
+		G: uint8(0xff),
+		B: uint8(0xff),
+		A: 0xff}
+
+	vector.DrawFilledCircle(screen, float32(ebObj.gob.X), float32(ebObj.gob.Y), 2, c, true)
 }

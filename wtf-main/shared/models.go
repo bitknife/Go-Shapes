@@ -1,5 +1,10 @@
 package shared
 
+const (
+	GOK_DOT       = "DOT"
+	GOK_LOCAL_DOT = "GOK_LOCAL_DOT"
+)
+
 type GameObject struct {
 	/*
 		GameObject represents all entities (objects with an id) in the game.

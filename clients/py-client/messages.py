@@ -26,14 +26,6 @@ class Ping(betterproto.Message):
 
 
 @dataclass
-class MouseEvent(betterproto.Message):
-    x: int = betterproto.int32_field(1)
-    y: int = betterproto.int32_field(2)
-    left_click: bool = betterproto.bool_field(3)
-    right_click: bool = betterproto.bool_field(4)
-
-
-@dataclass
 class GameObjectEvent(betterproto.Message):
     """
     GameObjectEvent:Manages lifecycle and basic properties of GameObjects.Other
@@ -78,8 +70,7 @@ class Packet(betterproto.Message):
     player_login: "PlayerLogin" = betterproto.message_field(1, group="payload")
     player_logout: "PlayerLogout" = betterproto.message_field(2, group="payload")
     ping: "Ping" = betterproto.message_field(3, group="payload")
-    mouse_event: "MouseEvent" = betterproto.message_field(4, group="payload")
-    game_object_event: "GameObjectEvent" = betterproto.message_field(5, group="payload")
+    game_object_event: "GameObjectEvent" = betterproto.message_field(4, group="payload")
     set_game_object_attributes: "SetGameObjectAttributes" = betterproto.message_field(
-        6, group="payload"
+        5, group="payload"
     )

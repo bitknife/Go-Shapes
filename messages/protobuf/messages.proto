@@ -23,13 +23,6 @@ message Ping {
     uint64 received = 3;
 }
 
-message MouseEvent {
-    int32 x = 1;
-    int32 y = 2;
-    bool left_click = 3;
-    bool right_click = 4;
-}
-
 /*
     GameObjectEvent:
         Manages lifecycle and basic properties of GameObjects.
@@ -78,9 +71,8 @@ message Packet {
         PlayerLogin playerLogin = 1;
         PlayerLogout playerLogout = 2;
         Ping ping = 3;
-        MouseEvent mouseEvent = 4;
 
-        GameObjectEvent gameObjectEvent = 5;
-        SetGameObjectAttributes setGameObjectAttributes = 6;
+        GameObjectEvent gameObjectEvent = 4;
+        SetGameObjectAttributes setGameObjectAttributes = 5;
     }
 }

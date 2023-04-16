@@ -5,6 +5,7 @@ package main
 */
 import (
 	"bitknife.se/wtf/client/ebiten"
+	"bitknife.se/wtf/shared"
 	flags "github.com/spf13/pflag"
 	"log"
 	"net"
@@ -53,10 +54,16 @@ func main() {
 	lifetime_sec := flags.IntP("lifetime_sec", "l", 0, "Terminate client after this many seconds")
 	flags.Parse()
 
+	// Central objects shared between network and game engine, keep it simple for now
+	gameObjects := make(map[string]*shared.GameObject)
+
 	// Connects and returns two channels for communication
 	fromServer, toServer, conn := SetUpNetworking(*host, *port, *username, *password)
 
-	go HandlePacketsFromServer(fromServer, toServer)
+	// Channel from network layer up to UI
+	fromServerChan := make(chan *shared.Packet)
+
+	go HandlePacketsFromServer(fromServer, toServer, fromServerChan)
 
 	if *lifetime_sec > 0 {
 		setupKillTimer(*lifetime_sec)
@@ -72,7 +79,7 @@ func main() {
 
 			https://ebitengine.org/en/documents/cheatsheet.html
 		*/
-		ebiten.RunEbitenApplication()
+		ebiten.RunEbitenApplication(gameObjects, toServer, fromServerChan)
 	}
 
 }

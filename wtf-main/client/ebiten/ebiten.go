@@ -15,9 +15,9 @@
 package ebiten
 
 import (
+	"bitknife.se/wtf/shared"
+	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
-	"image/color"
 	"log"
 )
 
@@ -27,90 +27,57 @@ const (
 	scale        = 64
 )
 
-/*
-NOTE:
-
-MousePosition is a the game object shared with server. (Model)
-EBMousePosition is the graphical Ebiten representation of the Game Object. (View)
-
-Thoughts on multi player approach.
-
-All game objects must be created by the server and given an ID.
-Updates to game objects are done by certain related events:
-
-	For example, spatial stuff
-
-	Rotate {
-		id, deg
-	}
-
-	Translate {
-		id, x, y
-	}
-
-	Other events?
-	Create {
-		id
-	}
-
-	Destroy {
-		id
-	}
-*/
-type EBMousePosition struct {
-	x, y int
-}
-
-func (mp *EBMousePosition) Init() {
-	x, y := ebiten.CursorPosition()
-	mp.x = x
-	mp.y = y
-}
-
-func (mp *EBMousePosition) Update(x, y int) {
-	mp.x = x
-	mp.y = y
-}
-
-func (mp *EBMousePosition) Draw(screen *ebiten.Image) {
-	c := color.RGBA{
-		R: uint8(0xff),
-		G: uint8(0x00),
-		B: uint8(0xff),
-		A: 0xff}
-
-	vector.DrawFilledCircle(screen, float32(mp.x), float32(mp.y), 5, c, true)
-}
-
 type Game struct {
-	mp EBMousePosition
+	// READ-ONLY: This becomes populated by network events.
+	gameObjects map[string]*shared.GameObject
+
+	toServer chan []byte
+
+	gobjEvents chan *shared.GameObjectEvent
+
+	// Ebiten representation of gameObjects and also non-game objects
+	ebitenObjects map[string]*EbitenObject
 }
 
-// NewGame is the constructor
-func NewGame() *Game {
-	g := &Game{}
-	g.mp.Init()
-	return g
+func NewGame(
+	gameObjects map[string]*shared.GameObject,
+	toServerChan chan []byte,
+) *Game {
+	game := Game{
+		gameObjects: gameObjects,
+		toServer:    toServerChan,
+	}
+	game.ebitenObjects = make(map[string]*EbitenObject)
+
+	// Set up monitoring for GameObjectEvents
+	return &game
 }
 
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
 func (g *Game) Update() error {
+	// TODO: optimize, maybe no need to send in every tick?
 	x, y := ebiten.CursorPosition()
 
-	// Send all updates from THIS client to server here (async!)
+	// Not sure if we want to keep the toServer channel this deep
+	// into the game.
+	// Also, only send on change etc. much to improve here
+	pP := shared.BuildGameObjectEvent(int32(x), int32(y))
+	g.toServer <- shared.PacketToBytes(pP)
 
-	// Get all updates from server from the current local model
-
-	// Update all
-	g.mp.Update(x, y)
+	//
+	// NOTE: All transient UI-elements should be updated here as well
+	//		 That could be the game UI, notifications etc.
+	//
 	return nil
 }
 
 // Draw draws the game screen.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (g *Game) Draw(screen *ebiten.Image) {
-	g.mp.Draw(screen)
+	for _, ebitenObject := range g.ebitenObjects {
+		ebitenObject.Draw(screen)
+	}
 }
 
 // Layout takes the outside size (e.g., the window size) and returns the (logical) screen size.
@@ -119,15 +86,41 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return screenWidth, screenHeight
 }
 
-func RunEbitenApplication() {
+/*
+RunEbitenApplication takes as argument the shared structure gameObjects (for now). That
+structure is updated by the Server. Ebiten reads what it needs from that.
+
+toServer is used by the client to notify the server of user-inputs etc.
+*/
+func RunEbitenApplication(
+	gameObjects map[string]*shared.GameObject,
+	toServer chan []byte,
+	fromServerChan chan *shared.Packet) {
 
 	ebiten.SetWindowSize(screenWidth, screenHeight)
-	ebiten.SetWindowTitle("We The Forsaken")
+	ebiten.SetWindowTitle("WTF!?")
 	ebiten.SetFullscreen(false)
 
-	theGame := NewGame()
+	// NOTE: gameObjects are READ-ONLY for the VIEW and is updated from the server
+	//		 not all sure if we need to supply a reference to that structure
+	//		 as the Ebitengine application should observe
+	theGame := NewGame(gameObjects, toServer)
+
+	// Receives packets and updates the Ebitengine objects
+	go ebitenObjectManager(fromServerChan, theGame)
 
 	if err := ebiten.RunGame(theGame); err != nil {
 		log.Fatal(err)
+	}
+}
+
+func ebitenObjectManager(fromServerChan chan *shared.Packet, theGame *Game) {
+
+	for {
+		packet := <-fromServerChan
+		if packet.GetGameObjectEvent() != nil {
+			gameObjectEvent := packet.GetGameObjectEvent()
+			fmt.Println("Received GameObjectEvent: " + gameObjectEvent.String())
+		}
 	}
 }

@@ -34,7 +34,10 @@ func SetUpNetworking(host string, port string, username string, password string)
 	return fromServer, toServer, conn
 }
 
-func HandlePacketsFromServer(fromServer chan []byte, toServer chan []byte) {
+func HandlePacketsFromServer(
+	fromServer chan []byte,
+	toServer chan []byte,
+	gamePacketsFromServerChannel chan *shared.Packet) {
 	for {
 		receivedData := <-fromServer
 
@@ -44,14 +47,22 @@ func HandlePacketsFromServer(fromServer chan []byte, toServer chan []byte) {
 		}
 		packet := shared.BytesToPacket(receivedData)
 
+		/*
+			Unpack and handle or re-route "Low-level" packets directly.
+				(At time of writing, this is Ping only).
+
+			Rest is routed upwards to game layer.
+
+		*/
 		if packet.GetPing() != nil {
 			sent := packet.GetPing().Sent
 			log.Println("Got Ping from server:", sent)
 			pP := shared.BuildPingPacket()
 			toServer <- shared.PacketToBytes(pP)
-		} else if packet != nil {
-			// TODO for each packet type and
-			log.Println("Received packet we can not yet handle.")
+
+		} else {
+
+			gamePacketsFromServerChannel <- packet
 		}
 	}
 }

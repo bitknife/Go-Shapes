@@ -9,7 +9,7 @@ func BytesToPacket(buffer []byte) *Packet {
 	/*
 		Un-marshals a []byte into a Packet.
 
-		This buffer does NOT contain the length as that is stripped of
+		This buffer does NOT contain the length byte as that is stripped of
 		during the packet reception.
 	*/
 	packet := Packet{}
@@ -37,22 +37,31 @@ func PacketToBytes(packet *Packet) []byte {
 
 func BuildPingPacket() *Packet {
 	// A Ping message placed in a Packet, works for now
-	ping := Ping{}
-	ping.Sent = uint64(time.Now().UnixMicro())
-
-	packet := Packet{
-		Payload: &Packet_Ping{&ping},
+	data := Ping{
+		Sent: uint64(time.Now().UnixMicro()),
 	}
-	return &packet
+	return &Packet{
+		Payload: &Packet_Ping{&data},
+	}
 }
 
 func BuildLoginPacket(username string, password string) *Packet {
-	login := PlayerLogin{
+	data := PlayerLogin{
 		Username: username,
 		Password: password,
 	}
-	packet := Packet{
-		Payload: &Packet_PlayerLogin{&login},
+	return &Packet{
+		Payload: &Packet_PlayerLogin{&data},
 	}
-	return &packet
+}
+
+func BuildGameObjectEvent(x int32, y int32) *Packet {
+	// TODO: Extend with more functions
+	data := GameObjectEvent{
+		X: x,
+		Y: y,
+	}
+	return &Packet{
+		Payload: &Packet_GameObjectEvent{&data},
+	}
 }

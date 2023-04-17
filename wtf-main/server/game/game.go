@@ -43,7 +43,7 @@ func Run() {
 		game.ShakeDots(gameObjects, 5)
 
 		// Build events to broadcast
-		events := buildGameObjectEvents(tick, gameObjects)
+		// events := buildGameObjectEvents(tick, gameObjects)
 
 		/*
 			END WORK

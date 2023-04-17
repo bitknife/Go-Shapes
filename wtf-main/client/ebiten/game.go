@@ -25,13 +25,13 @@ func NewGame(
 	// Create a local cursor that is not sent to server
 	localDot := EBGameObject{}
 	gobj := shared.GameObject{
-		Id:   0,
+		Id:   "_localdot",
 		Kind: shared.GOK_LOCAL_DOT,
 		X:    0,
 		Y:    0,
 		W:    0,
 		H:    0,
-		Rot:  0,
+		R:    0,
 	}
 	localDot.Init(&gobj)
 	game.localEBObjects["dot"] = &localDot
@@ -54,8 +54,8 @@ func (g *Game) Update() error {
 	// NOTE: All transient UI-elements should be updated here as well
 	//
 	//	That could be the game UI, notifications etc.
-	g.localEBObjects["dot"].gob.X = x
-	g.localEBObjects["dot"].gob.Y = y
+	g.localEBObjects["dot"].gob.X = int32(x)
+	g.localEBObjects["dot"].gob.Y = int32(y)
 
 	return nil
 }

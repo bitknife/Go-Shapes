@@ -37,7 +37,7 @@ func SetUpNetworking(host string, port string, username string, password string)
 func HandlePacketsFromServer(
 	fromServer chan []byte,
 	toServer chan []byte,
-	gamePacketsFromServerChannel chan *shared.Packet) {
+	gamePacketsToUpperLayers chan *shared.Packet) {
 	for {
 		receivedData := <-fromServer
 
@@ -61,8 +61,8 @@ func HandlePacketsFromServer(
 			toServer <- shared.PacketToBytes(pP)
 
 		} else {
-
-			gamePacketsFromServerChannel <- packet
+			// Onwards an upwards!
+			gamePacketsToUpperLayers <- packet
 		}
 	}
 }

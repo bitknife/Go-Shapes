@@ -36,26 +36,29 @@ message Ping {
     - Clients can request update of objects by sending to server.
 */
 message GameObjectEvent {
-    int64 id = 1;
+    string Id = 1;
+
+    // Server frame this happened in
+    int64 Tick = 2;
 
     // What class (on client typically) to spawn.
-    string class = 2;
+    string Kind = 3;
 
     // If explicit action, like create, delete, hide, show etc.
-    string action = 3;
+    string Action = 4;
 
-    // Translation within current
-    int32 x = 4;
-    int32 y = 5;
-    int32 z = 6;
+    // Translation within current segment
+    int32 X = 5;
+    int32 Y = 6;
+    int32 Z = 7;
     // Width and height
-    int32 w = 7;
-    int32 h = 8;
+    int32 W = 8;
+    int32 H = 9;
     // Rotation in degrees
-    int32 r = 9;
+    int32 R = 10;
 
     // Initial values for this specific class to be set during this action
-    map<string, string> attributes = 10;
+    map<string, string> Attributes = 11;
 }
 
 /*

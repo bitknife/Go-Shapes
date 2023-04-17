@@ -21,8 +21,8 @@ import (
 )
 
 const (
-	screenWidth  = 640
-	screenHeight = 480
+	screenWidth  = 800
+	screenHeight = 600
 	scale        = 64
 )
 
@@ -42,15 +42,12 @@ func RunEbitenApplication(
 	ebiten.SetWindowTitle("WTF!?")
 	ebiten.SetFullscreen(false)
 
-	// NOTE: gameObjects are READ-ONLY for the VIEW and is updated from the server
-	//		 not all sure if we need to supply a reference to that structure
-	//		 as the Ebitengine application should observe
-	theGame := NewGame(toServer)
+	ebitenGame := NewGame(toServer)
 
 	// Start the controller
-	go EbitenController(gameObjects, fromServerChan, theGame)
+	go EbitenController(gameObjects, fromServerChan, ebitenGame)
 
-	if err := ebiten.RunGame(theGame); err != nil {
+	if err := ebiten.RunGame(ebitenGame); err != nil {
 		log.Fatal(err)
 	}
 }

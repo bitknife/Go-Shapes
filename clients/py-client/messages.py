@@ -35,23 +35,25 @@ class GameObjectEvent(betterproto.Message):
     server.
     """
 
-    id: int = betterproto.int64_field(1)
+    id: str = betterproto.string_field(1)
+    # Server frame this happened in
+    tick: int = betterproto.int64_field(2)
     # What class (on client typically) to spawn.
-    class_: str = betterproto.string_field(2)
+    kind: str = betterproto.string_field(3)
     # If explicit action, like create, delete, hide, show etc.
-    action: str = betterproto.string_field(3)
-    # Translation within current
-    x: int = betterproto.int32_field(4)
-    y: int = betterproto.int32_field(5)
-    z: int = betterproto.int32_field(6)
+    action: str = betterproto.string_field(4)
+    # Translation within current segment
+    x: int = betterproto.int32_field(5)
+    y: int = betterproto.int32_field(6)
+    z: int = betterproto.int32_field(7)
     # Width and height
-    w: int = betterproto.int32_field(7)
-    h: int = betterproto.int32_field(8)
+    w: int = betterproto.int32_field(8)
+    h: int = betterproto.int32_field(9)
     # Rotation in degrees
-    r: int = betterproto.int32_field(9)
+    r: int = betterproto.int32_field(10)
     # Initial values for this specific class to be set during this action
     attributes: Dict[str, str] = betterproto.map_field(
-        10, betterproto.TYPE_STRING, betterproto.TYPE_STRING
+        11, betterproto.TYPE_STRING, betterproto.TYPE_STRING
     )
 
 

@@ -1,5 +1,18 @@
 package game
 
+import (
+	game "bitknife.se/wtf/server/game/test_worlds"
+	"bitknife.se/wtf/shared"
+	"log"
+	"time"
+)
+
+const (
+	// https://daposto.medium.com/game-networking-1-interval-and-ticks-b39bb51ccca9
+	TICK_RATE      = 20
+	STATS_INTERVAL = 3
+)
+
 func Run() {
 
 	/**
@@ -7,7 +20,78 @@ func Run() {
 	This is where the server-side game code would be implemented.
 
 	*/
-	for {
+	gameObjects := make(map[string]*shared.GameObject)
 
+	game.CreateDotWorld(gameObjects, 100)
+
+	tic_time_nano := time.Second / TICK_RATE
+
+	// Server tick number
+	tick := int64(0)
+
+	cum_sleep_time := 0
+	for {
+		// Game loop
+		start := time.Now()
+		// Code to measure
+
+		/*
+			START WORK
+		*/
+
+		// Update game logic
+		game.ShakeDots(gameObjects, 5)
+
+		// Build events to broadcast
+		events := buildGameObjectEvents(tick, gameObjects)
+
+		/*
+			END WORK
+		*/
+
+		tick = tick + 1
+		if tick%(TICK_RATE*STATS_INTERVAL) == 0 {
+			// Would be nice to collect average headroom
+			// fmt.Println("Server tics: ", tics)
+
+			// Calculate average headroom
+			all_possible_sleep_time := tic_time_nano * TICK_RATE * STATS_INTERVAL
+			sleep_fraction := float32(cum_sleep_time) / float32(all_possible_sleep_time)
+			log.Printf("Game-loop load: %.2f %%", 100-100*sleep_fraction)
+			cum_sleep_time = 0
+		}
+
+		// Calculate sleep time to keep FPS
+		work_time := time.Since(start)
+		sleep_time := tic_time_nano - work_time
+		time.Sleep(sleep_time)
+
+		// For stats collection to see if we meet deadlines
+		cum_sleep_time += int(sleep_time.Nanoseconds())
 	}
+}
+
+func buildGameObjectEvents(
+	tick int64, gameObjects map[string]*shared.GameObject) []*shared.GameObjectEvent {
+
+	events := make([]*shared.GameObjectEvent, len(gameObjects))
+
+	// TODO: Re-evaluate, maybe just define a protobuf GameObject instead?
+	for id, gobj := range gameObjects {
+		goe := shared.GameObjectEvent{
+			Id:         id,
+			Tick:       tick,
+			Kind:       gobj.Kind,
+			Action:     "",
+			X:          gobj.X,
+			Y:          gobj.Y,
+			Z:          gobj.Z,
+			W:          gobj.W,
+			H:          gobj.H,
+			R:          gobj.R,
+			Attributes: nil,
+		}
+		events = append(events, &goe)
+	}
+	return events
 }

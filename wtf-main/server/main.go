@@ -45,25 +45,24 @@ func startServer() {
 	// go StartConsole()
 
 	/**
-	Main serverside game loop
-	*/
-	go game.Run()
-
-	/**
-	This is the layer separating sockets from the game.
-	*/
-	go core.Run(*pingIntervalMsec)
-
-	/**
 	  Handles the TCP connections, moving messages through
 	  the channels and to/from each socket.
 	*/
 	log.Println("Starting server on", HOST, ":", PORT)
-	log.Println("Ping interval", *pingIntervalMsec, "msec.")
-
 	go socketserver.Run(HOST, PORT)
 
-	go PrintStats(5)
+	/**
+	This is the layer separating sockets from the game.
+	*/
+	log.Println("Ping interval", *pingIntervalMsec, "msec.")
+	go core.Run(*pingIntervalMsec)
+
+	/**
+	Main serverside game loop
+	*/
+	go game.Run()
+
+	go MetricsManager(5)
 
 }
 

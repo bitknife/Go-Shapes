@@ -54,9 +54,6 @@ func main() {
 	lifetime_sec := flags.IntP("lifetime_sec", "l", 0, "Terminate client after this many seconds")
 	flags.Parse()
 
-	// Central objects shared between network and game engine, keep it simple for now
-	gameObjects := make(map[string]*shared.GameObject)
-
 	// Connects and returns two channels for communication
 	fromServer, toServer, conn := SetUpNetworking(*host, *port, *username, *password)
 
@@ -65,9 +62,14 @@ func main() {
 
 	go HandlePacketsFromServer(fromServer, toServer, fromServerChan)
 
+	// Central objects shared between network and game engine, keep it simple for now
+	gameObjects := make(map[string]*shared.GameObject)
+
+	// For scripted runs of the client typically
 	if *lifetime_sec > 0 {
 		setupKillTimer(*lifetime_sec)
 	}
+
 	// Starts the UI, this blocks
 	if *headless == true {
 		log.Println("Starting headless client")

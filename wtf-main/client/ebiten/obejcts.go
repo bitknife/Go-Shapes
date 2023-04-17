@@ -40,15 +40,15 @@ func DrawDot(ebObj *EBGameObject, screen *ebiten.Image) {
 		B: uint8(0xff),
 		A: 0xff}
 
-	vector.DrawFilledCircle(screen, float32(ebObj.gob.X), float32(ebObj.gob.Y), 5, c, true)
+	vector.DrawFilledCircle(screen, float32(ebObj.gob.X), float32(ebObj.gob.Y), 4, c, true)
 }
 
 func DrawLocalDot(ebObj *EBGameObject, screen *ebiten.Image) {
 	c := color.RGBA{
-		R: uint8(0xff),
+		R: uint8(0x00),
 		G: uint8(0xff),
-		B: uint8(0xff),
+		B: uint8(0x00),
 		A: 0xff}
 
-	vector.DrawFilledCircle(screen, float32(ebObj.gob.X), float32(ebObj.gob.Y), 2, c, true)
+	vector.DrawFilledCircle(screen, float32(ebObj.gob.X), float32(ebObj.gob.Y), 4, c, true)
 }

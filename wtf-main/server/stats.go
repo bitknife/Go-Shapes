@@ -6,7 +6,13 @@ import (
 	"time"
 )
 
-func PrintStats(interval_sec int) {
+func MetricsManager(interval_sec int) {
+	/*
+		For keeping an eye on server and game performance.
+
+		Will be expanded to meet need. Just print to screen for now
+
+	*/
 	gS := shared.CollectGoStats()
 
 	log.Println("numCpus", gS["numCpus"])

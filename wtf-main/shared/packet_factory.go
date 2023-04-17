@@ -46,22 +46,22 @@ func BuildPingPacket() *Packet {
 }
 
 func BuildLoginPacket(username string, password string) *Packet {
-	data := PlayerLogin{
-		Username: username,
-		Password: password,
-	}
 	return &Packet{
-		Payload: &Packet_PlayerLogin{&data},
+		Payload: &Packet_PlayerLogin{&PlayerLogin{
+			Username: username,
+			Password: password,
+		}},
 	}
 }
 
-func BuildGameObjectEvent(x int32, y int32) *Packet {
-	// TODO: Extend with more functions
-	data := GameObjectEvent{
-		X: x,
-		Y: y,
-	}
+func BuildMouseInputPacket(mouseInput *MouseInput) *Packet {
 	return &Packet{
-		Payload: &Packet_GameObjectEvent{&data},
+		Payload: &Packet_MouseInput{mouseInput},
+	}
+}
+
+func BuildGameObjectEvent(gameObjectEvent *GameObjectEvent) *Packet {
+	return &Packet{
+		Payload: &Packet_GameObjectEvent{gameObjectEvent},
 	}
 }

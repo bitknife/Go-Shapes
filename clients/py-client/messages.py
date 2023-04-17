@@ -7,6 +7,12 @@ from typing import Dict
 import betterproto
 
 
+class TurretRotation(betterproto.Enum):
+    CW = 0
+    CCW = 1
+    STILL = 2
+
+
 @dataclass
 class PlayerLogin(betterproto.Message):
     username: str = betterproto.string_field(1)
@@ -26,13 +32,39 @@ class Ping(betterproto.Message):
 
 
 @dataclass
+class MouseInput(betterproto.Message):
+    # A bit special for a mouse-centric game
+    mouse_x: int = betterproto.int32_field(1)
+    mouse_y: int = betterproto.int32_field(2)
+    right_click: bool = betterproto.bool_field(3)
+    left_click: bool = betterproto.bool_field(4)
+
+
+@dataclass
+class WASDInput(betterproto.Message):
+    # Keyboard-centric input
+    forward: int = betterproto.int32_field(1)
+    backward: int = betterproto.int32_field(2)
+    right: int = betterproto.int32_field(3)
+    left: int = betterproto.int32_field(4)
+
+
+@dataclass
+class TankStyleMovement(betterproto.Message):
+    turret_rotation: "TurretRotation" = betterproto.enum_field(1)
+    forward: int = betterproto.int32_field(2)
+    backward: int = betterproto.int32_field(3)
+    right: int = betterproto.int32_field(4)
+    left: int = betterproto.int32_field(5)
+
+
+@dataclass
 class GameObjectEvent(betterproto.Message):
     """
-    GameObjectEvent:Manages lifecycle and basic properties of GameObjects.Other
-    more specific events for certain classes sets morespecific attributes.Some
-    terminology:- Only server can CREATE and DELETE.- Clients SPAWNS or REMOVES
-    representations.- Clients can request update of objects by sending to
-    server.
+    GameObjectEvent:Sent by server to clients.Manages lifecycle and basic
+    properties of all GameObjects.Other more specific events for certain
+    classes sets morespecific attributes.Client:- SPAWNS or REMOVES
+    representations.
     """
 
     id: str = betterproto.string_field(1)
@@ -72,7 +104,11 @@ class Packet(betterproto.Message):
     player_login: "PlayerLogin" = betterproto.message_field(1, group="payload")
     player_logout: "PlayerLogout" = betterproto.message_field(2, group="payload")
     ping: "Ping" = betterproto.message_field(3, group="payload")
-    game_object_event: "GameObjectEvent" = betterproto.message_field(4, group="payload")
+    mouse_input: "MouseInput" = betterproto.message_field(4, group="payload")
+    wasd_input: "WASDInput" = betterproto.message_field(5, group="payload")
+    game_object_event: "GameObjectEvent" = betterproto.message_field(
+        10, group="payload"
+    )
     set_game_object_attributes: "SetGameObjectAttributes" = betterproto.message_field(
-        5, group="payload"
+        11, group="payload"
     )

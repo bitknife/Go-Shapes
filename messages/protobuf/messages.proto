@@ -23,17 +23,45 @@ message Ping {
     uint64 received = 3;
 }
 
+message MouseInput {
+    // A bit special for a mouse-centric game
+    int32 mouse_x = 1;
+    int32 mouse_y = 2;
+    bool right_click = 3;
+    bool left_click = 4;
+}
+
+message WASDInput {
+    // Keyboard-centric input
+    int32 forward = 1;
+    int32 backward = 2;
+    int32 right = 3;
+    int32 left = 4;
+}
+
+enum TurretRotation {
+    CW = 0;
+    CCW = 1;
+    STILL = 2;
+}
+message TankStyleMovement {
+    TurretRotation turretRotation = 1;
+    int32 forward = 2;
+    int32 backward = 3;
+    int32 right = 4;
+    int32 left = 5;
+}
+
 /*
     GameObjectEvent:
-        Manages lifecycle and basic properties of GameObjects.
+        Sent by server to clients.
+        Manages lifecycle and basic properties of all GameObjects.
         Other more specific events for certain classes sets more
             specific attributes.
 
-    Some terminology:
-    - Only server can CREATE and DELETE.
-    - Clients SPAWNS or REMOVES representations.
+    Client:
+    - SPAWNS or REMOVES representations.
 
-    - Clients can request update of objects by sending to server.
 */
 message GameObjectEvent {
     string Id = 1;
@@ -75,7 +103,10 @@ message Packet {
         PlayerLogout playerLogout = 2;
         Ping ping = 3;
 
-        GameObjectEvent gameObjectEvent = 4;
-        SetGameObjectAttributes setGameObjectAttributes = 5;
+        MouseInput mouseInput = 4;
+        WASDInput wasdInput = 5;
+
+        GameObjectEvent gameObjectEvent = 10;
+        SetGameObjectAttributes setGameObjectAttributes = 11;
     }
 }

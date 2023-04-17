@@ -43,20 +43,32 @@ func NewGame(
 // Update is called every tick (1/60 [s] by default).
 func (g *Game) Update() error {
 	// TODO: optimize, maybe no need to send in every tick?
+
 	x, y := ebiten.CursorPosition()
 
-	// Not sure if we want to keep the toServer channel this deep
-	// into the game.
-	// Also, only send on change etc. much to improve here
-	pP := shared.BuildGameObjectEvent(int32(x), int32(y))
-	g.toServer <- shared.PacketToBytes(pP)
+	newX := int32(x)
+	newY := int32(y)
 
-	// NOTE: All transient UI-elements should be updated here as well
-	//
-	//	That could be the game UI, notifications etc.
-	g.localEBObjects["dot"].gob.X = int32(x)
-	g.localEBObjects["dot"].gob.Y = int32(y)
+	posChanged := false
+	if newX != g.localEBObjects["dot"].gob.X {
+		g.localEBObjects["dot"].gob.X = newX
+		posChanged = true
+	}
+	if newY != g.localEBObjects["dot"].gob.Y {
+		g.localEBObjects["dot"].gob.Y = newY
+		posChanged = true
+	}
 
+	// Send to server only if changed
+	if posChanged {
+		pP := shared.BuildMouseInputPacket(&shared.MouseInput{
+			MouseX:     int32(x),
+			MouseY:     int32(y),
+			RightClick: ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight),
+			LeftClick:  ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft),
+		})
+		g.toServer <- shared.PacketToBytes(pP)
+	}
 	return nil
 }
 

@@ -18,7 +18,11 @@ var ToClientChannels = make(map[string]chan []byte)
 var FromClientChannels = make(map[string]chan []byte)
 
 func GetConnectedUsernames() []string {
-	return getAllKeysFromMap(ToClientChannels)
+	keys := make([]string, 0, len(ToClientChannels))
+	for k, _ := range ToClientChannels {
+		keys = append(keys, k)
+	}
+	return keys
 }
 
 func HasChannel(username string) bool {
@@ -29,14 +33,6 @@ func HasChannel(username string) bool {
 		return true
 	}
 	return false
-}
-
-func getAllKeysFromMap(theMap map[string]chan []byte) []string {
-	keys := make([]string, 0, len(theMap))
-	for k := range theMap {
-		keys = append(keys, k)
-	}
-	return keys
 }
 
 func RegisterToClientChannel(username string, toClient chan []byte) {
@@ -67,6 +63,23 @@ func toClientDispatcher(username string, packet *shared.Packet) {
 	toClientChannel <- shared.PacketToBytes(packet)
 }
 
+func SendPacketsToUsername(username string, packets []*shared.Packet) {
+	for _, packet := range packets {
+		toClientDispatcher(username, packet)
+	}
+}
+
+func BroadCastPackets(packets []*shared.Packet) {
+	/**
+	NOTE: Costly!
+	*/
+	usernames := GetConnectedUsernames()
+	for _, username := range usernames {
+		// Go routine for each user as they all have their own socket
+		go SendPacketsToUsername(username, packets)
+	}
+}
+
 func fromClientHandler(username string, in chan []byte) {
 	for {
 		buffer := <-in
@@ -79,7 +92,11 @@ func fromClientHandler(username string, in chan []byte) {
 		packet := shared.BytesToPacket(buffer)
 
 		if packet == nil {
+			// TODO: handle client inputs
 
+			/*
+				Should send username and payload (or packet) to Game etc.
+			*/
 		}
 		// log.Println("Dispatcher got", packet.GetTheMessage(), "from:", username)
 

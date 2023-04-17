@@ -22,9 +22,6 @@ func (ebObj *EBGameObject) Init(gob *shared.GameObject) {
 }
 
 func (ebObj *EBGameObject) Draw(screen *ebiten.Image) {
-	if ebObj.gob.Kind == shared.GOK_DOT {
-		DrawDot(ebObj, screen)
-	}
 	switch ebObj.gob.Kind {
 	case shared.GOK_DOT:
 		DrawDot(ebObj, screen)

@@ -22,10 +22,10 @@ func Run(pingIntervalMsec int) {
 	go broadCastPing(pingIntervalMsec)
 }
 
-func broadCastPing(ping_interval_msec int) {
+func broadCastPing(pingIntervalMsec int) {
 
 	for {
-		time.Sleep(time.Duration(ping_interval_msec) * time.Millisecond)
+		time.Sleep(time.Duration(pingIntervalMsec) * time.Millisecond)
 
 		usernames := GetConnectedUsernames()
 		go func() {

@@ -16,7 +16,7 @@ type GameObject struct {
 	*/
 	Id string
 
-	// Updated nano
+	// Server tick number
 	Ts int64
 
 	// Hint for client behaviour

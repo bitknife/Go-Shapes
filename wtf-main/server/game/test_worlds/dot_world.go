@@ -4,18 +4,20 @@ import (
 	"bitknife.se/wtf/shared"
 )
 
-func CreateDotWorld(gameObjects map[string]*shared.GameObject, nDots int) {
+func CreateDotWorld(gameObjects map[string]*shared.GameObject, min int, max int, nDots int) {
 	/*
 	   Just some initial GameObjects to work with for initial testing
+
 	*/
-	x_min := 100
-	x_max := 700
 	for i := 1; i < nDots; i++ {
-		aDot := shared.GameObject{
-			X: int32(shared.RandInt(x_min, x_max)),
-			Y: int32(shared.RandInt(x_min, x_max)),
+		id := shared.RandName("dot")
+		dot := shared.GameObject{
+			Id:   id,
+			X:    int32(shared.RandInt(min, max)),
+			Y:    int32(shared.RandInt(min, max)),
+			Kind: shared.GOK_DOT,
 		}
-		gameObjects[shared.RandName("dot")] = &aDot
+		gameObjects[id] = &dot
 	}
 }
 

@@ -1,6 +1,7 @@
 package game
 
 import (
+	"bitknife.se/wtf/server/core"
 	game "bitknife.se/wtf/server/game/test_worlds"
 	"bitknife.se/wtf/shared"
 	"log"
@@ -22,7 +23,7 @@ func Run() {
 	*/
 	gameObjects := make(map[string]*shared.GameObject)
 
-	game.CreateDotWorld(gameObjects, 100)
+	game.CreateDotWorld(gameObjects, 0, 800, 200)
 
 	tic_time_nano := time.Second / TICK_RATE
 
@@ -40,10 +41,11 @@ func Run() {
 		*/
 
 		// Update game logic
-		game.ShakeDots(gameObjects, 5)
+		game.ShakeDots(gameObjects, 2)
 
 		// Build events to broadcast
-		// events := buildGameObjectEvents(tick, gameObjects)
+		packets := buildGameObjectEventPackets(tick, gameObjects)
+		core.BroadCastPackets(packets)
 
 		/*
 			END WORK
@@ -71,14 +73,13 @@ func Run() {
 	}
 }
 
-func buildGameObjectEvents(
-	tick int64, gameObjects map[string]*shared.GameObject) []*shared.GameObjectEvent {
+func buildGameObjectEventPackets(
+	tick int64, gameObjects map[string]*shared.GameObject) []*shared.Packet {
 
-	events := make([]*shared.GameObjectEvent, len(gameObjects))
+	packets := make([]*shared.Packet, len(gameObjects))
 
-	// TODO: Re-evaluate, maybe just define a protobuf GameObject instead?
 	for id, gobj := range gameObjects {
-		goe := shared.GameObjectEvent{
+		event := shared.GameObjectEvent{
 			Id:         id,
 			Tick:       tick,
 			Kind:       gobj.Kind,
@@ -91,7 +92,10 @@ func buildGameObjectEvents(
 			R:          gobj.R,
 			Attributes: nil,
 		}
-		events = append(events, &goe)
+		packet := shared.Packet{
+			Payload: &shared.Packet_GameObjectEvent{GameObjectEvent: &event},
+		}
+		packets = append(packets, &packet)
 	}
-	return events
+	return packets
 }

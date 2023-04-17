@@ -49,7 +49,7 @@ func main() {
 	headless := flags.Bool("headless", false, "Start a client headless.")
 	host := flags.StringP("host", "h", HOST, "Server IP or Hostname")
 	port := flags.StringP("port", "p", PORT, "Server Port")
-	username := flags.StringP("username", "u", "goClient", "Player name")
+	username := flags.StringP("username", "u", shared.RandName("user"), "Player name")
 	password := flags.StringP("password", "w", "welcome", "Password")
 	lifetime_sec := flags.IntP("lifetime_sec", "l", 0, "Terminate client after this many seconds")
 	flags.Parse()

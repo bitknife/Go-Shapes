@@ -5,6 +5,10 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+const (
+	LOCAL_DOT_ID = "_localdot"
+)
+
 type Game struct {
 	toServer chan []byte
 
@@ -25,7 +29,7 @@ func NewGame(
 	// Create a local cursor that is not sent to server
 	localDot := EBGameObject{}
 	gobj := shared.GameObject{
-		Id:   "_localdot",
+		Id:   LOCAL_DOT_ID,
 		Kind: shared.GOK_LOCAL_DOT,
 		X:    0,
 		Y:    0,
@@ -34,7 +38,7 @@ func NewGame(
 		R:    0,
 	}
 	localDot.Init(&gobj)
-	game.localEBObjects["dot"] = &localDot
+	game.localEBObjects[gobj.Id] = &localDot
 
 	return &game
 }
@@ -50,17 +54,19 @@ func (g *Game) Update() error {
 	newY := int32(y)
 
 	posChanged := false
-	if newX != g.localEBObjects["dot"].gob.X {
-		g.localEBObjects["dot"].gob.X = newX
+	localDot := g.localEBObjects[LOCAL_DOT_ID]
+	if newX != localDot.gob.X {
+		localDot.gob.X = newX
 		posChanged = true
 	}
-	if newY != g.localEBObjects["dot"].gob.Y {
-		g.localEBObjects["dot"].gob.Y = newY
+	if newY != localDot.gob.Y {
+		localDot.gob.Y = newY
 		posChanged = true
 	}
 
 	// Send to server only if changed
 	if posChanged {
+		// fmt.Println("X", localDot.gob.X, "Y", localDot.gob.Y)
 		pP := shared.BuildMouseInputPacket(&shared.MouseInput{
 			MouseX:     int32(x),
 			MouseY:     int32(y),

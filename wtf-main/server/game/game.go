@@ -44,7 +44,7 @@ func Run() {
 		game.ShakeDots(gameObjects, 2)
 
 		// Build events to broadcast
-		packets := buildGameObjectEventPackets(tick, gameObjects)
+		packets := buildgameObjectPackets(tick, gameObjects)
 		core.BroadCastPackets(packets)
 
 		/*
@@ -73,27 +73,14 @@ func Run() {
 	}
 }
 
-func buildGameObjectEventPackets(
+func buildgameObjectPackets(
 	tick int64, gameObjects map[string]*shared.GameObject) []*shared.Packet {
 
 	packets := make([]*shared.Packet, len(gameObjects))
 
-	for id, gobj := range gameObjects {
-		event := shared.GameObjectEvent{
-			Id:         id,
-			Tick:       tick,
-			Kind:       gobj.Kind,
-			Action:     "",
-			X:          gobj.X,
-			Y:          gobj.Y,
-			Z:          gobj.Z,
-			W:          gobj.W,
-			H:          gobj.H,
-			R:          gobj.R,
-			Attributes: nil,
-		}
+	for _, gobj := range gameObjects {
 		packet := shared.Packet{
-			Payload: &shared.Packet_GameObjectEvent{GameObjectEvent: &event},
+			Payload: &shared.Packet_GameObject{GameObject: gobj},
 		}
 		packets = append(packets, &packet)
 	}

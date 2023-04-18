@@ -63,17 +63,19 @@ message TankStyleMovement {
     - SPAWNS or REMOVES representations.
 
 */
-message GameObjectEvent {
+enum GameObjectKind {
+    DOT = 0;
+    DIAMOND = 1;
+}
+message GameObject {
     string Id = 1;
+    string Action = 2;
 
     // Server frame this happened in
-    int64 Tick = 2;
+    int64 Tick = 3;
 
     // What class (on client typically) to spawn.
-    string Kind = 3;
-
-    // If explicit action, like create, delete, hide, show etc.
-    string Action = 4;
+    GameObjectKind Kind = 4;
 
     // Translation within current segment
     int32 X = 5;
@@ -86,14 +88,16 @@ message GameObjectEvent {
     int32 R = 10;
 
     // Initial values for this specific class to be set during this action
-    map<string, string> Attributes = 11;
+    map<string, string> StrAttrs = 11;
+    map<string, int32> IntAttrs = 12;
+    map<string, float> FlAttrs = 13;
 }
 
 /*
     https://protobuf.dev/programming-guides/proto3/#maps
  */
 message SetGameObjectAttributes {
-    int64 id = 1;
+    string id = 1;
     map<string, string> attributes = 2;
 }
 
@@ -106,7 +110,7 @@ message Packet {
         MouseInput mouseInput = 4;
         WASDInput wasdInput = 5;
 
-        GameObjectEvent gameObjectEvent = 10;
+        GameObject gameObject = 10;
         SetGameObjectAttributes setGameObjectAttributes = 11;
     }
 }

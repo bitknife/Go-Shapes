@@ -13,6 +13,18 @@ class TurretRotation(betterproto.Enum):
     STILL = 2
 
 
+class GameObjectKind(betterproto.Enum):
+    """
+    GameObjectEvent:Sent by server to clients.Manages lifecycle and basic
+    properties of all GameObjects.Other more specific events for certain
+    classes sets morespecific attributes.Client:- SPAWNS or REMOVES
+    representations.
+    """
+
+    DOT = 0
+    DIAMOND = 1
+
+
 @dataclass
 class PlayerLogin(betterproto.Message):
     username: str = betterproto.string_field(1)
@@ -59,21 +71,13 @@ class TankStyleMovement(betterproto.Message):
 
 
 @dataclass
-class GameObjectEvent(betterproto.Message):
-    """
-    GameObjectEvent:Sent by server to clients.Manages lifecycle and basic
-    properties of all GameObjects.Other more specific events for certain
-    classes sets morespecific attributes.Client:- SPAWNS or REMOVES
-    representations.
-    """
-
+class GameObject(betterproto.Message):
     id: str = betterproto.string_field(1)
+    action: str = betterproto.string_field(2)
     # Server frame this happened in
-    tick: int = betterproto.int64_field(2)
+    tick: int = betterproto.int64_field(3)
     # What class (on client typically) to spawn.
-    kind: str = betterproto.string_field(3)
-    # If explicit action, like create, delete, hide, show etc.
-    action: str = betterproto.string_field(4)
+    kind: "GameObjectKind" = betterproto.enum_field(4)
     # Translation within current segment
     x: int = betterproto.int32_field(5)
     y: int = betterproto.int32_field(6)
@@ -84,8 +88,14 @@ class GameObjectEvent(betterproto.Message):
     # Rotation in degrees
     r: int = betterproto.int32_field(10)
     # Initial values for this specific class to be set during this action
-    attributes: Dict[str, str] = betterproto.map_field(
+    str_attrs: Dict[str, str] = betterproto.map_field(
         11, betterproto.TYPE_STRING, betterproto.TYPE_STRING
+    )
+    int_attrs: Dict[str, int] = betterproto.map_field(
+        12, betterproto.TYPE_STRING, betterproto.TYPE_INT32
+    )
+    fl_attrs: Dict[str, float] = betterproto.map_field(
+        13, betterproto.TYPE_STRING, betterproto.TYPE_FLOAT
     )
 
 
@@ -93,7 +103,7 @@ class GameObjectEvent(betterproto.Message):
 class SetGameObjectAttributes(betterproto.Message):
     """https://protobuf.dev/programming-guides/proto3/#maps"""
 
-    id: int = betterproto.int64_field(1)
+    id: str = betterproto.string_field(1)
     attributes: Dict[str, str] = betterproto.map_field(
         2, betterproto.TYPE_STRING, betterproto.TYPE_STRING
     )
@@ -106,9 +116,7 @@ class Packet(betterproto.Message):
     ping: "Ping" = betterproto.message_field(3, group="payload")
     mouse_input: "MouseInput" = betterproto.message_field(4, group="payload")
     wasd_input: "WASDInput" = betterproto.message_field(5, group="payload")
-    game_object_event: "GameObjectEvent" = betterproto.message_field(
-        10, group="payload"
-    )
+    game_object: "GameObject" = betterproto.message_field(10, group="payload")
     set_game_object_attributes: "SetGameObjectAttributes" = betterproto.message_field(
         11, group="payload"
     )

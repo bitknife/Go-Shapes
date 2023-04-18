@@ -60,8 +60,8 @@ func BuildMouseInputPacket(mouseInput *MouseInput) *Packet {
 	}
 }
 
-func BuildGameObjectEvent(gameObjectEvent *GameObjectEvent) *Packet {
+func BuildGameObjectPacket(gameObject *GameObject) *Packet {
 	return &Packet{
-		Payload: &Packet_GameObjectEvent{gameObjectEvent},
+		Payload: &Packet_GameObject{gameObject},
 	}
 }

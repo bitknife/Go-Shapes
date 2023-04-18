@@ -23,29 +23,23 @@ func (ebObj *EBGameObject) Init(gob *shared.GameObject) {
 
 func (ebObj *EBGameObject) Draw(screen *ebiten.Image) {
 	switch ebObj.gob.Kind {
-	case shared.GOK_DOT:
+	case shared.GameObjectKind_DOT:
 		DrawDot(ebObj, screen)
-	case shared.GOK_LOCAL_DOT:
-		DrawLocalDot(ebObj, screen)
 	}
 }
 
 func DrawDot(ebObj *EBGameObject, screen *ebiten.Image) {
 	c := color.RGBA{
-		R: uint8(0xff),
-		G: uint8(0x00),
-		B: uint8(0xff),
-		A: 0xff}
+		R: uint8(ebObj.gob.IntAttrs["R"]),
+		G: uint8(ebObj.gob.IntAttrs["G"]),
+		B: uint8(ebObj.gob.IntAttrs["B"]),
+		A: uint8(ebObj.gob.IntAttrs["A"])}
 
-	vector.DrawFilledCircle(screen, float32(ebObj.gob.X), float32(ebObj.gob.Y), 4, c, true)
-}
-
-func DrawLocalDot(ebObj *EBGameObject, screen *ebiten.Image) {
-	c := color.RGBA{
-		R: uint8(0x00),
-		G: uint8(0xff),
-		B: uint8(0x00),
-		A: 0xff}
-
-	vector.DrawFilledCircle(screen, float32(ebObj.gob.X), float32(ebObj.gob.Y), 4, c, true)
+	vector.DrawFilledCircle(
+		screen,
+		float32(ebObj.gob.X),
+		float32(ebObj.gob.Y),
+		ebObj.gob.FlAttrs["radius"],
+		c,
+		true)
 }

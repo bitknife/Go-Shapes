@@ -30,12 +30,17 @@ func NewGame(
 	localDot := EBGameObject{}
 	gobj := shared.GameObject{
 		Id:   LOCAL_DOT_ID,
-		Kind: shared.GOK_LOCAL_DOT,
+		Kind: shared.GameObjectKind_DOT,
 		X:    0,
 		Y:    0,
-		W:    0,
-		H:    0,
-		R:    0,
+		FlAttrs: map[string]float32{
+			"radius": 8,
+		},
+		IntAttrs: map[string]int32{
+			"R": 0x00,
+			"G": 0xff,
+			"B": 0x00,
+		},
 	}
 	localDot.Init(&gobj)
 	game.localEBObjects[gobj.Id] = &localDot

@@ -45,7 +45,8 @@ func RunEbitenApplication(
 	ebitenGame := NewGame(toServer)
 
 	// Start the controller
-	go EbitenController(gameObjects, fromServerChan, ebitenGame)
+	ebitenController := EbitenController{gameObjects, fromServerChan, ebitenGame}
+	go ebitenController.Run()
 
 	if err := ebiten.RunGame(ebitenGame); err != nil {
 		log.Fatal(err)

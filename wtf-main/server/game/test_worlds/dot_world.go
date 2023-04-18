@@ -16,7 +16,7 @@ func CreateDotWorld(gameObjects map[string]*shared.GameObject, min int, max int,
 			X:  int32(shared.RandInt(min, max)),
 			Y:  int32(shared.RandInt(min, max)),
 			FlAttrs: map[string]float32{
-				"radius": 8,
+				"radius": 2,
 			},
 			IntAttrs: map[string]int32{
 				"R": 0xff,

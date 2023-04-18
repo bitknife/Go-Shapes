@@ -2,6 +2,7 @@ package core
 
 import (
 	"bitknife.se/wtf/shared"
+	"golang.org/x/sync/syncmap"
 	"log"
 )
 
@@ -14,53 +15,53 @@ TODO: Rethink if Username is a good key or not, it has its merits (ie if connect
 	  or block the new).
 */
 
-var ToClientChannels = make(map[string]chan []byte)
-var FromClientChannels = make(map[string]chan []byte)
+var ToClientChannels = syncmap.Map{}   // make(map[string]chan []byte)
+var FromClientChannels = syncmap.Map{} // make(map[string]chan []byte)
 
 func GetConnectedUsernames() []string {
-	keys := make([]string, 0, len(ToClientChannels))
-	for k, _ := range ToClientChannels {
-		keys = append(keys, k)
-	}
+
+	var keys []string
+
+	ToClientChannels.Range(func(key, value interface{}) bool {
+		keys = append(keys, key.(string))
+		return true
+	})
 	return keys
 }
 
 func HasChannel(username string) bool {
-	if _, ok := ToClientChannels[username]; ok {
+	if _, ok := ToClientChannels.Load(username); ok {
 		return true
 	}
-	if _, ok := FromClientChannels[username]; ok {
+	if _, ok := FromClientChannels.Load(username); ok {
 		return true
 	}
 	return false
 }
 
 func RegisterToClientChannel(username string, toClient chan []byte) {
-	ToClientChannels[username] = toClient
+	ToClientChannels.Store(username, toClient)
 }
 
 func RegisterFromClientChannel(username string, fromClient chan []byte) {
-	FromClientChannels[username] = fromClient
+	FromClientChannels.Store(username, fromClient)
 
 	// NOTE: This creates a goroutine for each client
 	go fromClientHandler(username, fromClient)
 }
 
 func UnRegisterClientChannels(username string) {
-	if channel, ok := ToClientChannels[username]; ok {
-		close(channel)
-		delete(ToClientChannels, username)
-	}
-	if channel, ok := FromClientChannels[username]; ok {
-		close(channel)
-		delete(FromClientChannels, username)
-	}
+	ToClientChannels.Delete(username)
+	FromClientChannels.Delete(username)
 }
 
 func toClientDispatcher(username string, packet *shared.Packet) {
 	// Look up the channel in the registry, and then send message
-	toClientChannel := ToClientChannels[username]
-	toClientChannel <- shared.PacketToBytes(packet)
+	toClientChannel, ok := ToClientChannels.Load(username)
+	if ok {
+		tc := toClientChannel.(chan []byte)
+		tc <- shared.PacketToBytes(packet)
+	}
 }
 
 func SendPacketsToUsername(username string, packets []*shared.Packet) {

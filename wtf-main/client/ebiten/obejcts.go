@@ -41,5 +41,5 @@ func DrawDot(ebObj *EBGameObject, screen *ebiten.Image) {
 		float32(ebObj.gob.Y),
 		ebObj.gob.FlAttrs["radius"],
 		c,
-		true)
+		false)
 }

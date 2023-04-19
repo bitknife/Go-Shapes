@@ -1,6 +1,7 @@
 package core
 
 import (
+	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/shared"
 	cmap "github.com/orcaman/concurrent-map/v2"
 )
@@ -31,11 +32,8 @@ func HasChannel(username string) bool {
 	return false
 }
 
-func RegisterToClientChannel(username string, toClient chan []byte) {
+func InitClient(username string, toClient chan []byte, fromClient chan []byte) {
 	ToClientChannels.Set(username, toClient)
-}
-
-func RegisterFromClientChannel(username string, fromClient chan []byte) {
 	FromClientChannels.Set(username, fromClient)
 
 	// NOTE: This creates a goroutine for each client
@@ -53,51 +51,32 @@ func toClientDispatcher(username string, packet *shared.Packet) {
 	// Look up the channel in the registry, and then send message
 	toClientChannel, ok := ToClientChannels.Get(username)
 	if ok {
+		// NOTE: This blocks until lower layer is done!
 		toClientChannel <- shared.PacketToBytes(packet)
 	}
 }
 
-func SendPacketsToUsername(username string, packets []*shared.Packet) {
-	for _, packet := range packets {
-		toClientDispatcher(username, packet)
-	}
-}
-
-func BroadCastPackets(packets []*shared.Packet) {
-	/**
-	NOTE: Costly!
-	*/
-	usernames := GetConnectedUsernames()
-	for _, username := range usernames {
-		// Go routine for each user as they all have their own socket
-		go SendPacketsToUsername(username, packets)
-	}
-}
-
 func fromClientHandler(username string, in chan []byte) {
+	// This is OK, core knows of both game and socket layers,
+	userInputForGame := make(chan *shared.Packet)
+	go game.UserInputRunner(username, userInputForGame)
+
 	for {
 		buffer := <-in
 		if buffer == nil {
-			// Maybe not..
-			// log.Println("fromClientHandler(): Unregistering client:", username)
+			// Means the underlying layer will not send more packets, unregister and return
 			UnRegisterClientChannels(username)
+			userInputForGame <- nil
 			return
 		}
 
 		packet := shared.BytesToPacket(buffer)
 
 		if packet == nil {
-			// TODO: handle client inputs
-
-			/*
-				Should send username and payload (or packet) to Game etc.
-			*/
+			// Not sure what this means yet :)
+		} else {
+			// OK got a packet, send it to
+			userInputForGame <- packet
 		}
-		// log.Println("Dispatcher got", packet.GetTheMessage(), "from:", username)
-
-		/**
-		A possible good pattern would be to publish client events on a topic w. Candidate keys could be:
-			- Event type - that way we could ensure listeners are aware of the types coming.
-		*/
 	}
 }

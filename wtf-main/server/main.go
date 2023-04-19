@@ -4,6 +4,7 @@ import (
 	"bitknife.se/wtf/server/core"
 	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/server/socketserver"
+	"bitknife.se/wtf/shared"
 	"fmt"
 	flags "github.com/spf13/pflag"
 	"log"
@@ -57,10 +58,14 @@ func startServer() {
 	log.Println("Ping interval", *pingIntervalMsec, "msec.")
 	go core.Run(*pingIntervalMsec)
 
+	packetBroadCastChannel := make(chan []*shared.Packet)
+	go core.PacketBroadCaster(packetBroadCastChannel)
+
 	/**
 	Main serverside game loop
 	*/
-	go game.Run()
+	dotWorldGame := game.CreateDotWorldGame(250, 250, 500)
+	go game.Run(packetBroadCastChannel, dotWorldGame)
 
 	go MetricsManager(5)
 

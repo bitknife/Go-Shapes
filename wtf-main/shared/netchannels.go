@@ -58,7 +58,7 @@ func PacketReceiver(conn net.Conn, incoming chan []byte) {
 			// Will trigger cleanup in above layers
 			incoming <- nil
 
-			// Writer closes!
+			// NOTE: Writer/Sender closes channels in Go!
 			close(incoming)
 
 			conn.Close()

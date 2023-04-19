@@ -37,3 +37,27 @@ func broadCastPing(pingIntervalMsec int) {
 	}
 	log.Panicln("Pinger returns!")
 }
+
+func SendPacketsToUsername(username string, packets []*shared.Packet) {
+	for _, packet := range packets {
+		toClientDispatcher(username, packet)
+	}
+}
+
+func broadCastPackets(packets []*shared.Packet) {
+	/**
+	NOTE: Costly!
+	*/
+	usernames := GetConnectedUsernames()
+	for _, username := range usernames {
+		// Go routine for each user as they all have their own socket
+		go SendPacketsToUsername(username, packets)
+	}
+}
+
+func PacketBroadCaster(packetBroadCastChannel chan []*shared.Packet) {
+	for {
+		packets := <-packetBroadCastChannel
+		broadCastPackets(packets)
+	}
+}

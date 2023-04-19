@@ -17,7 +17,7 @@ type Game struct {
 	localEBObjects  map[string]*EBGameObject
 }
 
-func NewGame(
+func CreateGame(
 	toServerChan chan []byte,
 ) *Game {
 	game := Game{

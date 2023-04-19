@@ -33,7 +33,8 @@ func DrawDot(ebObj *EBGameObject, screen *ebiten.Image) {
 		R: uint8(ebObj.gob.IntAttrs["R"]),
 		G: uint8(ebObj.gob.IntAttrs["G"]),
 		B: uint8(ebObj.gob.IntAttrs["B"]),
-		A: uint8(ebObj.gob.IntAttrs["A"])}
+		A: uint8(ebObj.gob.IntAttrs["A"]),
+	}
 
 	vector.DrawFilledCircle(
 		screen,

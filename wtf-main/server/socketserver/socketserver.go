@@ -43,7 +43,7 @@ func handleConnection(conn net.Conn) {
 	the Dispatcher (middle layer), which then in turn connects to
 	the game engine (upper layer).
 
-	This separates the socket layer from the game layer completely.
+	This separates the socket layer from the game layers.
 	*/
 
 	// Create and register the needed channels on the dispatcher
@@ -59,12 +59,12 @@ func handleConnection(conn net.Conn) {
 }
 
 func makeAndRegisterChannels(playerLogin *shared.PlayerLogin) (chan []byte, chan []byte) {
+	// IDEA: Is this where we want to create them?
 	fromClient := make(chan []byte)
 	toClient := make(chan []byte)
 
 	// And register channels on the Dispatcher in the core layer
-	core.RegisterToClientChannel(playerLogin.Username, toClient)
-	core.RegisterFromClientChannel(playerLogin.Username, fromClient)
+	core.InitClient(playerLogin.Username, toClient, fromClient)
 
 	return fromClient, toClient
 }

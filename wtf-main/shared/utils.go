@@ -14,8 +14,8 @@ func GetKeysFromStringInterfaceMap(theMap map[string]interface{}) []string {
 	return keys
 }
 
-func RandInt(min int, max int) int {
-	return rand.Intn(max-min+1) + min
+func RandInt(min int32, max int32) int32 {
+	return rand.Int31n(max-min+1) + min
 }
 
 func RandName(base string) string {

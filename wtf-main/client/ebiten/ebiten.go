@@ -1,17 +1,3 @@
-// Copyright 2021 The Ebiten Authors
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package ebiten
 
 import (
@@ -21,8 +7,8 @@ import (
 )
 
 const (
-	screenWidth  = 600
-	screenHeight = 400
+	screenWidth  = 500
+	screenHeight = 500
 	scale        = 64
 )
 
@@ -31,6 +17,8 @@ RunEbitenApplication takes as argument the shared structure gameObjects (for now
 structure is updated by the Server. Ebiten reads what it needs from that.
 
 toServer is used by the client to notify the server of user-inputs etc.
+
+https://github.com/sedyh/awesome-ebitengine
 */
 func RunEbitenApplication(
 	gameObjects map[string]*shared.GameObject,
@@ -42,7 +30,7 @@ func RunEbitenApplication(
 	ebiten.SetWindowTitle("WTF!?")
 	ebiten.SetFullscreen(false)
 
-	ebitenGame := NewGame(toServer)
+	ebitenGame := CreateGame(toServer)
 
 	// Start the controller
 	ebitenController := EbitenController{gameObjects, fromServerChan, ebitenGame}

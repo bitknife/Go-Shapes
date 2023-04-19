@@ -65,3 +65,18 @@ func BuildGameObjectPacket(gameObject *GameObject) *Packet {
 		Payload: &Packet_GameObject{gameObject},
 	}
 }
+
+func BuildGameObjectPackets(
+	tick int64, gameObjects map[string]*GameObject) []*Packet {
+
+	packets := make([]*Packet, len(gameObjects))
+
+	for _, gobj := range gameObjects {
+		gobj.Tick = tick
+		packet := Packet{
+			Payload: &Packet_GameObject{GameObject: gobj},
+		}
+		packets = append(packets, &packet)
+	}
+	return packets
+}

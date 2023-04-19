@@ -23,7 +23,7 @@ func Run() {
 	*/
 	gameObjects := make(map[string]*shared.GameObject)
 
-	game.CreateDotWorld(gameObjects, 100, 300, 10)
+	game.CreateDotWorld(gameObjects, 100, 300, 500)
 
 	tic_time_nano := time.Second / TICK_RATE
 
@@ -43,7 +43,7 @@ func Run() {
 		// Update game logic
 		game.ShakeDots(gameObjects, 4)
 
-		// Build events to broadcast
+		// Package and send game objects
 		packets := buildgameObjectPackets(tick, gameObjects)
 		core.BroadCastPackets(packets)
 

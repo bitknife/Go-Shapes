@@ -82,13 +82,13 @@ func Run(host string, port string) {
 		/*
 			Accept() blocks
 		*/
-		log.Println("Waiting for next client to connect...")
+		// log.Println("Waiting for next client to connect...")
 		conn, err := listen.Accept()
 		if err != nil {
 			log.Println("Failed to Accept():", err)
 		}
 
-		log.Println("Client connected from", conn.RemoteAddr())
+		// log.Println("Client connected from", conn.RemoteAddr())
 		go handleConnection(conn)
 	}
 }

@@ -53,10 +53,13 @@ func PacketReceiver(conn net.Conn, incoming chan []byte) {
 
 		if packageData == nil {
 			// Communication error, broken pipe etc
-			log.Println("Broken pipe (got nil packet)... disconnecting and forcing cleanup.")
+			// log.Println("Broken pipe (got nil packet)... disconnecting and forcing cleanup.")
 
 			// Will trigger cleanup in above layers
 			incoming <- nil
+
+			// Writer closes!
+			close(incoming)
 
 			conn.Close()
 
@@ -121,8 +124,8 @@ func PacketSender(conn net.Conn, outgoing chan []byte) {
 		}
 		_, err := conn.Write(wirePacket)
 		if err != nil {
-			// Happens when server
-			log.Println("PacketSender(): Error writing packet ")
+			// Writing to closed socket
+			// log.Println("PacketSender(): Error writing packet ")
 			conn.Close()
 			return
 		}

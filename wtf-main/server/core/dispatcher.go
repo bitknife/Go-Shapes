@@ -2,8 +2,7 @@ package core
 
 import (
 	"bitknife.se/wtf/shared"
-	"golang.org/x/sync/syncmap"
-	"log"
+	cmap "github.com/orcaman/concurrent-map/v2"
 )
 
 /**
@@ -15,52 +14,46 @@ TODO: Rethink if Username is a good key or not, it has its merits (ie if connect
 	  or block the new).
 */
 
-var ToClientChannels = syncmap.Map{}   // make(map[string]chan []byte)
-var FromClientChannels = syncmap.Map{} // make(map[string]chan []byte)
+var ToClientChannels = cmap.New[chan []byte]()   // make(map[string]chan []byte)
+var FromClientChannels = cmap.New[chan []byte]() // make(map[string]chan []byte)
 
 func GetConnectedUsernames() []string {
-
-	var keys []string
-
-	ToClientChannels.Range(func(key, value interface{}) bool {
-		keys = append(keys, key.(string))
-		return true
-	})
-	return keys
+	return ToClientChannels.Keys()
 }
 
 func HasChannel(username string) bool {
-	if _, ok := ToClientChannels.Load(username); ok {
+	if _, ok := ToClientChannels.Get(username); ok {
 		return true
 	}
-	if _, ok := FromClientChannels.Load(username); ok {
+	if _, ok := FromClientChannels.Get(username); ok {
 		return true
 	}
 	return false
 }
 
 func RegisterToClientChannel(username string, toClient chan []byte) {
-	ToClientChannels.Store(username, toClient)
+	ToClientChannels.Set(username, toClient)
 }
 
 func RegisterFromClientChannel(username string, fromClient chan []byte) {
-	FromClientChannels.Store(username, fromClient)
+	FromClientChannels.Set(username, fromClient)
 
 	// NOTE: This creates a goroutine for each client
 	go fromClientHandler(username, fromClient)
 }
 
 func UnRegisterClientChannels(username string) {
-	ToClientChannels.Delete(username)
-	FromClientChannels.Delete(username)
+	ToClientChannels.Pop(username)
+	FromClientChannels.Pop(username)
+
+	// NOTE: Not closing channels here, go developers says they are GCed.
 }
 
 func toClientDispatcher(username string, packet *shared.Packet) {
 	// Look up the channel in the registry, and then send message
-	toClientChannel, ok := ToClientChannels.Load(username)
+	toClientChannel, ok := ToClientChannels.Get(username)
 	if ok {
-		tc := toClientChannel.(chan []byte)
-		tc <- shared.PacketToBytes(packet)
+		toClientChannel <- shared.PacketToBytes(packet)
 	}
 }
 
@@ -85,7 +78,8 @@ func fromClientHandler(username string, in chan []byte) {
 	for {
 		buffer := <-in
 		if buffer == nil {
-			log.Println("fromClientHandler(): Unregistering client:", username)
+			// Maybe not..
+			// log.Println("fromClientHandler(): Unregistering client:", username)
 			UnRegisterClientChannels(username)
 			return
 		}

@@ -30,20 +30,26 @@ func (dotWorldGame *DotWorldGame) buildDotWorld(min int32, max int32, nDots int)
 		id := shared.RandName("dot")
 		x := shared.RandInt(min, max)
 		y := shared.RandInt(min, max)
-		dotWorldGame.GameObjects[id] = createDot(id, x, y, 2, 255, 0, 255)
+
+		R := shared.RandInt(64, 200)
+		G := shared.RandInt(64, 200)
+		B := shared.RandInt(64, 200)
+
+		dotWorldGame.GameObjects[id] = createDot(id, x, y, 4, R, G, B)
 	}
 }
 
 func (dotWorldGame *DotWorldGame) shakeDots(amp int32) {
 	for _, gameObject := range dotWorldGame.GameObjects {
-		gameObject.X += int32(shared.RandInt(-amp, amp))
-		gameObject.Y += int32(shared.RandInt(-amp, amp))
-		// fmt.Println("Shook, ", id)
+		gameObject.X += shared.RandInt(-amp, amp)
+		gameObject.Y += shared.RandInt(-amp, amp)
+
+		// gameObject.FlAttrs["radius"] = gameObject.FlAttrs["radius"] + float32(shared.RandInt(-1, 1))
 	}
 }
 
 func (dotWorldGame *DotWorldGame) Update() {
-	dotWorldGame.shakeDots(1)
+	dotWorldGame.shakeDots(2)
 }
 
 func (dotWorldGame *DotWorldGame) HandleUserInputPacket(
@@ -67,9 +73,9 @@ func (dotWorldGame *DotWorldGame) HandleUserInputPacket(
 		playerGob.Y = y
 
 	} else if packet.GetWasdInput() != nil {
-
+		// TODO
 	} else if packet.GetPlayerLogout() != nil {
-
+		// TODO
 	}
 }
 
@@ -89,6 +95,7 @@ func createDot(
 			"R": R,
 			"G": G,
 			"B": B,
+			"A": 0,
 		},
 		Kind: shared.GameObjectKind_DOT,
 	}

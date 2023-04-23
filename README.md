@@ -1,20 +1,38 @@
 # We The Forsaken (WTF!)
 
 ## Introduction
-A super-massive PvP dungeon brawler, all copy-righted to Swedish company Bitknife AB.
+WTF is an attempt to make an online multiplayer dungeon brawler / roguelike.
 
-The game consists of different client and server applications.
+## Go Game Source - wtf-main
+The [](wtf-main) directory contains both the go-based server and the client(s).
 
-## Servers
+The first version of the client was writen using Ebitengine for Go.
 
-### Main Go server (DGS)
-The dedicated game-server is written in the language Go. Server developers should continue with [README.md](server/README.md)
-for that sub-project.
+The game is split into three main packages
 
-For now it is a single process with an upper game and lower socket layer. We also have a "common/core"-layer in between
-just to keep the two main layers apart. The core layer is responsible for distributing messages between the layers.
+- client
+- server
+- shared
 
-### Message systems
+We try to share as much logic as possible between the client and server as not to duplicate similar
+concepts of the game.
+
+### Client in Ebitengine
+Links to Ebitengine and a list of very useful additions to it.
+
+https://github.com/hajimehoshi/ebiten
+https://github.com/sedyh/awesome-ebitengine
+
+
+### Shared
+The [./shared](./common) directory contains the shared message model.
+
+### Server
+
+
+## Ideas for future
+
+### Message systems 
 If we go for a distributed server solution, we need a hyper-fast messaging system to separate the game layer from the
 socket-layer by a fast distributed messaging system (either a broker or broker-less):
 
@@ -47,7 +65,11 @@ Will share the SQL database with the game-server.
 ### Util servers
 Expect to have log-server, metric-server etc.
 
-## Clients
+## Other Clients (Maybe Deprecated!)
+
+Outside of the wtf-main directory is the [](./clients) directory in where we may build additional game clients in 
+other languages than Go.
+
 ### Main C# Unity game client
 This is the main graphical game client, read about how to get started in the [README.md](clients/unity-client/README.md).
 
@@ -62,6 +84,3 @@ It uses the same set of message system used by the Unity client, but from a more
 automatic testing of the game-server, regarding performance etc.
 
 May be simple console/prompt based applications, or something else, continue here: [README.md](clients/py-client/README.md).
-
-## Common code
-The [./shared](./common) directory contains the shared message model.

@@ -12,27 +12,28 @@ const (
 	STATS_INTERVAL = 3
 )
 
-var wtfGameSingleton WTFGame
+var wtfGameGlobal WTFGame
 
 func UserInputRunner(username string, userInputForGame chan *shared.Packet) {
 	// TODO: Rethink, the global variable theWtfGame is a singleton
 
 	for {
 		packet := <-userInputForGame
-		wtfGameSingleton.HandleUserInputPacket(username, packet)
+		wtfGameGlobal.HandleUserInputPacket(username, packet)
 	}
 }
 
 func Run(packetBroadCastChannel chan []*shared.Packet, wtfGame WTFGame) {
 
-	wtfGameSingleton = wtfGame
+	// TODO: convert all this to a go struct methods (go "class")
+	wtfGameGlobal = wtfGame
 
 	ticTimeNano := time.Second / TICK_RATE
 
 	// Server tick number
 	tick := int64(0)
 
-	cumSleepTime := 0
+	aggregatedSleepTime := 0
 
 	for {
 		// Game loop
@@ -56,17 +57,20 @@ func Run(packetBroadCastChannel chan []*shared.Packet, wtfGame WTFGame) {
 
 			// Calculate average headroom
 			allPossibleSleepTime := ticTimeNano * TICK_RATE * STATS_INTERVAL
-			sleepFraction := float32(cumSleepTime) / float32(allPossibleSleepTime)
+			sleepFraction := float32(aggregatedSleepTime) / float32(allPossibleSleepTime)
 			log.Printf("Game-loop load: %.2f %%", 100-100*sleepFraction)
-			cumSleepTime = 0
+			aggregatedSleepTime = 0
 		}
 
-		// Calculate sleep time to keep FPS
+		// Calculate sleep time needed to keep FPS
 		workTime := time.Since(start)
 		sleepTime := ticTimeNano - workTime
-		time.Sleep(sleepTime)
 
 		// For stats collection to see if we meet deadlines
-		cumSleepTime += int(sleepTime.Nanoseconds())
+		aggregatedSleepTime += int(sleepTime.Nanoseconds())
+
+		// SLEEP
+		//-----------------------------------------------------------------
+		time.Sleep(sleepTime)
 	}
 }

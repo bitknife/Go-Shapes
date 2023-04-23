@@ -67,13 +67,15 @@ func fromClientHandler(username string, in chan []byte) {
 			// Means the underlying layer will not send more packets, unregister and return
 			UnRegisterClientChannels(username)
 			userInputForGame <- nil
+			close(userInputForGame)
 			return
 		}
 
 		packet := shared.BytesToPacket(buffer)
 
 		if packet == nil {
-			// Not sure what this means yet :)
+			// This is no payload from client, ignore for now or maybe disconect?
+
 		} else {
 			// OK got a packet, send it to
 			userInputForGame <- packet

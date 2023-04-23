@@ -34,12 +34,13 @@ func CreateGame(
 		X:    0,
 		Y:    0,
 		FlAttrs: map[string]float32{
-			"radius": 8,
+			"radius": 5,
 		},
 		IntAttrs: map[string]int32{
 			"R": 0x00,
 			"G": 0xff,
 			"B": 0x00,
+			"A": 0x99,
 		},
 	}
 	localDot.Init(&gobj)

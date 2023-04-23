@@ -19,19 +19,14 @@ const (
 	PORT = "7777"
 )
 
-func waitForExitSignals() {
+func waitForExitSignals(toServer chan []byte) {
 	exitSignal := make(chan os.Signal)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 	<-exitSignal
 
-	/*
-		log.Print("Closing connection.")
-		err := conn.Close()
-		if err != nil {
-			log.Println("Failed to close connection.")
-			return
-		}
-	*/
+	shared.BuildLogoutPacket("")
+	toServer <- nil
+
 	log.Print("Exiting.")
 }
 
@@ -59,9 +54,8 @@ func main() {
 	fromServer, toServer := SetUpNetworking("tcp", *host, *port, *username, *password)
 
 	// Channel from network layer up to UI
-	fromServerChan := make(chan *shared.Packet)
-
-	go HandlePacketsFromServer(fromServer, toServer, fromServerChan)
+	gamePacketsFromServerChannel := make(chan *shared.Packet)
+	go HandlePacketsFromServer(fromServer, toServer, gamePacketsFromServerChannel)
 
 	// Central objects shared between network and game engine, keep it simple for now
 	gameObjects := make(map[string]*shared.GameObject)
@@ -74,7 +68,7 @@ func main() {
 	// Starts the UI, this blocks
 	if *headless == true {
 		log.Println("Starting headless client")
-		waitForExitSignals()
+		waitForExitSignals(toServer)
 	} else {
 		/* Runs on Main thread
 		DOC:
@@ -82,7 +76,7 @@ func main() {
 
 			https://ebitengine.org/en/documents/cheatsheet.html
 		*/
-		ebiten.RunEbitenApplication(gameObjects, toServer, fromServerChan)
+		ebiten.RunEbitenApplication(gameObjects, toServer, gamePacketsFromServerChannel)
 	}
 
 }

@@ -19,6 +19,9 @@ func UserInputRunner(username string, userInputForGame chan *shared.Packet) {
 
 	for {
 		packet := <-userInputForGame
+		if packet == nil {
+			return
+		}
 		wtfGameGlobal.HandleUserInputPacket(username, packet)
 	}
 }

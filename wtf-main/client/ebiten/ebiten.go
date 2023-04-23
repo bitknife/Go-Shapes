@@ -22,7 +22,7 @@ https://github.com/sedyh/awesome-ebitengine
 */
 func RunEbitenApplication(
 	gameObjects map[string]*shared.GameObject,
-	toServer chan []byte,
+	toServerChan chan []byte,
 	fromServerChan chan *shared.Packet,
 ) {
 
@@ -30,7 +30,7 @@ func RunEbitenApplication(
 	ebiten.SetWindowTitle("WTF!?")
 	ebiten.SetFullscreen(false)
 
-	ebitenGame := CreateGame(toServer)
+	ebitenGame := CreateGame(toServerChan)
 
 	// Start the controller
 	ebitenController := EbitenController{gameObjects, fromServerChan, ebitenGame}

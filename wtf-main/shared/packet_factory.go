@@ -54,6 +54,14 @@ func BuildLoginPacket(username string, password string) *Packet {
 	}
 }
 
+func BuildLogoutPacket(username string) *Packet {
+	return &Packet{
+		Payload: &Packet_PlayerLogout{&PlayerLogout{
+			Username: username,
+		}},
+	}
+}
+
 func BuildMouseInputPacket(mouseInput *MouseInput) *Packet {
 	return &Packet{
 		Payload: &Packet_MouseInput{mouseInput},

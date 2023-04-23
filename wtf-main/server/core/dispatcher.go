@@ -3,6 +3,7 @@ package core
 import (
 	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/shared"
+	"fmt"
 	cmap "github.com/orcaman/concurrent-map/v2"
 )
 
@@ -41,6 +42,8 @@ func InitClient(username string, toClient chan []byte, fromClient chan []byte) {
 }
 
 func UnRegisterClientChannels(username string) {
+	fmt.Println("Unregistering", username)
+
 	ToClientChannels.Pop(username)
 	FromClientChannels.Pop(username)
 

@@ -71,7 +71,9 @@ func makeAndRegisterChannels(playerLogin *shared.PlayerLogin) (chan []byte, chan
 
 func Run(host string, port string) {
 
+	// TODO: Implement udp and websocket
 	listen, err := net.Listen("tcp", host+":"+port)
+
 	if err != nil {
 		// Note: call to Fatal will do os.Exit(1).
 		log.Fatal(err)

@@ -16,11 +16,18 @@ TODO: Rethink if Username is a good key or not, it has its merits (ie if connect
 	  or block the new).
 */
 
+var ToClientChannelsRegistry = cmap.New[chan []byte]()
+
+/*
+ToClientChannels usage:
+
+	Sender must Pop() from this cmap, send and then return it.
+*/
 var ToClientChannels = cmap.New[chan []byte]()   // make(map[string]chan []byte)
 var FromClientChannels = cmap.New[chan []byte]() // make(map[string]chan []byte)
 
 func GetConnectedUsernames() []string {
-	return ToClientChannels.Keys()
+	return ToClientChannelsRegistry.Keys()
 }
 
 func HasChannel(username string) bool {
@@ -34,6 +41,7 @@ func HasChannel(username string) bool {
 }
 
 func InitClient(username string, toClient chan []byte, fromClient chan []byte) {
+	ToClientChannelsRegistry.Set(username, toClient)
 	ToClientChannels.Set(username, toClient)
 	FromClientChannels.Set(username, fromClient)
 
@@ -44,28 +52,52 @@ func InitClient(username string, toClient chan []byte, fromClient chan []byte) {
 func UnRegisterClientChannels(username string) {
 	fmt.Println("Unregistering", username)
 
+	ToClientChannelsRegistry.Pop(username)
 	ToClientChannels.Pop(username)
 	FromClientChannels.Pop(username)
-
-	// NOTE: Not closing channels here, go developers says they are GCed.
 }
 
-func toClientDispatcher(username string, packet *shared.Packet) {
+func toClientDispatcher(username string, packet *shared.Packet) int {
 	// Look up the channel in the registry, and then send message
-	toClientChannel, ok := ToClientChannels.Get(username)
+	// 	NOTE: May need to protect this one, or maybe POP it (and put it back)
+	toClientChannel, ok := ToClientChannels.Pop(username)
 	if ok {
-		// NOTE: This blocks until lower layer is done!
+		/**
+		NOTE: This blocks until lower layer is done!
+		*/
 		toClientChannel <- shared.PacketToBytes(packet)
+		ToClientChannels.Set(username, toClientChannel)
+		return 0
+	} else {
+		return 1
 	}
 }
 
-func fromClientHandler(username string, in chan []byte) {
+func toClientDispatcherMulti(username string, packets []*shared.Packet) int {
+	// Look up the channel in the registry, and then send message
+	// 	NOTE: May need to protect this one, or maybe POP it (and put it back)
+	toClientChannel, ok := ToClientChannels.Pop(username)
+	if ok {
+		/**
+		NOTE: This blocks until lower layer is done!
+		*/
+		for _, packet := range packets {
+			toClientChannel <- shared.PacketToBytes(packet)
+		}
+		ToClientChannels.Set(username, toClientChannel)
+		return 0
+	} else {
+		return 1
+	}
+}
+
+func fromClientHandler(username string, fromClient chan []byte) {
 	// This is OK, core knows of both game and socket layers,
 	userInputForGame := make(chan *shared.Packet)
 	go game.UserInputRunner(username, userInputForGame)
 
 	for {
-		buffer := <-in
+		buffer := <-fromClient
 		if buffer == nil {
 			// Means the underlying layer will not send more packets, unregister and return
 			UnRegisterClientChannels(username)

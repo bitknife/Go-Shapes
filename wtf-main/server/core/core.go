@@ -2,6 +2,7 @@ package core
 
 import (
 	"bitknife.se/wtf/shared"
+	"fmt"
 	"log"
 	"time"
 )
@@ -28,6 +29,9 @@ func broadCastPing(pingIntervalMsec int) {
 		time.Sleep(time.Duration(pingIntervalMsec) * time.Millisecond)
 
 		usernames := GetConnectedUsernames()
+
+		fmt.Println("Number of clients = ", len(usernames))
+
 		go func() {
 			for _, username := range usernames {
 				toClientDispatcher(username, shared.BuildPingPacket())
@@ -39,18 +43,22 @@ func broadCastPing(pingIntervalMsec int) {
 }
 
 func SendPacketsToUsername(username string, packets []*shared.Packet) {
-	for _, packet := range packets {
-		toClientDispatcher(username, packet)
+	busy := 0
+	busy += toClientDispatcherMulti(username, packets)
+
+	if busy != 0 {
+		// TODO: Stats this!
+		// log.Println(">>> Busy channel for", username)
 	}
 }
 
 func broadCastPackets(packets []*shared.Packet) {
 	/**
-	NOTE: Costly!
+	NOTE: This one is of course costly
 	*/
 	usernames := GetConnectedUsernames()
 	for _, username := range usernames {
-		// Go routine for each user as they all have their own socket
+		// NOTE: We may need to flow control this one
 		go SendPacketsToUsername(username, packets)
 	}
 }

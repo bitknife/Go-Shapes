@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"sync/atomic"
+	"time"
 )
 
 import (
@@ -12,8 +13,15 @@ import (
 	"os"
 )
 
+const (
+	WRITE_TIMEOUT_MS = 10
+)
+
 var bytesSent *int64 = new(int64)
 var bytesReceived *int64 = new(int64)
+var maxSendTime *int64 = new(int64)
+var packetsLost *int64 = new(int64)
+
 var packetsSent *int64 = new(int64)
 var packetsReceived *int64 = new(int64)
 
@@ -22,6 +30,9 @@ type NetStats struct {
 	BytesReceived   int64
 	PacketsSent     int64
 	PacketsReceived int64
+	PacketsLost     int64
+
+	MaxSendTime int64
 }
 
 func GetStats() *NetStats {
@@ -30,6 +41,8 @@ func GetStats() *NetStats {
 		BytesReceived:   *bytesReceived,
 		PacketsSent:     *packetsSent,
 		PacketsReceived: *packetsReceived,
+		PacketsLost:     *packetsLost,
+		MaxSendTime:     *maxSendTime,
 	}
 	return &currentStats
 }
@@ -125,22 +138,42 @@ func ReceivePackageDataFromTCPConnection(conn net.Conn) []byte {
 func PacketSenderTCP(conn net.Conn, outgoing chan []byte) {
 
 	for {
+		// Wait for packets
 		wirePacket := <-outgoing
+
+		//------------------------------
+		start := time.Now()
+
 		if wirePacket == nil {
 			log.Println("PacketSenderTCP(): Nil packet from channel. Aborting ")
 			conn.Close()
 			return
 		}
+
+		if WRITE_TIMEOUT_MS > 0 {
+			conn.SetWriteDeadline(time.Now().Add(time.Duration(WRITE_TIMEOUT_MS) * time.Millisecond))
+		}
 		_, err := conn.Write(wirePacket)
+
 		if err != nil {
+			// NOTE: Packet-loss !
+			atomic.AddInt64(packetsLost, 1)
+
 			// Writing to closed socket
 			// log.Println("PacketSenderTCP(): Error writing packet ")
-			conn.Close()
+			// conn.Close()
 			return
 		}
 
 		// Stats
 		atomic.AddInt64(packetsSent, 1)
 		atomic.AddInt64(bytesSent, int64(len(wirePacket)))
+
+		sendTime := time.Since(start)
+
+		if int64(sendTime) > *maxSendTime {
+			fmt.Println("New Max send time", sendTime)
+			atomic.StoreInt64(maxSendTime, int64(sendTime))
+		}
 	}
 }

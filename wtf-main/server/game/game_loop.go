@@ -49,7 +49,15 @@ func Run(packetBroadCastChannel chan []*shared.Packet, wtfGame WTFGame) {
 		// Package and send game objects
 		packets := shared.BuildGameObjectPackets(tick, wtfGame.GetGameObjects())
 
+		// TODO: Need to ensure last call was complete etc.
+		// 		 This is a problem that could block the game loop
+		//		 or have us skip frames.
+		//		 In essence, this action cant be too slow
+		//		 Need to control/monitor outgoing queue
 		packetBroadCastChannel <- packets
+
+		// TODO: Add a "wait for broadcast complete" ? no need to stack more packets
+		//		 to outgoing if we c
 
 		// METRICS
 		//-----------------------------------------------------------------

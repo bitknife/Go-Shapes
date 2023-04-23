@@ -33,14 +33,16 @@ func CollectAndPrintMetricsRoutine(label string, interval_sec int) {
 
 	log.Println("numCpus", gS["numCpus"])
 
-	log.Println("numGoroutines | heapAlloc kB | totalAlloc kB | sent kB | Rec. kB | pS | pR")
+	log.Println("numGoroutines | heapAlloc kB | totalAlloc kB | sent kB | Rec. kB | pS | pR | mST ms | nPL")
 	log.Println("--", label, "------------------------------------------------------")
 	for {
 		gS := CollectGoStats()
 		nS := GetStats()
 
 		log.Println(gS["numGoroutines"], "|", gS["heapAllocKB"], "|", gS["TotalAllocKB"], "|",
-			nS.BytesSent/1000, "|", nS.BytesReceived/1000, "|", nS.PacketsSent, "|", nS.PacketsReceived)
+			nS.BytesSent/1000, "|", nS.BytesReceived/1000, "|", nS.PacketsSent, "|", nS.PacketsReceived, "|",
+			nS.MaxSendTime/1000000, "|", nS.PacketsLost)
+
 		time.Sleep(time.Duration(interval_sec) * time.Second)
 	}
 }

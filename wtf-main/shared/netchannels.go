@@ -22,16 +22,20 @@ const (
 		Value? 50-90% of game frame duration is a good start.
 
 	*/
-	WRITE_TIMEOUT_MS = 30
+	WRITE_TIMEOUT_MS = 200
 )
 
 var bytesSent *int64 = new(int64)
 var bytesReceived *int64 = new(int64)
-var maxSendTime *int64 = new(int64)
+var minSendTimeMs *int64 = new(int64)
+var maxSendTimeMs *int64 = new(int64)
 var packetsLost *int64 = new(int64)
 
 var packetsSent *int64 = new(int64)
 var packetsReceived *int64 = new(int64)
+
+// For calculating avg. send time
+var totalSendTimeMs = new(int64)
 
 type NetStats struct {
 	BytesSent       int64
@@ -39,8 +43,9 @@ type NetStats struct {
 	PacketsSent     int64
 	PacketsReceived int64
 	PacketsLost     int64
-
-	MaxSendTime int64
+	MinSendTimeMs   int64
+	MaxSendTimeMs   int64
+	TotalSendTimeMs int64
 }
 
 func GetNetStats() *NetStats {
@@ -50,13 +55,22 @@ func GetNetStats() *NetStats {
 		PacketsSent:     *packetsSent,
 		PacketsReceived: *packetsReceived,
 		PacketsLost:     *packetsLost,
-		MaxSendTime:     *maxSendTime,
+		MinSendTimeMs:   *minSendTimeMs,
+		MaxSendTimeMs:   *maxSendTimeMs,
+		TotalSendTimeMs: *totalSendTimeMs,
 	}
 	return &currentStats
 }
 
 func ConnectClient(protocol string, host string, port string,
 	fromServer chan []byte, toServer chan []byte) {
+
+	if minSendTimeMs == nil {
+		// Just initialize to something big
+		atomic.StoreInt64(minSendTimeMs, 10000000)
+		atomic.StoreInt64(maxSendTimeMs, 0)
+		atomic.StoreInt64(totalSendTimeMs, 0)
+	}
 
 	if protocol == "tcp" || protocol == "udp" {
 		// Connect to server
@@ -158,9 +172,8 @@ func PacketSenderTCP(conn net.Conn, outgoing chan []byte) {
 			return
 		}
 
-		if WRITE_TIMEOUT_MS > 0 {
-			conn.SetWriteDeadline(time.Now().Add(time.Duration(WRITE_TIMEOUT_MS) * time.Millisecond))
-		}
+		conn.SetWriteDeadline(time.Now().Add(time.Duration(WRITE_TIMEOUT_MS) * time.Millisecond))
+
 		_, err := conn.Write(wirePacket)
 
 		if err != nil {
@@ -173,15 +186,20 @@ func PacketSenderTCP(conn net.Conn, outgoing chan []byte) {
 			return
 		}
 
+		sendTimeMs := time.Since(start) / 1000000
+
 		// Stats
 		atomic.AddInt64(packetsSent, 1)
 		atomic.AddInt64(bytesSent, int64(len(wirePacket)))
 
-		sendTime := time.Since(start)
-
-		if int64(sendTime) > *maxSendTime {
+		if int64(sendTimeMs) < *minSendTimeMs {
 			// fmt.Println("New Max send time", sendTime)
-			atomic.StoreInt64(maxSendTime, int64(sendTime))
+			atomic.StoreInt64(minSendTimeMs, int64(sendTimeMs))
 		}
+		if int64(sendTimeMs) > *maxSendTimeMs {
+			// fmt.Println("New Max send time", sendTime)
+			atomic.StoreInt64(maxSendTimeMs, int64(sendTimeMs))
+		}
+		atomic.AddInt64(totalSendTimeMs, int64(sendTimeMs))
 	}
 }

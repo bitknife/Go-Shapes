@@ -37,6 +37,7 @@ func SendPacketsToUsername(username string, packets []*shared.Packet) {
 
 			This is the bad thing with sending batches this way.
 		*/
+		// log.Println("Dropping", len(packets), "packets for", username)
 		atomic.AddInt64(busyChannelDrops, int64(len(packets)))
 	}
 }

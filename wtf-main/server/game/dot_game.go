@@ -26,7 +26,7 @@ func (dotWorldGame *DotWorldGame) GetGameObjects() map[string]*shared.GameObject
 
 func (dotWorldGame *DotWorldGame) buildDotWorld(min int32, max int32, nDots int) {
 	// Create a bunch of dots within the bounds
-	for i := 1; i < nDots; i++ {
+	for i := 1; i <= nDots; i++ {
 		id := shared.RandName("dot")
 		x := shared.RandInt(min, max)
 		y := shared.RandInt(min, max)
@@ -37,6 +37,7 @@ func (dotWorldGame *DotWorldGame) buildDotWorld(min int32, max int32, nDots int)
 
 		dotWorldGame.GameObjects[id] = createDot(id, x, y, 4, R, G, B)
 	}
+	log.Println("Created", len(dotWorldGame.GameObjects), "dots.")
 }
 
 func (dotWorldGame *DotWorldGame) shakeDots(amp int32) {

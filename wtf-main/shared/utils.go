@@ -1,6 +1,7 @@
 package shared
 
 import (
+	"math"
 	"math/rand"
 	"runtime"
 	"strconv"
@@ -20,7 +21,8 @@ func RandInt(min int32, max int32) int32 {
 }
 
 func RandName(base string) string {
-	return base + "-" + strconv.Itoa(int(time.Now().UnixNano()))
+	s := strconv.FormatInt(time.Now().UnixNano()+rand.Int63n(math.MaxInt32), 32)
+	return base + "-" + s
 }
 
 func CollectGoStats() map[string]interface{} {

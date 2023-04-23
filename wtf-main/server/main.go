@@ -64,7 +64,7 @@ func startServer() {
 	/**
 	Main serverside game loop
 	*/
-	dotWorldGame := game.CreateDotWorldGame(250, 250, 10)
+	dotWorldGame := game.CreateDotWorldGame(250, 250, 33)
 	go game.Run(packetBroadCastChannel, dotWorldGame)
 
 	go CollectAndPrintMetricsRoutine("WTF server", 2)

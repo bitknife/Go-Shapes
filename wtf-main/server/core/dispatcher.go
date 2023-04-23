@@ -21,7 +21,7 @@ var ToClientChannelsRegistry = cmap.New[chan []byte]()
 /*
 ToClientChannels usage:
 
-	Sender must Pop() from this cmap, send and then return it.
+Sender must Pop() from this cmap, send and then return it.
 */
 var ToClientChannels = cmap.New[chan []byte]()   // make(map[string]chan []byte)
 var FromClientChannels = cmap.New[chan []byte]() // make(map[string]chan []byte)
@@ -57,7 +57,7 @@ func UnRegisterClientChannels(username string) {
 	FromClientChannels.Pop(username)
 }
 
-func toClientDispatcher(username string, packet *shared.Packet) int {
+func ToClientDispatcher(username string, packet *shared.Packet) int {
 	// Look up the channel in the registry, and then send message
 	// 	NOTE: May need to protect this one, or maybe POP it (and put it back)
 	toClientChannel, ok := ToClientChannels.Pop(username)
@@ -73,7 +73,7 @@ func toClientDispatcher(username string, packet *shared.Packet) int {
 	}
 }
 
-func toClientDispatcherMulti(username string, packets []*shared.Packet) int {
+func ToClientDispatcherMulti(username string, packets []*shared.Packet) int {
 	// Look up the channel in the registry, and then send message
 	// 	NOTE: May need to protect this one, or maybe POP it (and put it back)
 	toClientChannel, ok := ToClientChannels.Pop(username)
@@ -87,6 +87,7 @@ func toClientDispatcherMulti(username string, packets []*shared.Packet) int {
 		ToClientChannels.Set(username, toClientChannel)
 		return 0
 	} else {
+		// Means the channel was busy!
 		return 1
 	}
 }

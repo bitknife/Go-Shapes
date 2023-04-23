@@ -78,5 +78,4 @@ func main() {
 		*/
 		ebiten.RunEbitenApplication(gameObjects, toServer, gamePacketsFromServerChannel)
 	}
-
 }

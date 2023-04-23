@@ -33,6 +33,8 @@ func Run(packetBroadCastChannel chan []*shared.Packet, wtfGame WTFGame) {
 
 	ticTimeNano := time.Second / TICK_RATE
 
+	log.Println("Game loop at", TICK_RATE, "FPS. Frame time:", ticTimeNano)
+
 	// Server tick number
 	tick := int64(0)
 
@@ -63,9 +65,6 @@ func Run(packetBroadCastChannel chan []*shared.Packet, wtfGame WTFGame) {
 		//-----------------------------------------------------------------
 		tick = tick + 1
 		if tick%(TICK_RATE*STATS_INTERVAL) == 0 {
-			// Would be nice to collect average headroom
-			// fmt.Println("Server tics: ", tics)
-
 			// Calculate average headroom
 			allPossibleSleepTime := ticTimeNano * TICK_RATE * STATS_INTERVAL
 			sleepFraction := float32(aggregatedSleepTime) / float32(allPossibleSleepTime)

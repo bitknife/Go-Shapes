@@ -2,7 +2,7 @@ package game
 
 import (
 	"bitknife.se/wtf/shared"
-	"fmt"
+	"log"
 )
 
 const (
@@ -64,7 +64,7 @@ func (dotWorldGame *DotWorldGame) HandleUserInputPacket(
 		playerGobId := PLAYER_GOB_ID_PREFIX + "-" + username
 
 		if _, ok := dotWorldGame.GameObjects[playerGobId]; !ok {
-			fmt.Println("===> SPAWNED PLAYER <===")
+			log.Println("===> SPAWNED PLAYER <===")
 			dotWorldGame.GameObjects[playerGobId] = createDot(playerGobId, x, y, 5, 128, 128, 255)
 		}
 		// Update

@@ -14,7 +14,15 @@ import (
 )
 
 const (
-	WRITE_TIMEOUT_MS = 10
+	/*
+		WRITE_TIMEOUT_MS If send time takes longer than this
+		the send operation will be aborted and a packet loss
+		will be noted.
+
+		Value? 50-90% of game frame duration is a good start.
+
+	*/
+	WRITE_TIMEOUT_MS = 30
 )
 
 var bytesSent *int64 = new(int64)
@@ -35,7 +43,7 @@ type NetStats struct {
 	MaxSendTime int64
 }
 
-func GetStats() *NetStats {
+func GetNetStats() *NetStats {
 	currentStats := NetStats{
 		BytesSent:       *bytesSent,
 		BytesReceived:   *bytesReceived,
@@ -172,7 +180,7 @@ func PacketSenderTCP(conn net.Conn, outgoing chan []byte) {
 		sendTime := time.Since(start)
 
 		if int64(sendTime) > *maxSendTime {
-			fmt.Println("New Max send time", sendTime)
+			// fmt.Println("New Max send time", sendTime)
 			atomic.StoreInt64(maxSendTime, int64(sendTime))
 		}
 	}

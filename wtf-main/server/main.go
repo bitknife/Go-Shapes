@@ -52,22 +52,22 @@ func startServer() {
 	log.Println("Starting server on", HOST, ":", PORT)
 	go socketserver.Run(HOST, PORT)
 
-	/**
-	This is the layer separating sockets from the game.
-	*/
 	log.Println("Ping interval", *pingIntervalMsec, "msec.")
-	go core.Run(*pingIntervalMsec)
+	go PingAllClients(*pingIntervalMsec)
 
+	/**
+	Broadcast packets routine
+	*/
 	packetBroadCastChannel := make(chan []*shared.Packet)
 	go core.PacketBroadCaster(packetBroadCastChannel)
 
 	/**
 	Main serverside game loop
 	*/
-	dotWorldGame := game.CreateDotWorldGame(250, 250, 100)
+	dotWorldGame := game.CreateDotWorldGame(250, 250, 10)
 	go game.Run(packetBroadCastChannel, dotWorldGame)
 
-	go shared.CollectAndPrintMetricsRoutine("WTF server", 5)
+	go CollectAndPrintMetricsRoutine("WTF server", 2)
 
 }
 

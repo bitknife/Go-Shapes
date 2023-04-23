@@ -3,35 +3,25 @@ package main
 import (
 	"bitknife.se/wtf/shared"
 	"log"
-	"net"
 	"syscall"
 )
 
-func SetUpNetworking(host string, port string, username string, password string) (chan []byte, chan []byte, net.Conn) {
-
-	// Connects
-	log.Println("Connecting to game server at", host+":"+port, "as", username)
-	conn := shared.Connect(host, port)
+func SetUpNetworking(protocol string, host string, port string, username string, password string) (chan []byte, chan []byte) {
 
 	fromServer := make(chan []byte)
 	toServer := make(chan []byte)
 
-	// Login using the connection directly
+	// Connects
+	log.Println("Connecting to game server at", host+":"+port, "as", username)
+
+	shared.ConnectClient(protocol, host, port, fromServer, toServer)
+
 	pPacket := shared.BuildLoginPacket(username, password)
 	wirePacket := shared.PacketToBytes(pPacket)
-	_, err := conn.Write(wirePacket)
-	if err != nil {
-		log.Println("Error writing packet: ")
-		conn.Close()
-	}
-
+	toServer <- wirePacket
 	log.Println("Login successful!")
 
-	// Start send and receive routines
-	go shared.PacketSender(conn, toServer)
-	go shared.PacketReceiver(conn, fromServer)
-
-	return fromServer, toServer, conn
+	return fromServer, toServer
 }
 
 func HandlePacketsFromServer(

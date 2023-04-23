@@ -8,7 +8,6 @@ import (
 	"bitknife.se/wtf/shared"
 	flags "github.com/spf13/pflag"
 	"log"
-	"net"
 	"os"
 	"os/signal"
 	"syscall"
@@ -20,17 +19,19 @@ const (
 	PORT = "7777"
 )
 
-func waitForExitSignals(conn net.Conn) {
+func waitForExitSignals() {
 	exitSignal := make(chan os.Signal)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 	<-exitSignal
 
-	log.Print("Closing connection.")
-	err := conn.Close()
-	if err != nil {
-		log.Println("Failed to close connection.")
-		return
-	}
+	/*
+		log.Print("Closing connection.")
+		err := conn.Close()
+		if err != nil {
+			log.Println("Failed to close connection.")
+			return
+		}
+	*/
 	log.Print("Exiting.")
 }
 
@@ -55,7 +56,7 @@ func main() {
 	flags.Parse()
 
 	// Connects and returns two channels for communication
-	fromServer, toServer, conn := SetUpNetworking(*host, *port, *username, *password)
+	fromServer, toServer := SetUpNetworking("tcp", *host, *port, *username, *password)
 
 	// Channel from network layer up to UI
 	fromServerChan := make(chan *shared.Packet)
@@ -73,7 +74,7 @@ func main() {
 	// Starts the UI, this blocks
 	if *headless == true {
 		log.Println("Starting headless client")
-		waitForExitSignals(conn)
+		waitForExitSignals()
 	} else {
 		/* Runs on Main thread
 		DOC:

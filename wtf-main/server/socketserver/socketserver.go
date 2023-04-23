@@ -13,7 +13,7 @@ func handleConnection(conn net.Conn) {
 	/**
 	First packet must be a login request.
 	*/
-	packageData := shared.ReceivePackageDataFromConnection(conn)
+	packageData := shared.ReceivePackageDataFromTCPConnection(conn)
 	if packageData == nil {
 		log.Print("Got nil from connection, closing!")
 		conn.Close()
@@ -51,11 +51,11 @@ func handleConnection(conn net.Conn) {
 
 	// Main packet receiver
 	//go receivePacketsRoutine(conn, playerLogin, fromClient)
-	go shared.PacketReceiver(conn, fromClient)
+	go shared.PacketReceiverTCP(conn, fromClient)
 
 	// Main packet sender
 	//go sendPackagesRoutine(conn, toClient)
-	go shared.PacketSender(conn, toClient)
+	go shared.PacketSenderTCP(conn, toClient)
 }
 
 func makeAndRegisterChannels(playerLogin *shared.PlayerLogin) (chan []byte, chan []byte) {

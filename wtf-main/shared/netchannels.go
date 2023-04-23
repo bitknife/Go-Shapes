@@ -34,22 +34,31 @@ func GetStats() *NetStats {
 	return &currentStats
 }
 
-func Connect(host string, port string) net.Conn {
+func ConnectClient(protocol string, host string, port string,
+	fromServer chan []byte, toServer chan []byte) {
 
-	// Connect to server
-	conn, err := net.Dial("tcp", host+":"+port)
-	if err != nil {
-		fmt.Println("Error connecting:", err.Error())
-		os.Exit(1)
+	if protocol == "tcp" || protocol == "udp" {
+		// Connect to server
+		conn, err := net.Dial(protocol, host+":"+port)
+		if err != nil {
+			fmt.Println("Error connecting:", err.Error())
+			os.Exit(1)
+		}
+
+		// Start send and receive routines
+		go PacketReceiverTCP(conn, fromServer)
+		go PacketSenderTCP(conn, toServer)
+
+	} else if protocol == "websocket" {
+		// TODO: Implement websocket Dial, PacketReceive and PacketSend
 	}
-	return conn
 }
 
-func PacketReceiver(conn net.Conn, incoming chan []byte) {
+func PacketReceiverTCP(conn net.Conn, incoming chan []byte) {
 
 	for {
 		// Blocks
-		packageData := ReceivePackageDataFromConnection(conn)
+		packageData := ReceivePackageDataFromTCPConnection(conn)
 
 		if packageData == nil {
 			// Communication error, broken pipe etc
@@ -77,7 +86,7 @@ func PacketReceiver(conn net.Conn, incoming chan []byte) {
 	}
 }
 
-func ReceivePackageDataFromConnection(conn net.Conn) []byte {
+func ReceivePackageDataFromTCPConnection(conn net.Conn) []byte {
 	/*
 		Helper that waits for the header and returns the type and []byte representing the package.
 
@@ -113,19 +122,19 @@ func ReceivePackageDataFromConnection(conn net.Conn) []byte {
 	return packetData
 }
 
-func PacketSender(conn net.Conn, outgoing chan []byte) {
+func PacketSenderTCP(conn net.Conn, outgoing chan []byte) {
 
 	for {
 		wirePacket := <-outgoing
 		if wirePacket == nil {
-			log.Println("PacketSender(): Nil packet from channel. Aborting ")
+			log.Println("PacketSenderTCP(): Nil packet from channel. Aborting ")
 			conn.Close()
 			return
 		}
 		_, err := conn.Write(wirePacket)
 		if err != nil {
 			// Writing to closed socket
-			// log.Println("PacketSender(): Error writing packet ")
+			// log.Println("PacketSenderTCP(): Error writing packet ")
 			conn.Close()
 			return
 		}

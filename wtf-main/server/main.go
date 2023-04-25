@@ -59,13 +59,14 @@ func startServer() {
 	Broadcast packets routine
 	*/
 	packetBroadCastChannel := make(chan []*shared.Packet)
-	go core.PacketBroadCaster(packetBroadCastChannel)
+	packetsSentChannel := make(chan int)
+	go core.PacketBroadCaster(packetBroadCastChannel, packetsSentChannel)
 
 	/**
 	Main serverside game loop
 	*/
-	dotWorldGame := game.CreateDotWorldGame(250, 250, 33)
-	go game.Run(packetBroadCastChannel, dotWorldGame)
+	dotWorldGame := game.CreateDotWorldGame(250, 250, 100)
+	go game.Run(packetBroadCastChannel, packetsSentChannel, dotWorldGame)
 
 	go CollectAndPrintMetricsRoutine("WTF server", 2)
 

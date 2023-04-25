@@ -68,7 +68,15 @@ func main() {
 	// Starts the UI, this blocks
 	if *headless == true {
 		log.Println("Starting headless client")
+		go func() {
+			for {
+				// Juste read packets for now.
+				<-gamePacketsFromServerChannel
+			}
+		}()
+		// NOTE: Blocks
 		waitForExitSignals(toServer)
+
 	} else {
 		/* Runs on Main thread
 		DOC:

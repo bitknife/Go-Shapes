@@ -26,7 +26,7 @@ func UserInputRunner(username string, userInputForGame chan *shared.Packet) {
 	}
 }
 
-func Run(packetBroadCastChannel chan []*shared.Packet, wtfGame WTFGame) {
+func Run(packetBroadCastChannel chan []*shared.Packet, packetsSentChannel chan int, wtfGame WTFGame) {
 
 	// TODO: convert all this to a go struct methods (go "class")
 	wtfGameGlobal = wtfGame
@@ -43,6 +43,7 @@ func Run(packetBroadCastChannel chan []*shared.Packet, wtfGame WTFGame) {
 	for {
 		// Game loop
 		start := time.Now()
+
 		//-----------------------------------------------------------------
 
 		// Update game logic
@@ -51,15 +52,13 @@ func Run(packetBroadCastChannel chan []*shared.Packet, wtfGame WTFGame) {
 		// Package and send game objects
 		packets := shared.BuildGameObjectPackets(tick, wtfGame.GetGameObjects())
 
-		// TODO: Need to ensure last call was complete etc.
-		// 		 This is a problem that could block the game loop
-		//		 or have us skip frames.
-		//		 In essence, this action cant be too slow
-		//		 Need to control/monitor outgoing queue
+		// Broadcast packets
 		packetBroadCastChannel <- packets
 
-		// TODO: Add a "wait for broadcast complete" ? no need to stack more packets
-		//		 to outgoing if we c
+		// TODO: Implement much smarter "send to clients" strategy! Ie. group by geoHash etc.
+
+		// Wait for completion, we get an int here len(packets)
+		<-packetsSentChannel
 
 		// METRICS
 		//-----------------------------------------------------------------

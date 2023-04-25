@@ -25,8 +25,8 @@ func GetBroadcastStats() *BroadcastStats {
 }
 
 func SendPacketsToUsername(username string, packets []*shared.Packet) {
-	busy := 0
-	busy += ToClientDispatcherMulti(username, packets)
+
+	busy := ToClientDispatcherMulti(username, packets)
 
 	if busy != 0 {
 		/*
@@ -39,6 +39,8 @@ func SendPacketsToUsername(username string, packets []*shared.Packet) {
 		*/
 		// log.Println("Dropping", len(packets), "packets for", username)
 		atomic.AddInt64(busyChannelDrops, int64(len(packets)))
+
+		// TODO: Need to throttle server if this happens !
 	}
 }
 
@@ -50,14 +52,24 @@ func broadCastPackets(packets []*shared.Packet) {
 	sort.Strings(usernames)
 
 	for _, username := range usernames {
-		// NOTE: We may need to flow control this one
-		go SendPacketsToUsername(username, packets)
+		/*
+				NOTE, We opt to NOT "go" this. I guess an "async"
+					  could be viable as well. but in that case the
+					  broadcaster would/may need to be notified on
+			          completion through a back channel.
+		*/
+		SendPacketsToUsername(username, packets)
 	}
 }
 
-func PacketBroadCaster(packetBroadCastChannel chan []*shared.Packet) {
+func PacketBroadCaster(packetBroadCastChannel chan []*shared.Packet, packetsSentChannel chan int) {
+
 	for {
 		packets := <-packetBroadCastChannel
 		broadCastPackets(packets)
+
+		// Just send the number of packages meant to send, not multiplied by
+		// receivers
+		packetsSentChannel <- len(packets)
 	}
 }

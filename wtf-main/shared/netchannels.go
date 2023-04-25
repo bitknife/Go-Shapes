@@ -22,7 +22,7 @@ const (
 		Value? 50-90% of game frame duration is a good start.
 
 	*/
-	WRITE_TIMEOUT_MS = 200
+	WRITE_TIMEOUT_MS = 10
 )
 
 var bytesSent *int64 = new(int64)
@@ -177,7 +177,8 @@ func PacketSenderTCP(conn net.Conn, outgoing chan []byte) {
 		_, err := conn.Write(wirePacket)
 
 		if err != nil {
-			// NOTE: Packet-loss !
+			// NOTE: Packet-loss, note half a packet may have been sent
+			//		 in which case the client would need to re-sync w. first-byte len.
 			atomic.AddInt64(packetsLost, 1)
 
 			// Writing to closed socket
@@ -185,6 +186,7 @@ func PacketSenderTCP(conn net.Conn, outgoing chan []byte) {
 			// conn.Close()
 			return
 		}
+		// log.Println("conn.Write() ok!")
 
 		sendTimeMs := time.Since(start) / 1000000
 

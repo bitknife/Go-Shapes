@@ -69,9 +69,11 @@ func main() {
 	if *headless == true {
 		log.Println("Starting headless client")
 		go func() {
+			packetCounter := 0
 			for {
 				// Juste read packets for now.
 				<-gamePacketsFromServerChannel
+				packetCounter++
 			}
 		}()
 		// NOTE: Blocks

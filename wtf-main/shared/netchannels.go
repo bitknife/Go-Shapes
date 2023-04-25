@@ -22,7 +22,7 @@ const (
 		Value? 50-90% of game frame duration is a good start.
 
 	*/
-	WRITE_TIMEOUT_MS = 10
+	WRITE_TIMEOUT_MS = 50
 )
 
 var bytesSent *int64 = new(int64)
@@ -167,9 +167,10 @@ func PacketSenderTCP(conn net.Conn, outgoing chan []byte) {
 		start := time.Now()
 
 		if wirePacket == nil {
+			// TODO: A bit harsh?
 			log.Println("PacketSenderTCP(): Nil packet from channel. Aborting ")
 			conn.Close()
-			return
+			continue
 		}
 
 		conn.SetWriteDeadline(time.Now().Add(time.Duration(WRITE_TIMEOUT_MS) * time.Millisecond))
@@ -184,7 +185,7 @@ func PacketSenderTCP(conn net.Conn, outgoing chan []byte) {
 			// Writing to closed socket
 			// log.Println("PacketSenderTCP(): Error writing packet ")
 			// conn.Close()
-			return
+			continue
 		}
 		// log.Println("conn.Write() ok!")
 

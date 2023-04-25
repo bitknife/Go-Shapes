@@ -53,7 +53,7 @@ func startServer() {
 	go socketserver.Run(HOST, PORT)
 
 	log.Println("Ping interval", *pingIntervalMsec, "msec.")
-	go PingAllClients(*pingIntervalMsec)
+	// go PingAllClients(*pingIntervalMsec)
 
 	/**
 	Broadcast packets routine

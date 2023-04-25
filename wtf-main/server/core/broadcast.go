@@ -24,7 +24,7 @@ func GetBroadcastStats() *BroadcastStats {
 	return &currentStats
 }
 
-func SendPacketsToUsername(username string, packets []*shared.Packet) {
+func SendPacketsToUsername(username string, packets []*shared.Packet, doneChan chan string) {
 
 	busy := ToClientDispatcherMulti(username, packets)
 
@@ -39,26 +39,35 @@ func SendPacketsToUsername(username string, packets []*shared.Packet) {
 		*/
 		// log.Println("Dropping", len(packets), "packets for", username)
 		atomic.AddInt64(busyChannelDrops, int64(len(packets)))
-
-		// TODO: Need to throttle server if this happens !
 	}
+
+	// Report done
+	doneChan <- username
 }
 
 func broadCastPackets(packets []*shared.Packet) {
 
 	usernames := GetConnectedUsernames()
 
+	if len(usernames) == 0 {
+		return
+	}
+
 	// Important to send in same order to give each client more equal amount of time
 	sort.Strings(usernames)
 
+	doneChan := make(chan string)
 	for _, username := range usernames {
-		/*
-				NOTE, We opt to NOT "go" this. I guess an "async"
-					  could be viable as well. but in that case the
-					  broadcaster would/may need to be notified on
-			          completion through a back channel.
-		*/
-		SendPacketsToUsername(username, packets)
+		// NOTE: We "go" here to do this concurrently and parallel if multiple CPUs
+		//       as this is quite work intensive
+		go SendPacketsToUsername(username, packets, doneChan)
+	}
+
+	// And wait for completion
+	// usernameComplete := ""
+	for todo := len(usernames); todo > 0; todo-- {
+		// Wait for all clients to complete
+		<-doneChan
 	}
 }
 

@@ -9,7 +9,7 @@ import (
 const (
 	// https://daposto.medium.com/game-networking-1-interval-and-ticks-b39bb51ccca9
 	TICK_RATE      = 20
-	STATS_INTERVAL = 3
+	STATS_INTERVAL = 1
 )
 
 var wtfGameGlobal WTFGame
@@ -42,7 +42,7 @@ func Run(packetBroadCastChannel chan []*shared.Packet, packetsSentChannel chan i
 
 	for {
 		// Game loop
-		start := time.Now()
+		loopStartTime := time.Now()
 
 		//-----------------------------------------------------------------
 
@@ -52,7 +52,7 @@ func Run(packetBroadCastChannel chan []*shared.Packet, packetsSentChannel chan i
 		// Package and send game objects
 		packets := shared.BuildGameObjectPackets(tick, wtfGame.GetGameObjects())
 
-		// Broadcast packets
+		// Broadcast packets, this will eat all packets
 		packetBroadCastChannel <- packets
 
 		// TODO: Implement much smarter "send to clients" strategy! Ie. group by geoHash etc.
@@ -72,10 +72,10 @@ func Run(packetBroadCastChannel chan []*shared.Packet, packetsSentChannel chan i
 		}
 
 		// Calculate sleep time needed to keep FPS
-		workTime := time.Since(start)
-		sleepTime := ticTimeNano - workTime
+		loopEndTime := time.Since(loopStartTime)
+		sleepTime := ticTimeNano - loopEndTime
 
-		// For stats collection to see if we meet deadlines
+		// For stats collection to see if we meet deadlines when collecting/showing stats
 		aggregatedSleepTime += int(sleepTime.Nanoseconds())
 
 		// SLEEP

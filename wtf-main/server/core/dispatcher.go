@@ -74,14 +74,15 @@ func ToClientDispatcher(username string, packet *shared.Packet) int {
 }
 
 func ToClientDispatcherMulti(username string, packets []*shared.Packet) int {
-	// Look up the channel in the registry, and then send message
-	// 	NOTE: May need to protect this one, or maybe POP it (and put it back)
+	// Look up the channel in the registry, and then send message, we POP to ensure it is not used twice
+	//  two writers _can_ use the same channel but for the broadcast case, we do not want that
 	toClientChannel, ok := ToClientChannels.Pop(username)
 	if ok {
 		/**
 		NOTE: This blocks until lower layer is done!
 		*/
 		for _, packet := range packets {
+			// TODO: Move to BEFORE splitting on usernames!
 			toClientChannel <- shared.PacketToBytes(packet)
 		}
 		ToClientChannels.Set(username, toClientChannel)

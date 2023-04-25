@@ -35,6 +35,23 @@ func PacketToBytes(packet *Packet) []byte {
 	return wirePacket
 }
 
+func PacketToBytes2(packet *Packet) []byte {
+	/*
+		Marshals a core Packet into []bytes and prepends it with length
+		this is the Wire-format sent over the socket
+	*/
+	marshal, err := proto.Marshal(packet)
+	if err != nil {
+		return nil
+	}
+
+	wirePacket := make([]byte, 1+len(marshal))
+	wirePacket[0] = byte(len(marshal))
+	copy(marshal, wirePacket[1:])
+
+	return wirePacket
+}
+
 func BuildPingPacket() *Packet {
 	// A Ping message placed in a Packet, works for now
 	data := Ping{

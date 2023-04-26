@@ -22,7 +22,7 @@ https://github.com/sedyh/awesome-ebitengine
 */
 func RunEbitenApplication(
 	gameObjects map[string]*shared.GameObject,
-	toServerChan chan []byte,
+	toServerChan chan *[]byte,
 	fromServerChan chan *shared.Packet,
 ) {
 

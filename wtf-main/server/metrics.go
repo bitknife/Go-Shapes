@@ -2,6 +2,7 @@ package main
 
 import (
 	"bitknife.se/wtf/server/core"
+	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/shared"
 	"fmt"
 	"log"
@@ -21,26 +22,28 @@ func CollectAndPrintMetricsRoutine(label string, intervalSec int) {
 
 	log.Println("numGoroutines | heapAlloc kB | totalAlloc kB | sent kB | Rec. kB | pS | pR | mST ms | nPL")
 	for {
+		time.Sleep(time.Duration(intervalSec) * time.Second)
+
 		gS = shared.CollectGoStats()
-		nS := shared.GetNetStats()
+		nS := shared.GetNetChannelsStats()
 		bS := core.GetBroadcastStats()
+		glS := game.GetGameLoopMetrics()
 
 		avgSendTime := string("?")
-
+		gllString := fmt.Sprintf("%.2f %%", glS.GameLoopLoad)
 		if nS.PacketsSent > 0 {
 			avgSendTime = fmt.Sprintf("%.2f", float64(nS.TotalSendTimeMs)/float64(nS.PacketsSent))
 		}
 
 		log.Println("------------------------------------------------------")
 		log.Println("Go routines ....................", gS["numGoroutines"])
+		log.Println("Game loop load .................", gllString)
 		log.Println("Clients ........................", bS.NumberOfClients)
-		// log.Println("[MEM] Heap:", gS["heapAllocKB"], "| Total:", gS["TotalAllocKB"])
-		// log.Println("[NET] kB Sent:", nS.BytesSent/1000, "| Rec:", nS.BytesReceived/1000)
-		log.Println("Net: Send Min / Avg / Max (ms)..", nS.MinSendTimeMs, "/", avgSendTime, "/", nS.MaxSendTimeMs)
+		log.Println("Heap Alloc / Max............(kB)", gS["heapAllocKB"], "/", gS["TotalAllocKB"])
+		log.Println("Net: Sent / Rec ............(kB)", nS.BytesSent/1000, "/", nS.BytesReceived/1000)
+		log.Println("Net: Send Min / Avg / Max ..(ms)", nS.MinSendTimeMs, "/", avgSendTime, "/", nS.MaxSendTimeMs)
 		log.Println("Net: Packets sent ..............", nS.PacketsSent)
 		log.Println("Net: Packets loss ..............", nS.PacketsLost)
 		log.Println("Net: Busy drops ................", bS.BusyChannelDrops)
-
-		time.Sleep(time.Duration(intervalSec) * time.Second)
 	}
 }

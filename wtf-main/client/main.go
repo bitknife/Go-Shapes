@@ -19,7 +19,7 @@ const (
 	PORT = "7777"
 )
 
-func waitForExitSignals(toServer chan []byte) {
+func waitForExitSignals(toServer chan *[]byte) {
 	exitSignal := make(chan os.Signal)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 	<-exitSignal

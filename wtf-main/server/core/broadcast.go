@@ -24,9 +24,9 @@ func GetBroadcastStats() *BroadcastStats {
 	return &currentStats
 }
 
-func SendPacketsToUsername(username string, packets []*shared.Packet, doneChan chan string) {
+func SendPacketsToUsername(username string, bPackets []*[]byte, doneChan chan string) {
 
-	busy := ToClientDispatcherMulti(username, packets)
+	busy := ToClientDispatcherMultiBytes(username, bPackets)
 
 	if busy != 0 {
 		/*
@@ -38,7 +38,7 @@ func SendPacketsToUsername(username string, packets []*shared.Packet, doneChan c
 			This is the bad thing with sending batches this way.
 		*/
 		// log.Println("Dropping", len(packets), "packets for", username)
-		atomic.AddInt64(busyChannelDrops, int64(len(packets)))
+		atomic.AddInt64(busyChannelDrops, int64(len(bPackets)))
 	}
 
 	// Report done
@@ -56,11 +56,17 @@ func broadCastPackets(packets []*shared.Packet) {
 	// Important to send in same order to give each client more equal amount of time
 	sort.Strings(usernames)
 
+	// OPTIMIZATION: Do this early
+	bytePackets := make([]*[]byte, len(packets))
+	for n, packet := range packets {
+		bytePackets[n] = shared.PacketToBytes(packet)
+	}
+
 	doneChan := make(chan string)
 	for _, username := range usernames {
 		// NOTE: We "go" here to do this concurrently and parallel if multiple CPUs
 		//       as this is quite work intensive
-		go SendPacketsToUsername(username, packets, doneChan)
+		go SendPacketsToUsername(username, bytePackets, doneChan)
 	}
 
 	// And wait for completion

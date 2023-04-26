@@ -58,10 +58,10 @@ func handleConnection(conn net.Conn) {
 	go shared.PacketSenderTCP(conn, toClient)
 }
 
-func makeAndRegisterChannels(playerLogin *shared.PlayerLogin) (chan []byte, chan []byte) {
+func makeAndRegisterChannels(playerLogin *shared.PlayerLogin) (chan *[]byte, chan *[]byte) {
 	// IDEA: Is this where we want to create them?
-	fromClient := make(chan []byte)
-	toClient := make(chan []byte)
+	fromClient := make(chan *[]byte)
+	toClient := make(chan *[]byte)
 
 	// And register channels on the Dispatcher in the core layer
 	core.InitClient(playerLogin.Username, toClient, fromClient)

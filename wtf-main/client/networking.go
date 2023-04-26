@@ -6,10 +6,10 @@ import (
 	"syscall"
 )
 
-func SetUpNetworking(protocol string, host string, port string, username string, password string) (chan []byte, chan []byte) {
+func SetUpNetworking(protocol string, host string, port string, username string, password string) (chan *[]byte, chan *[]byte) {
 
-	fromServer := make(chan []byte)
-	toServer := make(chan []byte)
+	fromServer := make(chan *[]byte)
+	toServer := make(chan *[]byte)
 
 	// Connects
 	log.Println("Connecting to game server at", host+":"+port, "as", username)
@@ -25,8 +25,8 @@ func SetUpNetworking(protocol string, host string, port string, username string,
 }
 
 func HandlePacketsFromServer(
-	fromServer chan []byte,
-	toServer chan []byte,
+	fromServer chan *[]byte,
+	toServer chan *[]byte,
 	gamePacketsToUpperLayers chan *shared.Packet) {
 	for {
 		receivedData := <-fromServer

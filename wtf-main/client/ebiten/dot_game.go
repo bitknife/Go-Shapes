@@ -10,7 +10,7 @@ const (
 )
 
 type Game struct {
-	toServer chan []byte
+	toServer chan *[]byte
 
 	// Ebiten representation of gameObjects and also non-game objects
 	remoteEBObjects map[string]*EBGameObject
@@ -18,7 +18,7 @@ type Game struct {
 }
 
 func CreateGame(
-	toServerChan chan []byte,
+	toServerChan chan *[]byte,
 ) *Game {
 	game := Game{
 		toServer: toServerChan,

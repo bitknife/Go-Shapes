@@ -16,15 +16,15 @@ TODO: Rethink if Username is a good key or not, it has its merits (ie if connect
 	  or block the new).
 */
 
-var ToClientChannelsRegistry = cmap.New[chan []byte]()
+var ToClientChannelsRegistry = cmap.New[chan *[]byte]()
 
 /*
 ToClientChannels usage:
 
 Sender must Pop() from this cmap, send and then return it.
 */
-var ToClientChannels = cmap.New[chan []byte]()   // make(map[string]chan []byte)
-var FromClientChannels = cmap.New[chan []byte]() // make(map[string]chan []byte)
+var ToClientChannels = cmap.New[chan *[]byte]()   // make(map[string]chan *[]byte)
+var FromClientChannels = cmap.New[chan *[]byte]() // make(map[string]chan *[]byte)
 
 func GetConnectedUsernames() []string {
 	return ToClientChannelsRegistry.Keys()
@@ -40,7 +40,7 @@ func HasChannel(username string) bool {
 	return false
 }
 
-func InitClient(username string, toClient chan []byte, fromClient chan []byte) {
+func InitClient(username string, toClient chan *[]byte, fromClient chan *[]byte) {
 	ToClientChannelsRegistry.Set(username, toClient)
 	ToClientChannels.Set(username, toClient)
 	FromClientChannels.Set(username, fromClient)
@@ -73,7 +73,7 @@ func ToClientDispatcher(username string, packet *shared.Packet) int {
 	}
 }
 
-func ToClientDispatcherMulti(username string, packets []*shared.Packet) int {
+func ToClientDispatcherMultiBytes(username string, bytePackets []*[]byte) int {
 	// Look up the channel in the registry, and then send message, we POP to ensure it is not used twice
 	//  two writers _can_ use the same channel but for the broadcast case, we do not want that
 	toClientChannel, ok := ToClientChannels.Pop(username)
@@ -81,9 +81,8 @@ func ToClientDispatcherMulti(username string, packets []*shared.Packet) int {
 		/**
 		NOTE: This blocks until lower layer is done!
 		*/
-		for _, packet := range packets {
-			// TODO: Move to BEFORE splitting on usernames!
-			toClientChannel <- shared.PacketToBytes(packet)
+		for _, packet := range bytePackets {
+			toClientChannel <- packet
 		}
 		ToClientChannels.Set(username, toClientChannel)
 		return 0
@@ -93,7 +92,7 @@ func ToClientDispatcherMulti(username string, packets []*shared.Packet) int {
 	}
 }
 
-func fromClientHandler(username string, fromClient chan []byte) {
+func fromClientHandler(username string, fromClient chan *[]byte) {
 	// This is OK, core knows of both game and socket layers,
 	userInputForGame := make(chan *shared.Packet)
 	go game.UserInputRunner(username, userInputForGame)

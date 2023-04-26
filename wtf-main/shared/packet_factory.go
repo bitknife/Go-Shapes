@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func BytesToPacket(buffer []byte) *Packet {
+func BytesToPacket(buffer *[]byte) *Packet {
 	/*
 		Un-marshals a []byte into a Packet.
 
@@ -13,14 +13,14 @@ func BytesToPacket(buffer []byte) *Packet {
 		during the packet reception.
 	*/
 	packet := Packet{}
-	err := proto.Unmarshal(buffer, &packet)
+	err := proto.Unmarshal(*buffer, &packet)
 	if err != nil {
 		return nil
 	}
 	return &packet
 }
 
-func PacketToBytes(packet *Packet) []byte {
+func PacketToBytes(packet *Packet) *[]byte {
 	/*
 		Marshals a core Packet into []bytes and prepends it with length
 		this is the Wire-format sent over the socket
@@ -32,24 +32,7 @@ func PacketToBytes(packet *Packet) []byte {
 	header := make([]byte, 1)
 	header[0] = byte(len(marshal))
 	wirePacket := append(header, marshal...)
-	return wirePacket
-}
-
-func PacketToBytes2(packet *Packet) []byte {
-	/*
-		Marshals a core Packet into []bytes and prepends it with length
-		this is the Wire-format sent over the socket
-	*/
-	marshal, err := proto.Marshal(packet)
-	if err != nil {
-		return nil
-	}
-
-	wirePacket := make([]byte, 1+len(marshal))
-	wirePacket[0] = byte(len(marshal))
-	copy(marshal, wirePacket[1:])
-
-	return wirePacket
+	return &wirePacket
 }
 
 func BuildPingPacket() *Packet {

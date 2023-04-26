@@ -37,7 +37,7 @@ var packetsReceived *int64 = new(int64)
 // For calculating avg. send time
 var totalSendTimeMs = new(int64)
 
-type NetStats struct {
+type NetChannelsMetrics struct {
 	BytesSent       int64
 	BytesReceived   int64
 	PacketsSent     int64
@@ -48,8 +48,8 @@ type NetStats struct {
 	TotalSendTimeMs int64
 }
 
-func GetNetStats() *NetStats {
-	currentStats := NetStats{
+func GetNetChannelsStats() *NetChannelsMetrics {
+	currentStats := NetChannelsMetrics{
 		BytesSent:       *bytesSent,
 		BytesReceived:   *bytesReceived,
 		PacketsSent:     *packetsSent,
@@ -63,7 +63,7 @@ func GetNetStats() *NetStats {
 }
 
 func ConnectClient(protocol string, host string, port string,
-	fromServer chan []byte, toServer chan []byte) {
+	fromServer chan *[]byte, toServer chan *[]byte) {
 
 	if minSendTimeMs == nil {
 		// Just initialize to something big
@@ -89,7 +89,7 @@ func ConnectClient(protocol string, host string, port string,
 	}
 }
 
-func PacketReceiverTCP(conn net.Conn, incoming chan []byte) {
+func PacketReceiverTCP(conn net.Conn, incoming chan *[]byte) {
 
 	for {
 		// Blocks
@@ -121,7 +121,7 @@ func PacketReceiverTCP(conn net.Conn, incoming chan []byte) {
 	}
 }
 
-func ReceivePackageDataFromTCPConnection(conn net.Conn) []byte {
+func ReceivePackageDataFromTCPConnection(conn net.Conn) *[]byte {
 	/*
 		Helper that waits for the header and returns the type and []byte representing the package.
 
@@ -154,10 +154,10 @@ func ReceivePackageDataFromTCPConnection(conn net.Conn) []byte {
 	atomic.AddInt64(packetsReceived, 1)
 	atomic.AddInt64(bytesReceived, int64(len(packetData)+1))
 
-	return packetData
+	return &packetData
 }
 
-func PacketSenderTCP(conn net.Conn, outgoing chan []byte) {
+func PacketSenderTCP(conn net.Conn, outgoing chan *[]byte) {
 
 	for {
 		// Wait for packets
@@ -175,7 +175,7 @@ func PacketSenderTCP(conn net.Conn, outgoing chan []byte) {
 
 		conn.SetWriteDeadline(time.Now().Add(time.Duration(WRITE_TIMEOUT_MS) * time.Millisecond))
 
-		_, err := conn.Write(wirePacket)
+		_, err := conn.Write(*wirePacket)
 
 		if err != nil {
 			// NOTE: Packet-loss, note half a packet may have been sent
@@ -193,7 +193,7 @@ func PacketSenderTCP(conn net.Conn, outgoing chan []byte) {
 
 		// Stats
 		atomic.AddInt64(packetsSent, 1)
-		atomic.AddInt64(bytesSent, int64(len(wirePacket)))
+		atomic.AddInt64(bytesSent, int64(len(*wirePacket)))
 
 		if int64(sendTimeMs) < *minSendTimeMs {
 			// fmt.Println("New Max send time", sendTime)

@@ -96,7 +96,7 @@ func createDot(
 			"R": R,
 			"G": G,
 			"B": B,
-			"A": 0,
+			"A": 255,
 		},
 		Kind: shared.GameObjectKind_DOT,
 	}

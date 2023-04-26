@@ -12,6 +12,20 @@ const (
 	STATS_INTERVAL = 1
 )
 
+// For calculating avg. send time
+var GameLoopLoad = new(float32)
+
+type GameLoopMetrics struct {
+	GameLoopLoad float32
+}
+
+func GetGameLoopMetrics() *GameLoopMetrics {
+	currentStats := GameLoopMetrics{
+		GameLoopLoad: *GameLoopLoad,
+	}
+	return &currentStats
+}
+
 var wtfGameGlobal WTFGame
 
 func UserInputRunner(username string, userInputForGame chan *shared.Packet) {
@@ -67,7 +81,7 @@ func Run(packetBroadCastChannel chan []*shared.Packet, packetsSentChannel chan i
 			// Calculate average headroom
 			allPossibleSleepTime := ticTimeNano * TICK_RATE * STATS_INTERVAL
 			sleepFraction := float32(aggregatedSleepTime) / float32(allPossibleSleepTime)
-			log.Printf("Game-loop load: %.2f %%", 100-100*sleepFraction)
+			*GameLoopLoad = 100 - 100*sleepFraction
 			aggregatedSleepTime = 0
 		}
 

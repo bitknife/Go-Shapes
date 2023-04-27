@@ -27,7 +27,16 @@ To update all modules, do
     go get -u
     go mod tidy
 
+
 ## Running the server
+
+You can build it and then run the built binary:
+
+    go build .
+
+Or run it using go run
+
+    go run .
 
 For development purposes you should be able to do:
 

@@ -14,6 +14,7 @@ type DotWorldGame struct {
 }
 
 func CreateDotWorldGame(min int32, max int32, nDots int) *DotWorldGame {
+	log.Println("Creating dot world with", nDots, "dots.")
 	dotWorldGame := DotWorldGame{}
 	dotWorldGame.GameObjects = make(map[string]*shared.GameObject)
 	dotWorldGame.buildDotWorld(min, max, nDots)

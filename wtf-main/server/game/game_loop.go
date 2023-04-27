@@ -12,6 +12,10 @@ const (
 	STATS_INTERVAL = 1
 )
 
+type GameConfig struct {
+	TickRate int32
+}
+
 // For calculating avg. send time
 var GameLoopLoad = new(float32)
 
@@ -40,14 +44,14 @@ func UserInputRunner(username string, userInputForGame chan *shared.Packet) {
 	}
 }
 
-func Run(packetBroadCastChannel chan []*shared.Packet, packetsSentChannel chan int, wtfGame WTFGame) {
+func Run(gameLoopFps int, packetBroadCastChannel chan []*shared.Packet, packetsSentChannel chan int, wtfGame WTFGame) {
 
 	// TODO: convert all this to a go struct methods (go "class")
 	wtfGameGlobal = wtfGame
 
-	ticTimeNano := time.Second / TICK_RATE
+	ticTime := time.Duration(1000/gameLoopFps) * time.Millisecond
 
-	log.Println("Game loop at", TICK_RATE, "FPS. Frame time:", ticTimeNano)
+	log.Println("Game loop at", gameLoopFps, "FPS. Frame time:", ticTime)
 
 	// Server tick number
 	tick := int64(0)
@@ -79,7 +83,7 @@ func Run(packetBroadCastChannel chan []*shared.Packet, packetsSentChannel chan i
 		tick = tick + 1
 		if tick%(TICK_RATE*STATS_INTERVAL) == 0 {
 			// Calculate average headroom
-			allPossibleSleepTime := ticTimeNano * TICK_RATE * STATS_INTERVAL
+			allPossibleSleepTime := ticTime * TICK_RATE * STATS_INTERVAL
 			sleepFraction := float32(aggregatedSleepTime) / float32(allPossibleSleepTime)
 			*GameLoopLoad = 100 - 100*sleepFraction
 			aggregatedSleepTime = 0
@@ -87,7 +91,7 @@ func Run(packetBroadCastChannel chan []*shared.Packet, packetsSentChannel chan i
 
 		// Calculate sleep time needed to keep FPS
 		loopEndTime := time.Since(loopStartTime)
-		sleepTime := ticTimeNano - loopEndTime
+		sleepTime := ticTime - loopEndTime
 
 		// For stats collection to see if we meet deadlines when collecting/showing stats
 		aggregatedSleepTime += int(sleepTime.Nanoseconds())

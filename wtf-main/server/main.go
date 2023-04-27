@@ -35,7 +35,7 @@ func printSplash() {
 	fmt.Println("                                                               version", version)
 }
 
-func startServer() {
+func startServer(gameLoopFps int, nDots int) {
 	pingIntervalMsec := flags.IntP("ping_interval_msec", "p", 10000,
 		"Interval in milliseconds to ping clients.")
 	flags.Parse()
@@ -65,8 +65,8 @@ func startServer() {
 	/**
 	Main serverside game loop
 	*/
-	dotWorldGame := game.CreateDotWorldGame(250, 250, 100)
-	go game.Run(packetBroadCastChannel, packetsSentChannel, dotWorldGame)
+	dotWorldGame := game.CreateDotWorldGame(250, 250, nDots)
+	go game.Run(gameLoopFps, packetBroadCastChannel, packetsSentChannel, dotWorldGame)
 
 	go CollectAndPrintMetricsRoutine("WTF server", 2)
 
@@ -87,9 +87,12 @@ func waitForExitSignals() {
 }
 
 func main() {
+	gameLoopFps := flags.IntP("fps", "f", 20, "Game loop FPS")
+	nDots := flags.IntP("dots", "d", 25, "Dots to spawn.")
+	flags.Parse()
 
 	// Spawns everything we need
-	startServer()
+	startServer(*gameLoopFps, *nDots)
 
 	// Waits for SIGINT and SIGTERM to perform shutdown
 	waitForExitSignals()

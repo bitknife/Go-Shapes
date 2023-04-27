@@ -11,5 +11,6 @@ require (
 	github.com/mattn/go-tty v0.0.4 // indirect
 	github.com/pkg/term v1.2.0-beta.2 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
 	golang.org/x/sys v0.7.0 // indirect
 )

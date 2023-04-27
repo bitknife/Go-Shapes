@@ -7,4 +7,5 @@ use (
 	./server/game
 	./shared
 	./client
+	server
 )

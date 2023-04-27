@@ -34,6 +34,7 @@ func HandlePacketsFromServer(
 		if receivedData == nil {
 			// This is server disconnecting, raise SIGINT to trigger exit handler
 			syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+			return
 		}
 		packet := shared.BytesToPacket(receivedData)
 

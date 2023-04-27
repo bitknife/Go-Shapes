@@ -30,14 +30,18 @@ func CollectAndPrintMetricsRoutine(label string, intervalSec int) {
 		glS := game.GetGameLoopMetrics()
 
 		avgSendTime := string("?")
-		gllString := fmt.Sprintf("%.2f %%", glS.GameLoopLoad)
+		// gllSim := fmt.Sprintf("%.1f %%", glS.GameLoopSim)
+		gllSim := fmt.Sprintf("%.2f", glS.GameLoopSim)
+		gllSend := fmt.Sprintf("%.2f", glS.GameLoopSend)
+		gllSleep := fmt.Sprintf("%.2f", glS.GameLoopSleep)
+
 		if nS.PacketsSent > 0 {
 			avgSendTime = fmt.Sprintf("%.2f", float64(nS.TotalSendTimeMs)/float64(nS.PacketsSent))
 		}
 
 		log.Println("------------------------------------------------------")
 		log.Println("Go routines ....................", gS["numGoroutines"])
-		log.Println("Game loop load .................", gllString)
+		log.Println("GL: Sim / Send / Sleep .........", gllSim, "/", gllSend, "/", gllSleep)
 		log.Println("Clients ........................", bS.NumberOfClients)
 		log.Println("Heap Alloc / Max............(kB)", gS["heapAllocKB"], "/", gS["TotalAllocKB"])
 		log.Println("Net: Sent / Rec ............(kB)", nS.BytesSent/1000, "/", nS.BytesReceived/1000)

@@ -25,6 +25,10 @@ const (
 	WRITE_TIMEOUT_MS = 50
 )
 
+// --- SETTINGS ---
+var WriteTimeout = 5
+
+// --- METRICS ---
 var bytesSent *int64 = new(int64)
 var bytesReceived *int64 = new(int64)
 var minSendTimeMs *int64 = new(int64)
@@ -173,7 +177,7 @@ func PacketSenderTCP(conn net.Conn, outgoing chan *[]byte) {
 			continue
 		}
 
-		conn.SetWriteDeadline(time.Now().Add(time.Duration(WRITE_TIMEOUT_MS) * time.Millisecond))
+		conn.SetWriteDeadline(time.Now().Add(time.Duration(WriteTimeout) * time.Millisecond))
 
 		_, err := conn.Write(*wirePacket)
 

@@ -8,8 +8,8 @@ import (
 
 const (
 	// https://daposto.medium.com/game-networking-1-interval-and-ticks-b39bb51ccca9
-	TICK_RATE      = 20
-	STATS_INTERVAL = 1
+	// TICK_RATE      = 20
+	STATS_INTERVAL = 2
 )
 
 type GameConfig struct {
@@ -17,15 +17,21 @@ type GameConfig struct {
 }
 
 // For calculating avg. send time
-var GameLoopLoad = new(float32)
+var GameLoopSim = new(float32)
+var GameLoopSend = new(float32)
+var GameLoopSleep = new(float32)
 
 type GameLoopMetrics struct {
-	GameLoopLoad float32
+	GameLoopSim   float32
+	GameLoopSend  float32
+	GameLoopSleep float32
 }
 
 func GetGameLoopMetrics() *GameLoopMetrics {
 	currentStats := GameLoopMetrics{
-		GameLoopLoad: *GameLoopLoad,
+		GameLoopSim:   *GameLoopSim,
+		GameLoopSend:  *GameLoopSend,
+		GameLoopSleep: *GameLoopSleep,
 	}
 	return &currentStats
 }
@@ -44,7 +50,7 @@ func UserInputRunner(username string, userInputForGame chan *shared.Packet) {
 	}
 }
 
-func Run(gameLoopFps int, packetBroadCastChannel chan []*shared.Packet, packetsSentChannel chan int, wtfGame WTFGame) {
+func Run(gameLoopFps int64, packetBroadCastChannel chan []*shared.Packet, packetsSentChannel chan int, wtfGame WTFGame) {
 
 	// TODO: convert all this to a go struct methods (go "class")
 	wtfGameGlobal = wtfGame
@@ -56,19 +62,30 @@ func Run(gameLoopFps int, packetBroadCastChannel chan []*shared.Packet, packetsS
 	// Server tick number
 	tick := int64(0)
 
+	statsIntervalMsec := ticTime * STATS_INTERVAL
+
+	aggregatedSimTime := 0
+	aggregatedSendTime := 0
 	aggregatedSleepTime := 0
 
 	for {
 		// Game loop
 		loopStartTime := time.Now()
+		t1 := loopStartTime
 
-		//-----------------------------------------------------------------
+		//--- Simulation ---------------------------------------------------
 
 		// Update game logic
 		wtfGame.Update()
 
 		// Package and send game objects
 		packets := shared.BuildGameObjectPackets(tick, wtfGame.GetGameObjects())
+
+		t2 := time.Now()
+		simTime := t2.Sub(t1)
+		aggregatedSimTime += int(simTime.Nanoseconds())
+
+		//--- Send ---------------------------------------------------
 
 		// Broadcast packets, this will eat all packets
 		packetBroadCastChannel <- packets
@@ -78,26 +95,36 @@ func Run(gameLoopFps int, packetBroadCastChannel chan []*shared.Packet, packetsS
 		// Wait for completion, we get an int here len(packets)
 		<-packetsSentChannel
 
+		t3 := time.Now()
+		sendTime := t3.Sub(t2)
+		aggregatedSendTime += int(sendTime.Nanoseconds())
+
+		//--- Sleep ---------------------------------------------------
+
+		// Calculate sleep time needed to keep FPS
+		sleepDur := ticTime - time.Since(loopStartTime)
+		time.Sleep(sleepDur)
+
+		sleepTime := ticTime - sendTime - simTime
+		aggregatedSleepTime += int(sleepTime.Nanoseconds())
+
 		// METRICS
 		//-----------------------------------------------------------------
 		tick = tick + 1
-		if tick%(TICK_RATE*STATS_INTERVAL) == 0 {
+		if tick%(gameLoopFps*STATS_INTERVAL) == 0 {
 			// Calculate average headroom
-			allPossibleSleepTime := ticTime * TICK_RATE * STATS_INTERVAL
-			sleepFraction := float32(aggregatedSleepTime) / float32(allPossibleSleepTime)
-			*GameLoopLoad = 100 - 100*sleepFraction
+			simFraction := float32(aggregatedSimTime) / float32(statsIntervalMsec)
+			sendFraction := float32(aggregatedSendTime) / float32(statsIntervalMsec)
+			sleepFraction := float32(aggregatedSleepTime) / float32(statsIntervalMsec)
+
+			*GameLoopSim = simFraction / float32(gameLoopFps)
+			*GameLoopSend = sendFraction / float32(gameLoopFps)
+			*GameLoopSleep = sleepFraction / float32(gameLoopFps)
+
+			aggregatedSimTime = 0
+			aggregatedSendTime = 0
 			aggregatedSleepTime = 0
 		}
 
-		// Calculate sleep time needed to keep FPS
-		loopEndTime := time.Since(loopStartTime)
-		sleepTime := ticTime - loopEndTime
-
-		// For stats collection to see if we meet deadlines when collecting/showing stats
-		aggregatedSleepTime += int(sleepTime.Nanoseconds())
-
-		// SLEEP
-		//-----------------------------------------------------------------
-		time.Sleep(sleepTime)
 	}
 }

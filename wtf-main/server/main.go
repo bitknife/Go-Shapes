@@ -35,7 +35,7 @@ func printSplash() {
 	fmt.Println("                                                               version", version)
 }
 
-func startServer(gameLoopFps int, nDots int) {
+func startServer(gameLoopFps int64, nDots int) {
 	pingIntervalMsec := flags.IntP("ping_interval_msec", "p", 10000,
 		"Interval in milliseconds to ping clients.")
 	flags.Parse()
@@ -87,9 +87,14 @@ func waitForExitSignals() {
 }
 
 func main() {
-	gameLoopFps := flags.IntP("fps", "f", 20, "Game loop FPS")
+	gameLoopFps := flags.Int64P("fps", "f", 30, "Game loop FPS")
 	nDots := flags.IntP("dots", "d", 25, "Dots to spawn.")
+	socketWriteTimeoutMs := flags.IntP("socketWriteTimeoutMs", "s", 10, "TCP Socket write timeout in ms")
+
 	flags.Parse()
+
+	// TODO: global var, not the best.. works for now
+	shared.WriteTimeout = *socketWriteTimeoutMs
 
 	// Spawns everything we need
 	startServer(*gameLoopFps, *nDots)

@@ -40,12 +40,14 @@ jobs:
       working-directory: wtf-main/server
       run: go build -v ./...
       
-    - name: Create a temporary artifact downloads folder
-      working-directory: wtf-main
-      run: mkdir downloads
-
     - name: Upload Ubuntu Client Artefact
       uses: actions/upload-artifact@v3.1.2
       with: 
         name: ubuntu-client
+        path: wtf-main/client/client
+
+    - name: Upload Ubuntu Server Artefact
+      uses: actions/upload-artifact@v3.1.2
+      with: 
+        name: ubuntu-server
         path: wtf-main/server/server

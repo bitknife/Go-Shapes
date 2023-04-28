@@ -39,3 +39,17 @@ jobs:
     - name: Build Server
       run: go build -v ./...
       working-directory: wtf-main/server
+      
+    - name: Create a temporary artifact downloads folder
+      run: mkdir downloads
+
+    - name: Add artifacts to publish to the temp folder
+      run: |
+        cp wtf-main/client/client ./downloads/ubuntu-client
+        cp wtf-main/server/server ./downloads/ubuntu-server
+
+    - name: Step 3 - Use the Upload Artifact GitHub Action
+      uses: actions/upload-artifact@v2
+      with: 
+        name: assets-for-download
+        path: downloads

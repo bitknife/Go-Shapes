@@ -23,11 +23,11 @@ jobs:
 
     - name: Build Client
       run: go build -v ./...
-      working-directory: client
+      working-directory: wtf-main/client
 
     - name: Build Server
       run: go build -v ./...
-      working-directory: server
+      working-directory: wtf-main/server
 
     - name: Test
       run: go test -v ./...

@@ -24,13 +24,18 @@ jobs:
       with:
         go-version: 1.19
 
+    - name: Test Client
+      run: go test -v ./...
+      working-directory: wtf-main/client
+
     - name: Build Client
       run: go build -v ./...
       working-directory: wtf-main/client
 
+    - name: Test Server
+      run: go test -v ./...
+      working-directory: wtf-main/server
+
     - name: Build Server
       run: go build -v ./...
       working-directory: wtf-main/server
-
-    - name: Test
-      run: go test -v ./...

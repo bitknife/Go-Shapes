@@ -56,23 +56,23 @@ jobs:
         path: wtf-main/server/server
 
 
-  build-windows-client:
-    runs-on: windows
-
-    steps:
-    - uses: actions/checkout@v3
-  
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.19
-
-    - name: Build Client
-      working-directory: wtf-main/client
-      run: go build -v ./...
-      
-    - name: Upload Windows Client Artefact
-      uses: actions/upload-artifact@v3.1.2
-      with: 
-        name: wtf-client-win
-        path: wtf-main/client/client
+#  build-windows-client:
+#    runs-on: windows
+#
+#    steps:
+#    - uses: actions/checkout@v3
+#
+#    - name: Set up Go
+#      uses: actions/setup-go@v3
+#      with:
+#        go-version: 1.19
+#
+#    - name: Build Client
+#      working-directory: wtf-main/client
+#      run: go build -v ./...
+#
+#    - name: Upload Windows Client Artefact
+#      uses: actions/upload-artifact@v3.1.2
+#      with:
+#        name: wtf-client-win
+#        path: wtf-main/client/client

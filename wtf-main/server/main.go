@@ -19,7 +19,7 @@ const (
 	TYPE = "tcp"
 )
 
-var version = "0.1a"
+var Commit string = "dev"
 
 func printSplash() {
 	// Read entire file content, giving us little control but
@@ -32,13 +32,14 @@ func printSplash() {
 	// Convert []byte to string and print to screen
 	text := string(content)
 	fmt.Println(text)
-	fmt.Println("                                                               version", version)
+	fmt.Println("version:", Commit)
+	// --- All output after this should be done as logs
 }
 
-func startServer(gameLoopFps int64, nDots int) {
-	pingIntervalMsec := flags.IntP("ping_interval_msec", "p", 10000,
-		"Interval in milliseconds to ping clients.")
-	flags.Parse()
+func startServer(
+	gameLoopFps int64,
+	nDots int,
+	pingIntervalMsec int) {
 
 	printSplash()
 
@@ -52,7 +53,7 @@ func startServer(gameLoopFps int64, nDots int) {
 	log.Println("Starting server on", HOST, ":", PORT)
 	go socketserver.Run(HOST, PORT)
 
-	log.Println("Ping interval", *pingIntervalMsec, "msec.")
+	log.Println("Ping interval", pingIntervalMsec, "msec.")
 	// go PingAllClients(*pingIntervalMsec)
 
 	/**
@@ -90,14 +91,16 @@ func main() {
 	gameLoopFps := flags.Int64P("fps", "f", 30, "Game loop FPS")
 	nDots := flags.IntP("dots", "d", 25, "Dots to spawn.")
 	socketWriteTimeoutMs := flags.IntP("socketWriteTimeoutMs", "s", 10, "TCP Socket write timeout in ms")
+	pingIntervalMsec := flags.IntP("ping_interval_msec", "p", 10000,
+		"Interval in milliseconds to ping clients.")
 
 	flags.Parse()
 
-	// TODO: global var, not the best.. works for now
+	// TODO: global var, not the best.. works for now, singleton?
 	shared.WriteTimeout = *socketWriteTimeoutMs
 
 	// Spawns everything we need
-	startServer(*gameLoopFps, *nDots)
+	startServer(*gameLoopFps, *nDots, *pingIntervalMsec)
 
 	// Waits for SIGINT and SIGTERM to perform shutdown
 	waitForExitSignals()

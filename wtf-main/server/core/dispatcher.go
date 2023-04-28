@@ -79,6 +79,11 @@ func ToClientDispatcherMultiBytes(username string, bytePackets []*[]byte) int {
 		NOTE: This blocks until lower layer is done!
 		*/
 		for _, packet := range bytePackets {
+			if len(toClientChannel) > 0 {
+				// NOTE: This is maybe another way of (instead of Pop/Set)
+				//		 doing congestion control?
+				//		 maybe return and let caller decide?
+			}
 			toClientChannel <- packet
 		}
 		ToClientChannels.Set(username, toClientChannel)

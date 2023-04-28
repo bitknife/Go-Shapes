@@ -42,3 +42,15 @@ For development purposes you should be able to do:
 
     go run main.go
 
+## Build more
+
+Include git version (server only for now)
+
+    ./server/ $ go build -ldflags="-X main.Commit=$(git rev-parse HEAD)"
+
+Build for windows, wont work on MAC as long as syscall is used unless
+https://justen.codes/breaking-all-the-rules-using-go-to-call-windows-api-2cbfd8c79724
+
+    GOOS=windows GOARCH=amd64 go build
+
+Better is to make a github actions workflow for windows work.

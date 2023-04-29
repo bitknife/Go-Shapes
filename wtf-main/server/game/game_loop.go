@@ -63,6 +63,7 @@ func Run(gameLoopFps int64, packetBroadCastChannel chan []*shared.Packet, packet
 	tick := int64(0)
 
 	statsIntervalMsec := ticTime * STATS_INTERVAL
+	statsDivideBy := float32(statsIntervalMsec) * float32(gameLoopFps)
 
 	aggregatedSimTime := 0
 	aggregatedSendTime := 0
@@ -112,19 +113,16 @@ func Run(gameLoopFps int64, packetBroadCastChannel chan []*shared.Packet, packet
 		//-----------------------------------------------------------------
 		tick = tick + 1
 		if tick%(gameLoopFps*STATS_INTERVAL) == 0 {
-			// Calculate average headroom
-			simFraction := float32(aggregatedSimTime) / float32(statsIntervalMsec)
-			sendFraction := float32(aggregatedSendTime) / float32(statsIntervalMsec)
-			sleepFraction := float32(aggregatedSleepTime) / float32(statsIntervalMsec)
-
-			*GameLoopSim = simFraction / float32(gameLoopFps)
-			*GameLoopSend = sendFraction / float32(gameLoopFps)
-			*GameLoopSleep = sleepFraction / float32(gameLoopFps)
-
-			aggregatedSimTime = 0
-			aggregatedSendTime = 0
-			aggregatedSleepTime = 0
+			setGLLMetrics(statsDivideBy, aggregatedSimTime, aggregatedSendTime, aggregatedSleepTime)
+			aggregatedSimTime, aggregatedSendTime, aggregatedSleepTime = 0, 0, 0
 		}
-
 	}
+}
+
+func setGLLMetrics(statsDivideBy float32, aggregatedSimTime int, aggregatedSendTime int, aggregatedSleepTime int) {
+
+	*GameLoopSim = float32(aggregatedSimTime) / statsDivideBy
+	*GameLoopSend = float32(aggregatedSendTime) / statsDivideBy
+	*GameLoopSleep = float32(aggregatedSleepTime) / statsDivideBy
+
 }

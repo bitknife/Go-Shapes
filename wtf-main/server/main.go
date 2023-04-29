@@ -5,6 +5,7 @@ import (
 	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/server/socketserver"
 	"bitknife.se/wtf/shared"
+	bubbles "dot_game"
 	"fmt"
 	flags "github.com/spf13/pflag"
 	"log"
@@ -66,8 +67,8 @@ func startServer(
 	/**
 	Main serverside game loop
 	*/
-	dotWorldGame := game.CreateDotWorldGame(250, 250, nDots)
-	go game.Run(gameLoopFps, packetBroadCastChannel, packetsSentChannel, dotWorldGame)
+	bubbleGame := bubbles.CreateBubbleGame(250, 250, nDots)
+	go game.Run(gameLoopFps, packetBroadCastChannel, packetsSentChannel, bubbleGame)
 
 	go CollectAndPrintMetricsRoutine("WTF server", 2)
 

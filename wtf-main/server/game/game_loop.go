@@ -36,7 +36,7 @@ func GetGameLoopMetrics() *GameLoopMetrics {
 	return &currentStats
 }
 
-var wtfGameGlobal WTFGame
+var doerGameGlobal DoerGame
 
 func UserInputRunner(username string, userInputForGame chan *shared.Packet) {
 	// TODO: Rethink, the global variable theWtfGame is a singleton
@@ -46,14 +46,14 @@ func UserInputRunner(username string, userInputForGame chan *shared.Packet) {
 		if packet == nil {
 			return
 		}
-		wtfGameGlobal.HandleUserInputPacket(username, packet)
+		doerGameGlobal.HandleUserInputPacket(username, packet)
 	}
 }
 
-func Run(gameLoopFps int64, packetBroadCastChannel chan []*shared.Packet, packetsSentChannel chan int, wtfGame WTFGame) {
+func Run(gameLoopFps int64, packetBroadCastChannel chan []*shared.Packet, packetsSentChannel chan int, doerGame DoerGame) {
 
 	// TODO: convert all this to a go struct methods (go "class")
-	wtfGameGlobal = wtfGame
+	doerGameGlobal = doerGame
 
 	ticTime := time.Duration(1000/gameLoopFps) * time.Millisecond
 
@@ -77,10 +77,10 @@ func Run(gameLoopFps int64, packetBroadCastChannel chan []*shared.Packet, packet
 		//--- Simulation ---------------------------------------------------
 
 		// Update game logic
-		wtfGame.Update()
+		doerGame.Update()
 
 		// Package and send game objects
-		packets := shared.BuildGameObjectPackets(tick, wtfGame.GetGameObjects())
+		packets := shared.BuildGameObjectPackets(tick, doerGame.GetGameObjects())
 
 		t2 := time.Now()
 		simTime := t2.Sub(t1)
@@ -120,9 +120,7 @@ func Run(gameLoopFps int64, packetBroadCastChannel chan []*shared.Packet, packet
 }
 
 func setGLLMetrics(statsDivideBy float32, aggregatedSimTime int, aggregatedSendTime int, aggregatedSleepTime int) {
-
 	*GameLoopSim = float32(aggregatedSimTime) / statsDivideBy
 	*GameLoopSend = float32(aggregatedSendTime) / statsDivideBy
 	*GameLoopSleep = float32(aggregatedSleepTime) / statsDivideBy
-
 }

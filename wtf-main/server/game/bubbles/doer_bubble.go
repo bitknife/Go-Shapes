@@ -12,6 +12,7 @@ type BubbleGameObject struct {
 }
 
 func (dwg *BubbleGameObject) Update() {
+	// shared.BurnCPU(400000)
 	dwg.shake(2)
 }
 

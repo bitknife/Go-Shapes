@@ -40,3 +40,10 @@ func CollectGoStats() map[string]interface{} {
 
 	return stats
 }
+
+func BurnCPU(num int64) {
+	// For burning CPU articially
+	for i := int64(0); i <= num; i++ {
+		math.Sqrt(float64(i))
+	}
+}

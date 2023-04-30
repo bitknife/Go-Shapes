@@ -20,18 +20,21 @@ type GameConfig struct {
 var GameLoopSim = new(float32)
 var GameLoopSend = new(float32)
 var GameLoopSleep = new(float32)
+var GameLoopActualFPS = new(float32)
 
 type GameLoopMetrics struct {
-	GameLoopSim   float32
-	GameLoopSend  float32
-	GameLoopSleep float32
+	GameLoopSim       float32
+	GameLoopSend      float32
+	GameLoopSleep     float32
+	GameLoopActualFPS float32
 }
 
 func GetGameLoopMetrics() *GameLoopMetrics {
 	currentStats := GameLoopMetrics{
-		GameLoopSim:   *GameLoopSim,
-		GameLoopSend:  *GameLoopSend,
-		GameLoopSleep: *GameLoopSleep,
+		GameLoopSim:       *GameLoopSim,
+		GameLoopSend:      *GameLoopSend,
+		GameLoopSleep:     *GameLoopSleep,
+		GameLoopActualFPS: *GameLoopActualFPS,
 	}
 	return &currentStats
 }
@@ -55,7 +58,7 @@ func Run(gameLoopFps int64, packetBroadCastChannel chan []*shared.Packet, packet
 	// TODO: convert all this to a go struct methods (go "class")
 	doerGameGlobal = doerGame
 
-	ticTime := time.Duration(1000/gameLoopFps) * time.Millisecond
+	ticTime := FPSToDuration(int(gameLoopFps))
 
 	log.Println("Game loop at", gameLoopFps, "FPS. Frame time:", ticTime)
 
@@ -69,6 +72,12 @@ func Run(gameLoopFps int64, packetBroadCastChannel chan []*shared.Packet, packet
 	aggregatedSendTime := 0
 	aggregatedSleepTime := 0
 
+	// For measuring avg FPS between stats
+	statsStart := time.Now()
+
+	// Loop is mysteriously statically off by 1 ms, round-off errors or error in measurement
+	fpsSleepAdj := time.Duration(1) * time.Millisecond
+
 	for {
 		// Game loop
 		loopStartTime := time.Now()
@@ -79,14 +88,14 @@ func Run(gameLoopFps int64, packetBroadCastChannel chan []*shared.Packet, packet
 		// Update game logic
 		doerGame.Update()
 
-		// Package and send game objects
-		packets := shared.BuildGameObjectPackets(tick, doerGame.GetGameObjects())
-
 		t2 := time.Now()
 		simTime := t2.Sub(t1)
 		aggregatedSimTime += int(simTime.Nanoseconds())
 
 		//--- Send ---------------------------------------------------
+
+		// Package and send game objects
+		packets := shared.BuildGameObjectPackets(tick, doerGame.GetGameObjects())
 
 		// Broadcast packets, this will eat all packets
 		packetBroadCastChannel <- packets
@@ -102,10 +111,6 @@ func Run(gameLoopFps int64, packetBroadCastChannel chan []*shared.Packet, packet
 
 		//--- Sleep ---------------------------------------------------
 
-		// Calculate sleep time needed to keep FPS
-		sleepDur := ticTime - time.Since(loopStartTime)
-		time.Sleep(sleepDur)
-
 		sleepTime := ticTime - sendTime - simTime
 		aggregatedSleepTime += int(sleepTime.Nanoseconds())
 
@@ -115,7 +120,26 @@ func Run(gameLoopFps int64, packetBroadCastChannel chan []*shared.Packet, packet
 		if tick%(gameLoopFps*STATS_INTERVAL) == 0 {
 			setGLLMetrics(statsDivideBy, aggregatedSimTime, aggregatedSendTime, aggregatedSleepTime)
 			aggregatedSimTime, aggregatedSendTime, aggregatedSleepTime = 0, 0, 0
+
+			// Measure actual FPS, if it misses by a lot, it means the load is too high
+			// in either the simulation phase or the send phase.
+			statsCycleTime := time.Since(statsStart)
+			log.Print("statsCycleTime:", statsCycleTime)
+			*GameLoopActualFPS = float32(gameLoopFps*STATS_INTERVAL) * float32(time.Second) / float32(statsCycleTime)
+			statsStart = time.Now()
+
+			// Calculate sleep adjustment needed to better hit FPS
+			// fpsDiff := float32(gameLoopFps) - *GameLoopActualFPS
+			// log.Println("fpsDiff:", fpsDiff, "FPS")
+			//newFpsSleepAdj := FloatFPSToDuration(float32(gameLoopFps) / fpsDiff)
+			// log.Println("fpsSleepAdj:", FloatFPSToDuration(float32(gameLoopFps)/fpsDiff))
+			// Slowly adjust it
+			//fpsSleepAdj = (fpsSleepAdj + newFpsSleepAdj) / 2
 		}
+
+		// Calculate sleep time needed to keep FPS
+		sleepDur := ticTime - time.Since(loopStartTime) - fpsSleepAdj
+		time.Sleep(sleepDur)
 	}
 }
 
@@ -123,4 +147,12 @@ func setGLLMetrics(statsDivideBy float32, aggregatedSimTime int, aggregatedSendT
 	*GameLoopSim = float32(aggregatedSimTime) / statsDivideBy
 	*GameLoopSend = float32(aggregatedSendTime) / statsDivideBy
 	*GameLoopSleep = float32(aggregatedSleepTime) / statsDivideBy
+}
+
+func FPSToDuration(fps int) time.Duration {
+	return time.Duration(1000000000/fps) * time.Nanosecond
+}
+
+func FloatFPSToDuration(fps float32) time.Duration {
+	return time.Duration(1000000000/fps) * time.Nanosecond
 }

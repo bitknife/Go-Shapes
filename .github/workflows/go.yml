@@ -28,10 +28,6 @@ jobs:
         working-directory: wtf-main/client
         run: go test -v
 
-      - name: Build Client
-        working-directory: wtf-main/client
-        run: go build -v
-
       - name: Test Server
         working-directory: wtf-main/server
         run: go test -v
@@ -50,7 +46,7 @@ jobs:
       - name: Build Windows exe
         working-directory: wtf-main/client
         shell: bash
-        run: go build
+        run: go build -ldflags="-X main.Commit=$(git rev-parse HEAD)"
       - name: Upload Windows exe
         uses: actions/upload-artifact@v3
         with:
@@ -72,7 +68,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get -y install libgl1-mesa-dev xorg-dev libasound2-dev
       - name: Build Linux Client
         working-directory: wtf-main/client
-        run: go build -v
+        run: go build -v -ldflags="-X main.Commit=$(git rev-parse HEAD)"
       - name: Upload Ubuntu Client Artefact
         uses: actions/upload-artifact@v3.1.2
         with:
@@ -92,7 +88,7 @@ jobs:
       - name: Build Mac Client
         shell: bash
         working-directory: wtf-main/client
-        run: go build
+        run: go build -ldflags="-X main.Commit=$(git rev-parse HEAD)"
       - name: Chmod on binary
         shell: bash
         working-directory: wtf-main/client
@@ -118,7 +114,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get -y install libgl1-mesa-dev xorg-dev libasound2-dev
       - name: Build Linux server
         working-directory: wtf-main/server
-        run: go build -v ./...
+        run: go build -v -ldflags="-X main.Commit=$(git rev-parse HEAD)"
 
       - name: Upload Linux Server Artefact
         uses: actions/upload-artifact@v3.1.2
@@ -136,25 +132,5 @@ jobs:
           port: ${{ secrets.DEV_PORT }}
           source: "wtf-main/server/server,wtf-main/server/motif.txt"
           target: ~/wtf-dev-server/
+          # Removes two levels of directories
           strip_components: 2
-
-#  build-windows-client:
-#    runs-on: windows
-#
-#    steps:
-#    - uses: actions/checkout@v3
-#
-#    - name: Set up Go
-#      uses: actions/setup-go@v3
-#      with:
-#        go-version: 1.19
-#
-#    - name: Build Client
-#      working-directory: wtf-main/client
-#      run: go build -v ./...
-#
-#    - name: Upload Windows Client Artefact
-#      uses: actions/upload-artifact@v3.1.2
-#      with:
-#        name: wtf-client-win
-#        path: wtf-main/client/client

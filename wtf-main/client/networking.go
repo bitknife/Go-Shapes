@@ -3,7 +3,6 @@ package main
 import (
 	"bitknife.se/wtf/shared"
 	"log"
-	"syscall"
 )
 
 func SetUpNetworking(protocol string, host string, port string, username string, password string) (chan *[]byte, chan *[]byte) {
@@ -32,8 +31,8 @@ func HandlePacketsFromServer(
 		receivedData := <-fromServer
 
 		if receivedData == nil {
-			// This is server disconnecting, raise SIGINT to trigger exit handler
-			syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+			// This is server disconnecting, send nil to signal this
+			gamePacketsToUpperLayers <- nil
 			return
 		}
 		packet := shared.BytesToPacket(receivedData)

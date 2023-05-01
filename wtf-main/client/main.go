@@ -30,14 +30,14 @@ func waitForExitSignals(toServer chan *[]byte) {
 	log.Print("Exiting.")
 }
 
-func setupKillTimer(lifetime_sec int) {
+func setupExitTimer(lifetime_sec int) {
 
 	log.Println("Kill timer set to", lifetime_sec, "seconds.")
 	kill_timer := time.NewTimer(time.Duration(lifetime_sec) * time.Second)
 	go func() {
 		<-kill_timer.C
 		log.Println("Exiting due to kill timer fired after", lifetime_sec, "sec.")
-		syscall.Kill(syscall.Getpid(), syscall.SIGTERM)
+		os.Exit(0)
 	}()
 }
 
@@ -60,19 +60,23 @@ func main() {
 	// Central objects shared between network and game engine, keep it simple for now
 	gameObjects := make(map[string]*shared.GameObject)
 
-	// For scripted runs of the client typically
-	if *lifetime_sec > 0 {
-		setupKillTimer(*lifetime_sec)
-	}
-
 	// Starts the UI, this blocks
 	if *headless == true {
+		// For scripted runs of the client typically
+		if *lifetime_sec > 0 {
+			setupExitTimer(*lifetime_sec)
+		}
+
 		log.Println("Starting headless client")
 		go func() {
 			packetCounter := 0
 			for {
 				// Juste read packets for now.
-				<-gamePacketsFromServerChannel
+				packet := <-gamePacketsFromServerChannel
+				if packet == nil {
+					log.Println("Server closed connection, exiting.")
+					syscall.Exit(0)
+				}
 				packetCounter++
 			}
 		}()

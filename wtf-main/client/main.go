@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	HOST = "localhost"
-	PORT = "7777"
+	DefaultHost = "wtf-server.bitknife.se"
+	DefaultPort = "7777"
 )
 
 func waitForExitSignals(toServer chan *[]byte) {
@@ -43,8 +43,8 @@ func setupExitTimer(lifetime_sec int) {
 
 func main() {
 	headless := flags.Bool("headless", false, "Start a client headless.")
-	host := flags.StringP("host", "h", HOST, "Server IP or Hostname")
-	port := flags.StringP("port", "p", PORT, "Server Port")
+	host := flags.StringP("host", "h", DefaultHost, "Server IP or Hostname")
+	port := flags.StringP("port", "p", DefaultPort, "Server Port")
 	username := flags.StringP("username", "u", shared.RandName("user"), "Player name")
 	password := flags.StringP("password", "w", "welcome", "Password")
 	lifetime_sec := flags.IntP("lifetime_sec", "l", 0, "Terminate client after this many seconds")

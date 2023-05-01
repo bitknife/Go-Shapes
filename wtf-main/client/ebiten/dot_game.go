@@ -3,6 +3,7 @@ package ebiten
 import (
 	"bitknife.se/wtf/shared"
 	"github.com/hajimehoshi/ebiten/v2"
+	"golang.org/x/image/math/f64"
 )
 
 const (
@@ -10,21 +11,26 @@ const (
 )
 
 type Game struct {
+	world  *ebiten.Image
+	camera Camera
+
 	toServer chan *[]byte
 
-	// Ebiten representation of gameObjects and also non-game objects
+	// Ebitengine representation of gameObjects
 	remoteEBObjects map[string]*EBGameObject
 	localEBObjects  map[string]*EBGameObject
 }
 
-func CreateGame(
-	toServerChan chan *[]byte,
-) *Game {
+func CreateGame(toServerChan chan *[]byte) *Game {
 	game := Game{
+		world:  ebiten.NewImage(screenWidth, screenHeight),
+		camera: Camera{ViewPort: f64.Vec2{screenWidth, screenHeight}},
+
 		toServer: toServerChan,
+
+		remoteEBObjects: make(map[string]*EBGameObject),
+		localEBObjects:  make(map[string]*EBGameObject),
 	}
-	game.remoteEBObjects = make(map[string]*EBGameObject)
-	game.localEBObjects = make(map[string]*EBGameObject)
 
 	// Create a local cursor that is not sent to server
 	localDot := EBGameObject{}
@@ -52,8 +58,11 @@ func CreateGame(
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
 func (g *Game) Update() error {
-	// TODO: optimize, maybe no need to send in every tick?
 
+	// Adjust viewport
+	g.camera.SetCamera()
+
+	// TODO: optimize, maybe no need to send in every tick?
 	x, y := ebiten.CursorPosition()
 
 	newX := int32(x)
@@ -87,12 +96,19 @@ func (g *Game) Update() error {
 // Draw draws the game screen.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (g *Game) Draw(screen *ebiten.Image) {
+	// TODO Use corret Image option instead
+	g.world.Clear()
+
+	// Draw on World (or maybe layers?)
 	for _, ebitenObject := range g.localEBObjects {
-		ebitenObject.Draw(screen)
+		ebitenObject.Draw(g.world)
 	}
 	for _, ebitenObject := range g.remoteEBObjects {
-		ebitenObject.Draw(screen)
+		ebitenObject.Draw(g.world)
 	}
+
+	// Render the updated World onto our screen
+	g.camera.Render(g.world, screen)
 }
 
 // Layout takes the outside size (e.g., the window size) and returns the (logical) screen size.

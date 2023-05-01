@@ -21,10 +21,10 @@ func (ebObj *EBGameObject) Init(gob *shared.GameObject) {
 	ebObj.gob = gob
 }
 
-func (ebObj *EBGameObject) Draw(screen *ebiten.Image) {
+func (ebObj *EBGameObject) Draw(layer *ebiten.Image) {
 	switch ebObj.gob.Kind {
 	case shared.GameObjectKind_DOT:
-		DrawDot(ebObj, screen)
+		DrawDot(ebObj, layer)
 	}
 }
 

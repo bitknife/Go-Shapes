@@ -67,7 +67,7 @@ func startServer(
 	/**
 	Main serverside game loop
 	*/
-	bubbleGame := bubbles.CreateBubbleGame(250, 250, nDots)
+	bubbleGame := bubbles.CreateBubbleGame(-1000, 1000, nDots)
 	go game.Run(gameLoopFps, packetBroadCastChannel, packetsSentChannel, bubbleGame)
 
 	go CollectAndPrintMetricsRoutine("WTF server", 2)
@@ -90,7 +90,7 @@ func waitForExitSignals() {
 
 func main() {
 	gameLoopFps := flags.Int64P("fps", "f", 30, "Game loop FPS")
-	nDots := flags.IntP("dots", "d", 100, "Dots to spawn.")
+	nDots := flags.IntP("dots", "d", 500, "Dots to spawn.")
 	socketWriteTimeoutMs := flags.IntP("socketWriteTimeoutMs", "s", 10, "TCP Socket write timeout in ms")
 	pingIntervalMsec := flags.IntP("ping_interval_msec", "p", 10000,
 		"Interval in milliseconds to ping clients.")

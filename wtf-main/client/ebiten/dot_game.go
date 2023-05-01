@@ -3,6 +3,7 @@ package ebiten
 import (
 	"bitknife.se/wtf/shared"
 	"github.com/hajimehoshi/ebiten/v2"
+	"golang.org/x/image/colornames"
 	"golang.org/x/image/math/f64"
 )
 
@@ -21,10 +22,11 @@ type Game struct {
 	localEBObjects  map[string]*EBGameObject
 }
 
-func CreateGame(toServerChan chan *[]byte) *Game {
+func CreateGame(toServerChan chan *[]byte, worldWidth int, worldHeight int) *Game {
 	game := Game{
-		world:  ebiten.NewImage(screenWidth, screenHeight),
-		camera: Camera{ViewPort: f64.Vec2{screenWidth, screenHeight}},
+		world: ebiten.NewImage(worldWidth, worldHeight),
+
+		camera: Camera{ViewPort: f64.Vec2{0, 0}},
 
 		toServer: toServerChan,
 
@@ -96,8 +98,11 @@ func (g *Game) Update() error {
 // Draw draws the game screen.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (g *Game) Draw(screen *ebiten.Image) {
-	// TODO Use corret Image option instead
+	// TODO Use correct Image option instead
 	g.world.Clear()
+
+	// TODO: draw grid on a transparent util layer w. persistent option
+	drawGrid(g.world, colornames.Gray, 100)
 
 	// Draw on World (or maybe layers?)
 	for _, ebitenObject := range g.localEBObjects {

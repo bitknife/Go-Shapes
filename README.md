@@ -23,7 +23,58 @@ Links to Ebitengine and a list of very useful additions to it.
 https://github.com/hajimehoshi/ebiten
 https://github.com/sedyh/awesome-ebitengine
 
+better camera?
+https://github.com/MelonFunction/ebiten-camera
 
+#### Suggestions
+Based on nice presentation from experienced Ebitengine developer Quasilyte
+https://speakerdeck.com/quasilyte/ebitengine-ecosystem-overview?slide=60
+https://github.com/quasilyte/
+
+Also note his "itch" page as well. 
+
+Sprites/Anim:
+https://github.com/yohamta/ganim8
+https://github.com/tanema/gween
+
+Map editor / Tiles etc.
+- https://www.mapeditor.org/
+- https://github.com/lafriks/go-tiled
+
+Collision detection
+- https://github.com/SolarLune/resolv
+- https://github.com/ByteArena/box2d
+
+Scripting (Go in Go)
+Makes for dynamically loading of functions runtime. For Plugins or scripting objects etc.
+- https://github.com/traefik/yaegi
+- https://github.com/open2b/scriggo
+See also Lua, Lisp etc for scripting.
+
+Pathfinding, Quasilyte evaulated three of them but could recommend any of them.
+
+2D Math
+- https://github.com/quartercastle/vector (float64? slow)
+- https://github.com/quasilyte/gmath (his own lib, compat. w ebitengine-input)
+
+Input
+He has good points on why to add another layer:
+- https://github.com/quasilyte/ebitengine-input
+Good practice to keep a virtual layer in between, ie Input -> Action, better let game depend on Action.
+
+Signals/Slots
+Good to reduce objects coupling, adds event listening to Go
+- https://github.com/quasilyte/gsignal
+
+Resource management
+- https://github.com/quasilyte/ebitengine-resource
+
+A game made by qasilyte, good to look for structure of larger project etc.
+https://github.com/quasilyte/roboden-game
+Also found his own ge "util" repo:
+https://github.com/quasilyte/ge
+
+Ebiten game template: https://github.com/sinisterstuf/ebitengine-game-template nice!
 ### Shared
 The [./shared](./common) directory contains the shared message model.
 

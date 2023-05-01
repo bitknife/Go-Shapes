@@ -1,59 +1,106 @@
 # This workflow will build a golang project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
 
-name: Go
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+name: Build Executables
+on: [push]
 
 jobs:
-  build-ubuntu:
+
+  tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install xorg-dev
+        run: sudo apt-get install -y xorg-dev
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
+      - name: Test Shared
+        working-directory: wtf-main/shared
+        run: go test -v
+
+      - name: Test Client
+        working-directory: wtf-main/client
+        run: go test -v
+
+      - name: Build Client
+        working-directory: wtf-main/client
+        run: go build -v
+
+      - name: Test Server
+        working-directory: wtf-main/server
+        run: go test -v
+
+
+  build-win-client:
+    name: Build Windows Client binary
+    needs: tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: Build Windows exe
+        working-directory: wtf-main/client
+        shell: bash
+        run: go build
+      - name: Upload Windows exe
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-client
+          path: wtf-main/client/client.exe
+
+  build-linux-server:
+    name: Build & Upload Linux Server
+    needs: tests
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-
-    - name: Install xorg-dev
-      run: sudo apt-get install -y xorg-dev
-  
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
         go-version: 1.19
-
-    - name: Test Shared
-      working-directory: wtf-main/shared
-      run: go test -v ./...
-
-    - name: Test Client
-      working-directory: wtf-main/client
-      run: go test -v ./...
-
-    - name: Build Client
-      working-directory: wtf-main/client
-      run: go build -v ./...
-
-    - name: Test Server
-      working-directory: wtf-main/server
-      run: go test -v ./...
-
-    - name: Build Server
+    - name: Install dependencies
+      shell: bash
+      run: sudo apt-get update && sudo apt-get -y install libgl1-mesa-dev xorg-dev libasound2-dev
+    - name: Build Linux server
       working-directory: wtf-main/server
       run: go build -v ./...
-      
-    - name: Upload Ubuntu Client Artefact
-      uses: actions/upload-artifact@v3.1.2
-      with: 
-        name: ubuntu-client
-        path: wtf-main/client/client
 
-    - name: Upload Ubuntu Server Artefact
+    - name: Upload Linux Server Artefact
       uses: actions/upload-artifact@v3.1.2
       with: 
-        name: ubuntu-server
+        name: linux-server
         path: wtf-main/server/server
+
+  build-linux-client:
+    name: Build Linux Client
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: Install dependencies
+        shell: bash
+        run: sudo apt-get update && sudo apt-get -y install libgl1-mesa-dev xorg-dev libasound2-dev
+      - name: Build Linux Client
+        working-directory: wtf-main/client
+        run: go build -v
+      - name: Upload Ubuntu Client Artefact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: ubuntu-client
+          path: wtf-main/client/client
 
 
 #  build-windows-client:

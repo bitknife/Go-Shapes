@@ -10,7 +10,7 @@ import (
 type Camera struct {
 	ViewPort   f64.Vec2
 	Position   f64.Vec2
-	ZoomFactor int
+	ZoomFactor int // Positive is more zoomed in
 	Rotation   int
 }
 
@@ -67,35 +67,45 @@ func (c *Camera) Reset() {
 }
 
 func (c *Camera) SetCamera() {
+	panSpeed := (100 - float64(c.ZoomFactor)) / 30
+	fmt.Println("panSpeed:", panSpeed)
+	// zoomBoost :=
+
 	if ebiten.IsKeyPressed(ebiten.KeyA) || ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
-		c.Position[0] -= 1
+		c.Position[0] -= panSpeed
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyD) || ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
-		c.Position[0] += 1
+		c.Position[0] += panSpeed
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyW) || ebiten.IsKeyPressed(ebiten.KeyArrowUp) {
-		c.Position[1] -= 1
+		c.Position[1] -= panSpeed
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyS) || ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
-		c.Position[1] += 1
+		c.Position[1] += panSpeed
 	}
 
-	if ebiten.IsKeyPressed(ebiten.KeyQ) {
+	if ebiten.IsKeyPressed(ebiten.KeyF) {
 		if c.ZoomFactor > -2400 {
 			c.ZoomFactor -= 1
 		}
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyE) {
+	if ebiten.IsKeyPressed(ebiten.KeyR) {
 		if c.ZoomFactor < 2400 {
 			c.ZoomFactor += 1
 		}
 	}
 
-	if ebiten.IsKeyPressed(ebiten.KeyR) {
+	if ebiten.IsKeyPressed(ebiten.KeyE) {
 		c.Rotation += 1
+	}
+
+	if ebiten.IsKeyPressed(ebiten.KeyQ) {
+		c.Rotation -= 1
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeySpace) {
 		c.Reset()
 	}
+
+	fmt.Println("c.ZoomFactor", c.ZoomFactor)
 }

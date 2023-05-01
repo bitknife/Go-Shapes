@@ -30,10 +30,12 @@ func RunEbitenApplication(
 	ebiten.SetWindowTitle("WTF!?")
 	ebiten.SetFullscreen(false)
 
-	ebitenGame := CreateGame(toServerChan)
+	ebitenGame := CreateGame(toServerChan, 2000, 2000)
 
 	// Start the controller
 	ebitenController := EbitenController{gameObjects, fromServerChan, ebitenGame}
+
+	// NOTE: Blocks!
 	go ebitenController.Run()
 
 	if err := ebiten.RunGame(ebitenGame); err != nil {

@@ -106,6 +106,5 @@ func (c *Camera) SetCamera() {
 	if ebiten.IsKeyPressed(ebiten.KeySpace) {
 		c.Reset()
 	}
-
 	// fmt.Println("c.ZoomFactor", c.ZoomFactor)
 }

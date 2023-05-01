@@ -54,7 +54,7 @@ func startServer(
 	log.Println("Starting server on", HOST, ":", PORT)
 	go socketserver.Run(HOST, PORT)
 
-	log.Println("Ping interval", pingIntervalMsec, "msec.")
+	log.Println("Ping interval is", pingIntervalMsec, "msec.")
 	// go PingAllClients(*pingIntervalMsec)
 
 	/**

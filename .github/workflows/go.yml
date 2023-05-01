@@ -36,9 +36,8 @@ jobs:
         working-directory: wtf-main/server
         run: go test -v
 
-
   build-win-client:
-    name: Build Windows Client binary
+    name: Windows Client [Build]
     needs: tests
     runs-on: windows-latest
     steps:
@@ -56,20 +55,27 @@ jobs:
         with:
           name: windows-client
           path: wtf-main/client/client.exe
+
+  win-client-itchio-upload:
+    name: Linux Client [Build]
+    needs: build-win-client
+    runs-on: ubuntu-latest
+    steps:
       - name: Set Version
         run: |
           echo "version=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
-      - name: Upload ${{ matrix.preset }} to itch.io project
+      - name: Upload to itch.io project
+        # https://github.com/marketplace/actions/itch-io-upload
         uses: robpc/itchio-upload-action@v1
         with:
-          path: build/${{ matrix.preset }}
+          path: wtf-main/client/client.exe
           project: ${{ env.itchio_project }}
           channel: ${{ env.itchio_channel }}
           version: ${{ env.version }}
           api-key: ${{ secrets.ITCHIO_API_KEY }}
 
   build-linux-client:
-    name: Build Linux Client
+    name: Linux Client [Build]
     needs: tests
     runs-on: ubuntu-latest
     steps:
@@ -91,7 +97,7 @@ jobs:
           path: wtf-main/client/client
 
   build-mac-client:
-    name: Build MacOS Client binary
+    name: MacOS Client [Build]
     needs: tests
     runs-on: macos-latest
     steps:
@@ -114,10 +120,8 @@ jobs:
           name: mac-client
           path: wtf-main/client/client
 
-
   build-linux-server:
-    name: Build & Upload Linux Server
-    needs: tests
+    name: Linux Server [Build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -138,6 +142,11 @@ jobs:
           name: linux-server
           path: wtf-main/server/server
 
+  install-linux-dev-server:
+    name: Linux Server [Install to Dev]
+    needs: build-linux-server
+    runs-on: ubuntu-latest
+    steps:
       # https://github.com/appleboy/scp-action
       - name: Upload to Dev Server
         uses: appleboy/scp-action@v0.1.4

@@ -57,9 +57,21 @@ func (bubbleGame *BubbleGame) buildDotWorld(min int32, max int32, nDots int) {
 }
 
 func (bubbleGame *BubbleGame) Update() {
-	// Visitor pattern, not so efficient
+	/*
+		NOTE: Visitor pattern, not so efficient unless we go
+
+	*/
+	doneChan := make(chan string)
+
 	for _, doer := range bubbleGame.Doers {
-		doer.Update()
+		// Update all objects in parallel works for some kind of updates
+		go doer.Update(doneChan)
+	}
+
+	// And wait for completion
+	for todo := len(bubbleGame.Doers); todo > 0; todo-- {
+		// Wait for all clients to complete
+		<-doneChan
 	}
 }
 

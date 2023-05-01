@@ -124,9 +124,15 @@ func Run(gameLoopFps int64, packetBroadCastChannel chan []*shared.Packet, packet
 			// Measure actual FPS, if it misses by a lot, it means the load is too high
 			// in either the simulation phase or the send phase.
 			statsCycleTime := time.Since(statsStart)
-			log.Print("statsCycleTime:", statsCycleTime)
 			*GameLoopActualFPS = float32(gameLoopFps*STATS_INTERVAL) * float32(time.Second) / float32(statsCycleTime)
 			statsStart = time.Now()
+
+			// NOTE: Negative aggregatedSleepTime means we do not meet deadlines
+			// 	     and simulation starts to slow down. Would need to handle this
+			//		 gracefully, ideally upgrade hardware (or software) before this
+			//		 happens.
+			//		 Negative sleep can happen due to too high simulation load and
+			//	     or too many clients connected or unable to parallelize enough.
 
 			// Calculate sleep adjustment needed to better hit FPS
 			// fpsDiff := float32(gameLoopFps) - *GameLoopActualFPS

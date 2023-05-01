@@ -1,7 +1,13 @@
 package bubbles
 
 import (
+	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/shared"
+	"time"
+)
+
+const (
+	FPS = 20
 )
 
 type BubbleGameObject struct {
@@ -11,9 +17,41 @@ type BubbleGameObject struct {
 	// NOTE: And its methods!
 }
 
-func (dwg *BubbleGameObject) Update() {
-	// shared.BurnCPU(400000)
+func (dwg *BubbleGameObject) Start() {
+	// TODO: Call a Generic Doer loop method?
+	ticTime := game.FPSToDuration(FPS)
+
+	go func() {
+		loopStartTime := time.Now()
+		//--- WORK HERE ----
+
+		//--- SLEEP HERE ---
+		sleepDur := ticTime - time.Since(loopStartTime)
+		time.Sleep(sleepDur)
+	}()
+}
+
+func (dwg *BubbleGameObject) Update(doneChan chan string) {
+	// Artificial load to see how game engine reacts to lengthy calculations
+	// during game loop, comparing job scheduling algorithms etc.
+	//
+	// Increasing this and observing CPU load and game loop load figures
+	// is interesting. A couple of things can be observed when we max out CPUs
+	// during Simulation, preferably all cores! This can be achieved if using
+	// go-routines for simulations:
+	//
+	//  - Sim time will be > 1.00 and Sleep as negative (negative sleep == no sleep!)
+	//    We could start to skip frames here instead of slowing things down for example.
+	//  - And actual FPS will fall below its target.
+	//
+	// million := int64(1000000)
+	// shared.BurnCPU(1 * million)
+
+	// The actual "job"
 	dwg.shake(2)
+
+	// And report done to game loop
+	doneChan <- "done"
 }
 
 func (dwg *BubbleGameObject) GetGameObject() *shared.GameObject {

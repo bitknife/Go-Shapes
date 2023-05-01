@@ -42,11 +42,11 @@ func CollectAndPrintMetricsRoutine(label string, intervalSec int) {
 		}
 
 		log.Println("------------------------------------------------------")
+		log.Println("Clients ........................", bS.NumberOfClients)
+		log.Println("Heap Alloc / Max............(kB)", gS["heapAllocKB"], "/", gS["TotalAllocKB"])
 		log.Println("Go routines ....................", gS["numGoroutines"])
 		log.Println("GL: Sim / Send / Sleep .........", gllSim, "/", gllSend, "/", gllSleep)
 		log.Println("GL: Actual FPS .................", glS.GameLoopActualFPS)
-		log.Println("Clients ........................", bS.NumberOfClients)
-		log.Println("Heap Alloc / Max............(kB)", gS["heapAllocKB"], "/", gS["TotalAllocKB"])
 		log.Println("Net: Sent / Rec ............(kB)", nS.BytesSent/1000, "/", nS.BytesReceived/1000)
 		log.Println("Net: Send Min / Avg / Max ..(ms)", nS.MinSendTimeMs, "/", avgSendTime, "/", nS.MaxSendTimeMs)
 		log.Println("Net: Packets sent ..............", nS.PacketsSent)

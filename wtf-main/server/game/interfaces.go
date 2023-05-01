@@ -13,6 +13,7 @@ type DoerGame interface {
 }
 
 type Doer interface {
-	Update()
+	Start()
+	Update(chan string)
 	GetGameObject() *shared.GameObject
 }

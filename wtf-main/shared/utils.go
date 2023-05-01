@@ -42,7 +42,7 @@ func CollectGoStats() map[string]interface{} {
 }
 
 func BurnCPU(num int64) {
-	// For burning CPU articially
+	// For creating artificial CPU load, num should be in the million range
 	for i := int64(0); i <= num; i++ {
 		math.Sqrt(float64(i))
 	}

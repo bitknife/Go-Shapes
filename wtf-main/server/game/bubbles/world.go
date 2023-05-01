@@ -57,10 +57,7 @@ func (bubbleGame *BubbleGame) buildDotWorld(min int32, max int32, nDots int) {
 }
 
 func (bubbleGame *BubbleGame) Update() {
-	/*
-		NOTE: Visitor pattern, not so efficient unless we go
-
-	*/
+	// TODO use waitGroup?
 	doneChan := make(chan string)
 
 	for _, doer := range bubbleGame.Doers {

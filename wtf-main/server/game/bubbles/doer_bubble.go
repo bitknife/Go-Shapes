@@ -48,7 +48,7 @@ func (dwg *BubbleGameObject) Update(doneChan chan string) {
 	// shared.BurnCPU(1 * million)
 
 	// The actual "job"
-	dwg.shake(2)
+	dwg.shake(3)
 
 	// And report done to game loop
 	doneChan <- "done"

@@ -4,6 +4,10 @@
 name: Build Executables
 on: [push]
 
+env:
+  itchio_project: Hanserfaust/wtf
+  itchio_channel: windows
+
 jobs:
 
   tests:
@@ -52,6 +56,17 @@ jobs:
         with:
           name: windows-client
           path: wtf-main/client/client.exe
+      - name: Set Version
+        run: |
+          echo "version=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+      - name: Upload ${{ matrix.preset }} to itch.io project
+        uses: robpc/itchio-upload-action@v1
+        with:
+          path: build/${{ matrix.preset }}
+          project: ${{ env.itchio_project }}
+          channel: ${{ env.itchio_channel }}
+          version: ${{ env.version }}
+          api-key: ${{ secrets.ITCHIO_API_KEY }}
 
   build-linux-client:
     name: Build Linux Client
@@ -98,6 +113,7 @@ jobs:
         with:
           name: mac-client
           path: wtf-main/client/client
+
 
   build-linux-server:
     name: Build & Upload Linux Server

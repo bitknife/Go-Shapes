@@ -68,7 +68,7 @@ func (c *Camera) Reset() {
 
 func (c *Camera) SetCamera() {
 	panSpeed := (100 - float64(c.ZoomFactor)) / 30
-	fmt.Println("panSpeed:", panSpeed)
+	// fmt.Println("panSpeed:", panSpeed)
 	// zoomBoost :=
 
 	if ebiten.IsKeyPressed(ebiten.KeyA) || ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
@@ -107,5 +107,5 @@ func (c *Camera) SetCamera() {
 		c.Reset()
 	}
 
-	fmt.Println("c.ZoomFactor", c.ZoomFactor)
+	// fmt.Println("c.ZoomFactor", c.ZoomFactor)
 }

@@ -93,6 +93,10 @@ jobs:
         shell: bash
         working-directory: wtf-main/client
         run: go build
+      - name: Chmod on binary
+        shell: bash
+        working-directory: wtf-main/client
+        run: chmod +x client
       - name: Upload Mac Bundle
         uses: actions/upload-artifact@v3
         with:
@@ -121,6 +125,17 @@ jobs:
         with:
           name: linux-server
           path: wtf-main/server/server
+
+      - uses: actions/checkout@v0.1.4
+      - name: Upload to Dev Server
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          source: "wtf-main/server/server"
+          target: ~/wtf-dev-server/
 
 #  build-windows-client:
 #    runs-on: windows

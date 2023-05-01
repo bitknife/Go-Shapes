@@ -57,7 +57,7 @@ jobs:
           path: wtf-main/client/client.exe
 
   win-client-itchio-upload:
-    name: Linux Client [Build]
+    name: Upload to Itch.io
     needs: build-win-client
     runs-on: ubuntu-latest
     steps:
@@ -97,7 +97,7 @@ jobs:
           path: wtf-main/client/client
 
   build-mac-client:
-    name: MacOS Client [Build]
+    name: Build MacOS Client
     needs: tests
     runs-on: macos-latest
     steps:
@@ -121,7 +121,7 @@ jobs:
           path: wtf-main/client/client
 
   build-linux-server:
-    name: Linux Server [Build]
+    name: Build Linux Server
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -142,11 +142,11 @@ jobs:
           name: linux-server
           path: wtf-main/server/server
 
-  install-linux-dev-server:
-    name: Linux Server [Install to Dev]
-    needs: build-linux-server
-    runs-on: ubuntu-latest
-    steps:
+#  install-linux-dev-server:
+#    name: Install Linux Server
+#    needs: build-linux-server
+#    runs-on: ubuntu-latest
+#    steps:
       # https://github.com/appleboy/scp-action
       - name: Upload to Dev Server
         uses: appleboy/scp-action@v0.1.4

@@ -10,69 +10,81 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-ubuntu:
+
+  tests:
+    name: Run tests
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Install xorg-dev
-      run: sudo apt-get install -y xorg-dev
-  
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.19
+      - name: Install xorg-dev
+        run: sudo apt-get install -y xorg-dev
 
-    - name: Test Shared
-      working-directory: wtf-main/shared
-      run: go test -v ./...
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
 
-    - name: Test Client
-      working-directory: wtf-main/client
-      run: go test -v ./...
+      - name: Test Shared
+        working-directory: wtf-main/shared
+        run: go test -v
 
-    - name: Build Client
-      working-directory: wtf-main/client
-      run: go build -v ./...
+      - name: Test Client
+        working-directory: wtf-main/client
+        run: go test -v
 
-    - name: Test Server
+      - name: Build Client
+        working-directory: wtf-main/client
+        run: go build -v
+
+      - name: Test Server
+        working-directory: wtf-main/server
+        run: go test -v
+
+
+  build-win-client:
+    name: Build Windows Client binary
+    needs: tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: Build Windows exe
+        working-directory: wtf-main/client
+        shell: bash
+        run: go build
+      - name: Upload Windows exe
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-client
+          path: wtf-main/client/client.exe
+
+  build-linux-server:
+    name: Build & Upload Linux Server
+    runs-on: ubuntu-latest
+    steps:
+    - name: Build Linux server
       working-directory: wtf-main/server
-      run: go test -v ./...
+      run: go build -v
 
-    - name: Build Server
-      working-directory: wtf-main/server
-      run: go build -v ./...
-      
-    - name: Upload Ubuntu Client Artefact
+    - name: Upload Linux Server Artefact
       uses: actions/upload-artifact@v3.1.2
       with: 
-        name: ubuntu-client
-        path: wtf-main/client/client
-
-    - name: Upload Ubuntu Server Artefact
-      uses: actions/upload-artifact@v3.1.2
-      with: 
-        name: ubuntu-server
+        name: linux-server
         path: wtf-main/server/server
 
-
-#  build-windows-client:
-#    runs-on: windows
-#
-#    steps:
-#    - uses: actions/checkout@v3
-#
-#    - name: Set up Go
-#      uses: actions/setup-go@v3
-#      with:
-#        go-version: 1.19
-#
-#    - name: Build Client
-#      working-directory: wtf-main/client
-#      run: go build -v ./...
-#
-#    - name: Upload Windows Client Artefact
-#      uses: actions/upload-artifact@v3.1.2
-#      with:
-#        name: wtf-client-win
-#        path: wtf-main/client/client
+  build-linux-client:
+    name: Build Linux Client
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Linux Client
+        working-directory: wtf-main/client
+        run: go build -v
+      - name: Upload Ubuntu Client Artefact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: ubuntu-client
+          path: wtf-main/client/client

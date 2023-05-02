@@ -53,14 +53,20 @@ jobs:
       - name: Upload Windows exe
         uses: actions/upload-artifact@v3
         with:
-          name: windows-client
           path: wtf-main/client/client.exe
+          name: windows-client
 
   win-client-itchio-upload:
     name: Upload to Itch.io
     needs: build-win-client
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: windows-client
+      - name: Display structure of downloaded files
+        run: ls -R
       - name: Set Version
         run: |
           echo "version=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
@@ -68,7 +74,7 @@ jobs:
         # https://github.com/marketplace/actions/itch-io-upload
         uses: robpc/itchio-upload-action@v1
         with:
-          path: wtf-main/client/client.exe
+          path: windows-client
           project: ${{ env.itchio_project }}
           channel: ${{ env.itchio_channel }}
           version: ${{ env.version }}

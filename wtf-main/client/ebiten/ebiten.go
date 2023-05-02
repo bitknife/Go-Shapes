@@ -35,9 +35,11 @@ func RunEbitenApplication(
 	// Start the controller
 	ebitenController := EbitenController{gameObjects, fromServerChan, ebitenGame}
 
-	// NOTE: Blocks!
 	go ebitenController.Run()
 
+	//ebiten.SetCursorMode(ebiten.CursorModeHidden)
+
+	// NOTE: Blocks!
 	if err := ebiten.RunGame(ebitenGame); err != nil {
 		log.Fatal(err)
 	}

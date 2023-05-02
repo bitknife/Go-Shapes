@@ -8,6 +8,7 @@ import (
 )
 
 type Camera struct {
+	// TODO: maybe let camera know of world to calc offsets?
 	ViewPort   f64.Vec2
 	Position   f64.Vec2
 	ZoomFactor int // Positive is more zoomed in
@@ -43,16 +44,19 @@ func (c *Camera) worldMatrix() ebiten.GeoM {
 }
 
 func (c *Camera) Render(world, screen *ebiten.Image) {
-	screen.DrawImage(world, &ebiten.DrawImageOptions{
-		GeoM: c.worldMatrix(),
-	})
+	screen.DrawImage(
+		world,
+		&ebiten.DrawImageOptions{
+			GeoM: c.worldMatrix(),
+		})
 }
 
-func (c *Camera) ScreenToWorld(posX, posY int) (float64, float64) {
+func (c *Camera) ScreenToWorld(posX, posY int, wofX, wofY float64) (float64, float64) {
 	inverseMatrix := c.worldMatrix()
 	if inverseMatrix.IsInvertible() {
 		inverseMatrix.Invert()
-		return inverseMatrix.Apply(float64(posX), float64(posY))
+		wX, wY := inverseMatrix.Apply(float64(posX), float64(posY))
+		return wX - wofX, wY - wofY
 	} else {
 		// When scaling it can happened that matrix is not invertable
 		return math.NaN(), math.NaN()
@@ -69,6 +73,7 @@ func (c *Camera) Reset() {
 func (c *Camera) SetCamera() {
 	panSpeed := 1.0
 	if (c.ZoomFactor) < 0 {
+		// ZoomFactor is negative when "zoomed out", so inverting will make pan faster (in pixels)
 		panSpeed = 1 - float64(c.ZoomFactor)/10
 	}
 

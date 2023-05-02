@@ -5,6 +5,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/colornames"
 	"golang.org/x/image/math/f64"
+	"image"
 )
 
 const (
@@ -19,14 +20,27 @@ type Game struct {
 
 	// Ebitengine representation of gameObjects
 	remoteEBObjects map[string]*EBGameObject
-	localEBObjects  map[string]*EBGameObject
+
+	// Local game objects
+	localEBObjects map[string]*EBGameObject
 }
 
 func CreateGame(toServerChan chan *[]byte, worldWidth int, worldHeight int) *Game {
-	game := Game{
-		world: ebiten.NewImage(worldWidth, worldHeight),
+	// Create a util layer that is volatile
 
-		camera: Camera{ViewPort: f64.Vec2{0, 0}},
+	// Create World with given width, centered at 0,0
+	halfW := worldWidth / 2
+	halfH := worldHeight / 2
+	bounds := image.Rectangle{
+		Min: image.Point{X: -halfW, Y: -halfH},
+		Max: image.Point{X: halfW, Y: halfH},
+	}
+	options := &ebiten.NewImageOptions{Unmanaged: false}
+	game := Game{
+		//world: ebiten.NewImage(worldWidth, worldHeight),
+		world: ebiten.NewImageWithOptions(bounds, options),
+
+		camera: Camera{ViewPort: f64.Vec2{0, 0}, Position: f64.Vec2{float64(halfW), float64(halfH)}},
 
 		toServer: toServerChan,
 
@@ -65,10 +79,13 @@ func (g *Game) Update() error {
 	g.camera.SetCamera()
 
 	// TODO: optimize, maybe no need to send in every tick?
-	x, y := ebiten.CursorPosition()
+	scrX, scrY := ebiten.CursorPosition()
 
-	newX := int32(x)
-	newY := int32(y)
+	// TODO: not the nicest way to adjust coordinates
+	wX, wY := g.camera.ScreenToWorld(scrX, scrY, float64(g.world.Bounds().Max.X), float64(g.world.Bounds().Max.Y))
+
+	newX := int32(wX)
+	newY := int32(wY)
 
 	posChanged := false
 	localDot := g.localEBObjects[LOCAL_DOT_ID]
@@ -85,8 +102,8 @@ func (g *Game) Update() error {
 	if posChanged {
 		// fmt.Println("X", localDot.gob.X, "Y", localDot.gob.Y)
 		pP := shared.BuildMouseInputPacket(&shared.MouseInput{
-			MouseX:     int32(x),
-			MouseY:     int32(y),
+			MouseX:     newX,
+			MouseY:     newY,
 			RightClick: ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight),
 			LeftClick:  ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft),
 		})
@@ -101,8 +118,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// TODO Use correct Image option instead
 	g.world.Clear()
 
-	// TODO: draw grid on a transparent util layer w. persistent option
-	drawGrid(g.world, colornames.Gray, 100)
+	drawGrid(g.world, colornames.Darkgray, 100)
 
 	// Draw on World (or maybe layers?)
 	for _, ebitenObject := range g.localEBObjects {

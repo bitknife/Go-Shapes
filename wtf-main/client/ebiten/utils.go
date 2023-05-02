@@ -8,12 +8,17 @@ import (
 
 func drawGrid(layer *ebiten.Image, color color.Color, spacing int) {
 	// Draw vertical lines
-	for i := 0; i < layer.Bounds().Dx(); i += spacing {
-		vector.StrokeLine(layer, float32(i), 0, float32(i), float32(layer.Bounds().Dy()), 1, color, true)
+	bounds := layer.Bounds()
+	xMin := bounds.Min.X
+	xMax := bounds.Max.X
+	yMin := bounds.Min.Y
+	yMax := bounds.Max.Y
+	for i := xMin; i < xMax; i += spacing {
+		vector.StrokeLine(layer, float32(i), float32(yMin), float32(i), float32(layer.Bounds().Dy()), 1, color, true)
 	}
 
 	// Draw horizontal lines
-	for i := 0; i < layer.Bounds().Dy(); i += spacing {
-		vector.StrokeLine(layer, 0, float32(i), float32(layer.Bounds().Dx()), float32(i), 1, color, true)
+	for i := yMin; i < yMax; i += spacing {
+		vector.StrokeLine(layer, float32(xMin), float32(i), float32(layer.Bounds().Dx()), float32(i), 1, color, true)
 	}
 }

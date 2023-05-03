@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
       - name: Install xorg-dev
         run: sudo apt-get install -y xorg-dev
 
@@ -56,12 +55,11 @@ jobs:
           name: windows-client
 
   win-client-itchio-upload:
-    name: Upload to Itch.io
+    name: Upload Windows client to Itch.io
     needs: build-win-client
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
       - uses: actions/download-artifact@v3
         with:
           name: windows-client
@@ -80,33 +78,8 @@ jobs:
           version: ${{ env.version }}
           api-key: ${{ secrets.ITCHIO_API_KEY }}
 
-  mac-client-itchio-upload:
-    name: Upload to Itch.io
-    needs: build-mac-client
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: mac-client
-      - name: Display structure of downloaded files
-        run: ls -R
-      - name: Set Version
-        run: |
-          echo "version=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
-      - name: Upload to itch.io project
-        # https://github.com/marketplace/actions/itch-io-upload
-        uses: robpc/itchio-upload-action@v1
-        with:
-          path: client
-          project: ${{ env.itchio_project }}
-          channel: mac
-          version: ${{ env.version }}
-          api-key: ${{ secrets.ITCHIO_API_KEY }}
-
   build-linux-client:
-    name: Linux Client [Build]
+    name: Build Linux Client
     needs: tests
     runs-on: ubuntu-latest
     steps:
@@ -124,8 +97,32 @@ jobs:
       - name: Upload Ubuntu Client Artefact
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: ubuntu-client
+          name: linux-client
           path: wtf-main/client/client
+
+  linux-client-itchio-upload:
+    name: Upload Linux client to Itch.io
+    needs: build-linux-client
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: linux-client
+      - name: Display structure of downloaded files
+        run: ls -R
+      - name: Set Version
+        run: |
+          echo "version=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+      - name: Upload to itch.io project
+        # https://github.com/marketplace/actions/itch-io-upload
+        uses: robpc/itchio-upload-action@v1
+        with:
+          path: client
+          project: ${{ env.itchio_project }}
+          channel: linux
+          version: ${{ env.version }}
+          api-key: ${{ secrets.ITCHIO_API_KEY }}
 
   build-mac-client:
     name: Build MacOS Client
@@ -150,6 +147,31 @@ jobs:
         with:
           name: mac-client
           path: wtf-main/client/client
+
+  mac-client-itchio-upload:
+    name: Upload Mac client to Itch.io
+    needs: build-mac-client
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: mac-client
+      - name: Display structure of downloaded files
+        run: ls -R
+      - name: Set Version
+        run: |
+          echo "version=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+      - name: Upload to itch.io project
+        # https://github.com/marketplace/actions/itch-io-upload
+        uses: robpc/itchio-upload-action@v1
+        with:
+          path: client
+          project: ${{ env.itchio_project }}
+          channel: mac
+          version: ${{ env.version }}
+          api-key: ${{ secrets.ITCHIO_API_KEY }}
 
   build-linux-server:
     name: Build Linux Server

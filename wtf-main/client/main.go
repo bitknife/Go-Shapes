@@ -49,7 +49,7 @@ func main() {
 	port := flags.StringP("port", "p", WTFDevServerPort, "Server Port")
 	username := flags.StringP("username", "u", shared.RandName("user"), "Player name")
 	password := flags.StringP("password", "w", "welcome", "Password")
-	lifetimeSec := flags.IntP("lifetime_sec", "l", 0, "Terminate client after this many seconds")
+	lifetimeSec := flags.IntP("lifetime_sec", "t", 0, "Terminate client after this many seconds")
 	localSim := flags.BoolP("localsim", "l", true, "Run game locally, no server needed.")
 	flags.Parse()
 

@@ -1,3 +1,3 @@
-module dot_game
+module bubbles
 
 go 1.19

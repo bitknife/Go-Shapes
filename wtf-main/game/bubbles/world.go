@@ -9,16 +9,13 @@ const (
 	PLAYER_GOB_ID_PREFIX = "PLAYER"
 )
 
-// BubbleGameObject
-// TODO: Interface?
-
 type BubbleGame struct {
 	// Implements DoerGame
 
 	// For external access
 	GameObjects map[string]*shared.GameObject
 
-	// Note since Doer is an interface, we should _not_ say *Doer, but just Doer!
+	// Note since Doer is an interface, we should _not_ use *Doer, but just Doer.
 	Doers map[string]shared.Doer
 }
 
@@ -49,7 +46,8 @@ func (bubbleGame *BubbleGame) RemoveDoer(id string) {
 func (bubbleGame *BubbleGame) buildDotWorld(min int32, max int32, nDots int) {
 	// Create a bunch of dots within the bounds
 	for i := 1; i <= nDots; i++ {
-		pBubble := CreateRandomBubble(min, max)
+		radius := float32(shared.RandInt(1, 6))
+		pBubble := CreateRandomBubble(min, max, radius)
 		bubbleGame.AddDoer(pBubble.Id, pBubble)
 	}
 	log.Println("Created", len(bubbleGame.GameObjects), "dots.")
@@ -60,7 +58,7 @@ func (bubbleGame *BubbleGame) Update() {
 	doneChan := make(chan string)
 
 	for _, doer := range bubbleGame.Doers {
-		// Update all objects in parallel works for some kind of updates
+		// IDEA: This could be the "Systems" in ECS maybe?
 		go doer.Update(doneChan)
 	}
 
@@ -75,22 +73,28 @@ func (bubbleGame *BubbleGame) HandleUserInputPacket(
 	username string,
 	packet *shared.Packet) {
 
+	playerGobId := PLAYER_GOB_ID_PREFIX + "-" + username
+
+	if _, ok := bubbleGame.GameObjects[playerGobId]; !ok {
+		log.Println("===> SPAWNED PLAYER <===")
+		playerBubble := CreateRandomBubble(0, 0, 15)
+		playerBubble.Id = playerGobId
+		bubbleGame.AddDoer(playerBubble.Id, playerBubble)
+	}
+
 	if packet.GetMouseInput() != nil {
 		x := packet.GetMouseInput().MouseX
 		y := packet.GetMouseInput().MouseY
-		// fmt.Println("UserInput [MOUSE]: got X =", x, " Y =", y, "from", username)
 
-		playerGobId := PLAYER_GOB_ID_PREFIX + "-" + username
-
-		if _, ok := bubbleGame.GameObjects[playerGobId]; !ok {
-			log.Println("===> SPAWNED PLAYER <===")
-			doer := CreateBubbleGameObject(playerGobId, x, y, 5, 128, 128, 255)
-			bubbleGame.AddDoer(doer.Id, doer)
-		}
-		// Update
+		// TODO: Limit movement, should look at distance from
+		//		 current pos and determine an acceleration up to a limit
+		//		 if this was the real game, such concepts would come
+		//		 into play.
 		playerGob := bubbleGame.GameObjects[playerGobId]
 		playerGob.X = x
 		playerGob.Y = y
+
+		// TODO: Continue affect game state elsewhere in code
 
 	} else if packet.GetPlayerLogout() != nil {
 		// TODO

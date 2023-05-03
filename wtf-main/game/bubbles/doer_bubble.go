@@ -48,7 +48,7 @@ func (dwg *BubbleGameObject) Update(doneChan chan string) {
 	// shared.BurnCPU(1 * million)
 
 	// The actual "job"
-	dwg.shake(3)
+	dwg.shake(1)
 
 	// And report done to game loop
 	doneChan <- "done"
@@ -64,7 +64,7 @@ func (dwg *BubbleGameObject) shake(amp int32) {
 	// gameObject.FlAttrs["radius"] = gameObject.FlAttrs["radius"] + float32(shared.RandInt(-1, 1))
 }
 
-func CreateRandomBubble(min int32, max int32) *BubbleGameObject {
+func CreateRandomBubble(min int32, max int32, radius float32) *BubbleGameObject {
 	id := shared.RandName("dot")
 	x := shared.RandInt(min, max)
 	y := shared.RandInt(min, max)
@@ -73,7 +73,7 @@ func CreateRandomBubble(min int32, max int32) *BubbleGameObject {
 	G := shared.RandInt(64, 200)
 	B := shared.RandInt(64, 200)
 
-	return CreateBubbleGameObject(id, x, y, 4, R, G, B)
+	return CreateBubbleGameObject(id, x, y, radius, R, G, B)
 }
 
 func CreateBubbleGameObject(

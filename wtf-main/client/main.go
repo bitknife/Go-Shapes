@@ -7,7 +7,7 @@ import (
 	"bitknife.se/wtf/client/ebiten"
 	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/shared"
-	bubbles "dot_game"
+	"bubbles"
 	flags "github.com/spf13/pflag"
 	"log"
 	"os"
@@ -86,8 +86,8 @@ func main() {
 			}
 		}()
 
+		// NOTE: This Runs a local simulation and receiving inputs as well!
 		go game.Run(30, packetsForFrame, allComplete, bubbleGame)
-
 		go game.UserInputRunner("local", updatesToSimulation)
 
 	} else {

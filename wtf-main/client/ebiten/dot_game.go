@@ -40,7 +40,10 @@ func CreateGame(toServerChan chan *[]byte, worldWidth int, worldHeight int) *Gam
 		//world: ebiten.NewImage(worldWidth, worldHeight),
 		world: ebiten.NewImageWithOptions(bounds, options),
 
-		camera: Camera{ViewPort: f64.Vec2{0, 0}, Position: f64.Vec2{float64(halfW), float64(halfH)}},
+		camera: Camera{
+			ViewPort: f64.Vec2{0, 0},
+			Position: f64.Vec2{float64(halfW / 2), float64(halfH / 2)},
+		},
 
 		toServer: toServerChan,
 

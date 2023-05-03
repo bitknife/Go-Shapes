@@ -64,6 +64,7 @@ func (c *Camera) ScreenToWorld(posX, posY int, wofX, wofY float64) (float64, flo
 }
 
 func (c *Camera) Reset() {
+	// TODO: why to world zero?
 	c.Position[0] = 0
 	c.Position[1] = 0
 	c.Rotation = 0

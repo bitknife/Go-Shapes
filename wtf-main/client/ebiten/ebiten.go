@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	screenWidth  = 500
-	screenHeight = 500
+	screenWidth  = 800
+	screenHeight = 600
 	scale        = 64
 )
 

@@ -5,7 +5,9 @@ package main
 */
 import (
 	"bitknife.se/wtf/client/ebiten"
+	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/shared"
+	bubbles "dot_game"
 	flags "github.com/spf13/pflag"
 	"log"
 	"os"
@@ -42,7 +44,7 @@ func setupExitTimer(lifetime_sec int) {
 }
 
 func main() {
-	standalone := flags.BoolP("standalone", "s", false, "Standalone, ie. single player mode.")
+	standalone := flags.BoolP("standalone", "s", true, "Standalone, ie. single player mode.")
 	headless := flags.Bool("headless", false, "Start a client headless.")
 	host := flags.StringP("host", "h", WTFDevServerHost, "Server IP or Hostname")
 	port := flags.StringP("port", "p", WTFDevServerPort, "Server Port")
@@ -58,14 +60,35 @@ func main() {
 	updatesToSimulation := make(chan *shared.Packet)
 
 	if *standalone == true {
+		// Create a local game
+		bubbleGame := bubbles.CreateBubbleGame(-100, 100, 500)
+
+		// Game returns all updates needed for each frame
+		// This is instead of the serverside broadcaster (list of packets to many clients)
+		packetsForFrame := make(chan []*shared.Packet)
+		allComplete := make(chan int)
+
+		go func() {
+			for {
+				packets := <-packetsForFrame
+				for _, packet := range packets {
+					updatesFromSimulation <- packet
+				}
+				// Signal that the local client received all
+				allComplete <- 1
+			}
+		}()
+
+		go game.Run(30, packetsForFrame, allComplete, bubbleGame)
+
+		go game.UserInputRunner("local", updatesToSimulation)
 
 	} else {
 		// Connects and returns two channels for communication
 		fromServer, toServer := SetUpNetworking("tcp", *host, *port, *username, *password)
 
+		// Connects the packets to/from a remote server based simulation
 		go DeliverPacketsToServer(toServer, updatesToSimulation)
-
-		// Isolates the []byte channels from the
 		go ReceivePacketsFromServer(fromServer, updatesFromSimulation)
 	}
 

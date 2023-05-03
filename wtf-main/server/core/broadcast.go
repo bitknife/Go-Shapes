@@ -65,12 +65,11 @@ func broadCastPackets(packets []*shared.Packet) {
 	doneChan := make(chan string)
 	for _, username := range usernames {
 		// NOTE: We "go" here to do this concurrently and parallel if multiple CPUs
-		//       as this is quite work intensive
+		//       as this is quite work intensive.
 		go SendPacketsToUsername(username, bytePackets, doneChan)
 	}
 
-	// And wait for completion
-	// usernameComplete := ""
+	// TODO: Use WaitGroup instead!
 	for todo := len(usernames); todo > 0; todo-- {
 		// Wait for all clients to complete
 		<-doneChan

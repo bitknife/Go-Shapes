@@ -53,7 +53,7 @@ func UserInputRunner(username string, userInputForGame chan *shared.Packet) {
 	}
 }
 
-func Run(gameLoopFps int64, packetBroadCastChannel chan []*shared.Packet, packetsSentChannel chan int, doerGame shared.DoerGame) {
+func Run(gameLoopFps int64, packetsForFrame chan []*shared.Packet, allComplete chan int, doerGame shared.DoerGame) {
 
 	// TODO: convert all this to a go struct methods (go "class")
 	doerGameGlobal = doerGame
@@ -98,12 +98,12 @@ func Run(gameLoopFps int64, packetBroadCastChannel chan []*shared.Packet, packet
 		packets := shared.BuildGameObjectPackets(tick, doerGame.GetGameObjects())
 
 		// Broadcast packets, this will eat all packets
-		packetBroadCastChannel <- packets
+		packetsForFrame <- packets
 
 		// TODO: Implement much smarter "send to clients" strategy! Ie. group by geoHash etc.
 
 		// Wait for completion, we get an int here len(packets)
-		<-packetsSentChannel
+		<-allComplete
 
 		t3 := time.Now()
 		sendTime := t3.Sub(t2)

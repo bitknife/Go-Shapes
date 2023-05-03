@@ -44,13 +44,13 @@ func setupExitTimer(lifetime_sec int) {
 }
 
 func main() {
-	standalone := flags.BoolP("standalone", "s", true, "Standalone, ie. single player mode.")
 	headless := flags.Bool("headless", false, "Start a client headless.")
 	host := flags.StringP("host", "h", WTFDevServerHost, "Server IP or Hostname")
 	port := flags.StringP("port", "p", WTFDevServerPort, "Server Port")
 	username := flags.StringP("username", "u", shared.RandName("user"), "Player name")
 	password := flags.StringP("password", "w", "welcome", "Password")
-	lifetime_sec := flags.IntP("lifetime_sec", "l", 0, "Terminate client after this many seconds")
+	lifetimeSec := flags.IntP("lifetime_sec", "l", 0, "Terminate client after this many seconds")
+	localSim := flags.BoolP("localsim", "l", true, "Run game locally, no server needed.")
 	flags.Parse()
 
 	// Central objects shared between game engine (server or local) and view, keep it simple for now
@@ -59,7 +59,7 @@ func main() {
 	updatesFromSimulation := make(chan *shared.Packet)
 	updatesToSimulation := make(chan *shared.Packet)
 
-	if *standalone == true {
+	if *localSim == true {
 		// Create a local game
 		bubbleGame := bubbles.CreateBubbleGame(-100, 100, 500)
 
@@ -68,10 +68,17 @@ func main() {
 		packetsForFrame := make(chan []*shared.Packet)
 		allComplete := make(chan int)
 
+		// This code adapts the game.Run() logic that is built to
+		// send updates to all clients for each frame.
 		go func() {
 			for {
 				packets := <-packetsForFrame
 				for _, packet := range packets {
+					// TODO: Look at each packet to see if we should receive it
+					//		 this is for a later optimization, sending different
+					//		 batches of packets to different clients dep. on position
+					//		 or even what they are suppose to see!
+					//		 For now: we receive all as that is the strategy
 					updatesFromSimulation <- packet
 				}
 				// Signal that the local client received all
@@ -84,7 +91,7 @@ func main() {
 		go game.UserInputRunner("local", updatesToSimulation)
 
 	} else {
-		// Connects and returns two channels for communication
+		// Connects and returns two channels for communication to  a remote server
 		fromServer, toServer := SetUpNetworking("tcp", *host, *port, *username, *password)
 
 		// Connects the packets to/from a remote server based simulation
@@ -96,8 +103,8 @@ func main() {
 	if *headless == true {
 
 		// For scripted runs of the client typically
-		if *lifetime_sec > 0 {
-			setupExitTimer(*lifetime_sec)
+		if *lifetimeSec > 0 {
+			setupExitTimer(*lifetimeSec)
 		}
 
 		log.Println("Starting headless client")

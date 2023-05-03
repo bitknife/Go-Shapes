@@ -1,7 +1,9 @@
 name: 'Nightly artifacts cleanup'
-on:
-  schedule:
-    - cron: '0 1 * * *' # every night at 1 am UTC
+# on:
+#  schedule:
+#    - cron: '0 1 * * *' # every night at 1 am UTC
+
+on: [push]
 
 jobs:
   delete-artifacts:
@@ -10,4 +12,4 @@ jobs:
       - uses: kolpav/purge-artifacts-action@v1
         with:
           token: $
-          expire-in: 5days # Set this to 0 to delete all artifacts
+          expire-in: 3days # Set this to 0 to delete all artifacts

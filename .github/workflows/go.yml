@@ -7,7 +7,6 @@ on: [push]
 env:
   itchio_project: Hanserfaust/wtf
 
-
 jobs:
 
   tests:

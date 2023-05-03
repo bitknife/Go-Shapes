@@ -16,7 +16,8 @@ type Game struct {
 	world  *ebiten.Image
 	camera Camera
 
-	toServer chan *[]byte
+	// TODO: Not sure if this type is best, it is generic though
+	toSimulationPackets chan *shared.Packet
 
 	// Ebitengine representation of gameObjects
 	remoteEBObjects map[string]*EBGameObject
@@ -25,7 +26,7 @@ type Game struct {
 	localEBObjects map[string]*EBGameObject
 }
 
-func CreateGame(toServerChan chan *[]byte, worldWidth int, worldHeight int) *Game {
+func CreateGame(toSimulationPackets chan *shared.Packet, worldWidth int, worldHeight int) *Game {
 	// Create a util layer that is volatile
 
 	// Create World with given width, centered at 0,0
@@ -45,7 +46,7 @@ func CreateGame(toServerChan chan *[]byte, worldWidth int, worldHeight int) *Gam
 			Position: f64.Vec2{float64(halfW / 2), float64(halfH / 2)},
 		},
 
-		toServer: toServerChan,
+		toSimulationPackets: toSimulationPackets,
 
 		remoteEBObjects: make(map[string]*EBGameObject),
 		localEBObjects:  make(map[string]*EBGameObject),
@@ -104,13 +105,17 @@ func (g *Game) Update() error {
 	// Send to server only if changed
 	if posChanged {
 		// fmt.Println("X", localDot.gob.X, "Y", localDot.gob.Y)
-		pP := shared.BuildMouseInputPacket(&shared.MouseInput{
+		mouseInput := &shared.MouseInput{
 			MouseX:     newX,
 			MouseY:     newY,
 			RightClick: ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight),
 			LeftClick:  ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft),
-		})
-		g.toServer <- shared.PacketToBytes(pP)
+		}
+
+		// TODO: Refactor, should send an "Action" to game loop (local or remote!)
+
+		// TODO: Move, this is network centric
+		g.toSimulationPackets <- shared.BuildMouseInputPacket(mouseInput)
 	}
 	return nil
 }

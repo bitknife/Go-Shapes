@@ -4,8 +4,8 @@ use (
 	.
 	./server/socketserver
 	./server/core
-	./server/game
-	./server/game/bubbles
+	./game
+	./game/bubbles
 	./shared
 	./client
 	server

@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// TODO: Generics instead of interface{}
 func GetKeysFromStringInterfaceMap(theMap map[string]interface{}) []string {
 	keys := make([]string, 0, len(theMap))
 	for k := range theMap {

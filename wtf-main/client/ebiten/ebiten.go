@@ -22,18 +22,18 @@ https://github.com/sedyh/awesome-ebitengine
 */
 func RunEbitenApplication(
 	gameObjects map[string]*shared.GameObject,
-	toServerChan chan *[]byte,
-	fromServerChan chan *shared.Packet,
+	toSimulation chan *shared.Packet,
+	fromSimulation chan *shared.Packet,
 ) {
 
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("WTF!?")
 	ebiten.SetFullscreen(false)
 
-	ebitenGame := CreateGame(toServerChan, 2000, 2000)
+	ebitenGame := CreateGame(toSimulation, 2000, 2000)
 
 	// Start the controller
-	ebitenController := EbitenController{gameObjects, fromServerChan, ebitenGame}
+	ebitenController := EbitenController{gameObjects, fromSimulation, ebitenGame}
 
 	go ebitenController.Run()
 

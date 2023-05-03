@@ -24,32 +24,25 @@ message Ping {
 }
 
 message MouseInput {
-    // A bit special for a mouse-centric game
+    // For communicating exact mose movements, dont use in games, better abstract control type
     int32 mouse_x = 1;
     int32 mouse_y = 2;
     bool right_click = 3;
     bool left_click = 4;
 }
 
-message WASDInput {
-    // Keyboard-centric input
-    int32 forward = 1;
-    int32 backward = 2;
-    int32 right = 3;
-    int32 left = 4;
+message PlayerMovement {
+    int32 deg = 1;
+    int32 vel = 2;
+    int32 acc = 3;
 }
 
-enum TurretRotation {
-    CW = 0;
-    CCW = 1;
-    STILL = 2;
-}
-message TankStyleMovement {
-    TurretRotation turretRotation = 1;
-    int32 forward = 2;
-    int32 backward = 3;
-    int32 right = 4;
-    int32 left = 5;
+message PlayerAction {
+    // Not sure how to model this properly, how generic it should be etc.
+    bool primary = 1;
+    bool secondary = 2;
+
+    map<string, string> StrAttrs = 10;
 }
 
 /*
@@ -108,7 +101,8 @@ message Packet {
         Ping ping = 3;
 
         MouseInput mouseInput = 4;
-        WASDInput wasdInput = 5;
+        PlayerMovement playerMovement = 5;
+        PlayerAction playerAction = 6;
 
         GameObject gameObject = 10;
         SetGameObjectAttributes setGameObjectAttributes = 11;

@@ -7,12 +7,6 @@ from typing import Dict
 import betterproto
 
 
-class TurretRotation(betterproto.Enum):
-    CW = 0
-    CCW = 1
-    STILL = 2
-
-
 class GameObjectKind(betterproto.Enum):
     """
     GameObjectEvent:Sent by server to clients.Manages lifecycle and basic
@@ -45,7 +39,8 @@ class Ping(betterproto.Message):
 
 @dataclass
 class MouseInput(betterproto.Message):
-    # A bit special for a mouse-centric game
+    # For communicating exact mose movements, dont use in games, better abstract
+    # control type
     mouse_x: int = betterproto.int32_field(1)
     mouse_y: int = betterproto.int32_field(2)
     right_click: bool = betterproto.bool_field(3)
@@ -53,21 +48,20 @@ class MouseInput(betterproto.Message):
 
 
 @dataclass
-class WASDInput(betterproto.Message):
-    # Keyboard-centric input
-    forward: int = betterproto.int32_field(1)
-    backward: int = betterproto.int32_field(2)
-    right: int = betterproto.int32_field(3)
-    left: int = betterproto.int32_field(4)
+class PlayerMovement(betterproto.Message):
+    deg: int = betterproto.int32_field(1)
+    vel: int = betterproto.int32_field(2)
+    acc: int = betterproto.int32_field(3)
 
 
 @dataclass
-class TankStyleMovement(betterproto.Message):
-    turret_rotation: "TurretRotation" = betterproto.enum_field(1)
-    forward: int = betterproto.int32_field(2)
-    backward: int = betterproto.int32_field(3)
-    right: int = betterproto.int32_field(4)
-    left: int = betterproto.int32_field(5)
+class PlayerAction(betterproto.Message):
+    # Not sure how to model this properly, how generic it should be etc.
+    primary: bool = betterproto.bool_field(1)
+    secondary: bool = betterproto.bool_field(2)
+    str_attrs: Dict[str, str] = betterproto.map_field(
+        10, betterproto.TYPE_STRING, betterproto.TYPE_STRING
+    )
 
 
 @dataclass
@@ -115,7 +109,8 @@ class Packet(betterproto.Message):
     player_logout: "PlayerLogout" = betterproto.message_field(2, group="payload")
     ping: "Ping" = betterproto.message_field(3, group="payload")
     mouse_input: "MouseInput" = betterproto.message_field(4, group="payload")
-    wasd_input: "WASDInput" = betterproto.message_field(5, group="payload")
+    player_movement: "PlayerMovement" = betterproto.message_field(5, group="payload")
+    player_action: "PlayerAction" = betterproto.message_field(6, group="payload")
     game_object: "GameObject" = betterproto.message_field(10, group="payload")
     set_game_object_attributes: "SetGameObjectAttributes" = betterproto.message_field(
         11, group="payload"

@@ -19,7 +19,7 @@ const (
 	WTFDevServerPort = "7777"
 )
 
-func waitForExitSignals(toServer chan *[]byte) {
+func waitForExitSignals(toServer chan *shared.Packet) {
 	exitSignal := make(chan os.Signal)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 	<-exitSignal
@@ -42,6 +42,7 @@ func setupExitTimer(lifetime_sec int) {
 }
 
 func main() {
+	standalone := flags.BoolP("standalone", "s", false, "Standalone, ie. single player mode.")
 	headless := flags.Bool("headless", false, "Start a client headless.")
 	host := flags.StringP("host", "h", WTFDevServerHost, "Server IP or Hostname")
 	port := flags.StringP("port", "p", WTFDevServerPort, "Server Port")
@@ -50,18 +51,27 @@ func main() {
 	lifetime_sec := flags.IntP("lifetime_sec", "l", 0, "Terminate client after this many seconds")
 	flags.Parse()
 
-	// Connects and returns two channels for communication
-	fromServer, toServer := SetUpNetworking("tcp", *host, *port, *username, *password)
-
-	// Channel from network layer up to UI
-	gamePacketsFromServerChannel := make(chan *shared.Packet)
-	go HandlePacketsFromServer(fromServer, toServer, gamePacketsFromServerChannel)
-
-	// Central objects shared between network and game engine, keep it simple for now
+	// Central objects shared between game engine (server or local) and view, keep it simple for now
 	gameObjects := make(map[string]*shared.GameObject)
+
+	updatesFromSimulation := make(chan *shared.Packet)
+	updatesToSimulation := make(chan *shared.Packet)
+
+	if *standalone == true {
+
+	} else {
+		// Connects and returns two channels for communication
+		fromServer, toServer := SetUpNetworking("tcp", *host, *port, *username, *password)
+
+		go DeliverPacketsToServer(toServer, updatesToSimulation)
+
+		// Isolates the []byte channels from the
+		go ReceivePacketsFromServer(fromServer, updatesFromSimulation)
+	}
 
 	// Starts the UI, this blocks
 	if *headless == true {
+
 		// For scripted runs of the client typically
 		if *lifetime_sec > 0 {
 			setupExitTimer(*lifetime_sec)
@@ -72,7 +82,7 @@ func main() {
 			packetCounter := 0
 			for {
 				// Juste read packets for now.
-				packet := <-gamePacketsFromServerChannel
+				packet := <-updatesFromSimulation
 				if packet == nil {
 					log.Println("Server closed connection, exiting.")
 					syscall.Exit(0)
@@ -81,7 +91,7 @@ func main() {
 			}
 		}()
 		// NOTE: Blocks
-		waitForExitSignals(toServer)
+		waitForExitSignals(updatesToSimulation)
 
 	} else {
 		/* Runs on Main thread
@@ -90,6 +100,6 @@ func main() {
 
 			https://ebitengine.org/en/documents/cheatsheet.html
 		*/
-		ebiten.RunEbitenApplication(gameObjects, toServer, gamePacketsFromServerChannel)
+		ebiten.RunEbitenApplication(gameObjects, updatesToSimulation, updatesFromSimulation)
 	}
 }

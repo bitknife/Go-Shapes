@@ -1,7 +1,6 @@
 package bubbles
 
 import (
-	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/shared"
 	"log"
 )
@@ -20,7 +19,7 @@ type BubbleGame struct {
 	GameObjects map[string]*shared.GameObject
 
 	// Note since Doer is an interface, we should _not_ say *Doer, but just Doer!
-	Doers map[string]game.Doer
+	Doers map[string]shared.Doer
 }
 
 func CreateBubbleGame(min int32, max int32, nDots int) *BubbleGame {
@@ -28,7 +27,7 @@ func CreateBubbleGame(min int32, max int32, nDots int) *BubbleGame {
 	// Allocate
 	bubbleGame := BubbleGame{}
 	bubbleGame.GameObjects = make(map[string]*shared.GameObject)
-	bubbleGame.Doers = make(map[string]game.Doer)
+	bubbleGame.Doers = make(map[string]shared.Doer)
 
 	bubbleGame.buildDotWorld(min, max, nDots)
 	return &bubbleGame
@@ -38,7 +37,7 @@ func (bubbleGame *BubbleGame) GetGameObjects() map[string]*shared.GameObject {
 	return bubbleGame.GameObjects
 }
 
-func (bubbleGame *BubbleGame) AddDoer(id string, doer game.Doer) {
+func (bubbleGame *BubbleGame) AddDoer(id string, doer shared.Doer) {
 	bubbleGame.Doers[id] = doer
 	bubbleGame.GameObjects[id] = doer.GetGameObject()
 }
@@ -93,8 +92,6 @@ func (bubbleGame *BubbleGame) HandleUserInputPacket(
 		playerGob.X = x
 		playerGob.Y = y
 
-	} else if packet.GetWasdInput() != nil {
-		// TODO
 	} else if packet.GetPlayerLogout() != nil {
 		// TODO
 	}

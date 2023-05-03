@@ -12,9 +12,9 @@ func SetUpNetworking(protocol string, host string, port string, username string,
 
 	// Connects
 	log.Println("Connecting to game server at", host+":"+port, "as", username)
-
 	shared.ConnectClient(protocol, host, port, fromServer, toServer)
 
+	// Login
 	pPacket := shared.BuildLoginPacket(username, password)
 	wirePacket := shared.PacketToBytes(pPacket)
 	toServer <- wirePacket
@@ -23,16 +23,26 @@ func SetUpNetworking(protocol string, host string, port string, username string,
 	return fromServer, toServer
 }
 
-func HandlePacketsFromServer(
-	fromServer chan *[]byte,
+func DeliverPacketsToServer(
 	toServer chan *[]byte,
-	gamePacketsToUpperLayers chan *shared.Packet) {
+	updatesToServer chan *shared.Packet) {
+
+	for {
+		packet := <-updatesToServer
+		toServer <- shared.PacketToBytes(packet)
+	}
+}
+
+func ReceivePacketsFromServer(
+	fromServer chan *[]byte,
+	packetsToView chan *shared.Packet) {
+
 	for {
 		receivedData := <-fromServer
 
 		if receivedData == nil {
 			// This is server disconnecting, send nil to signal this
-			gamePacketsToUpperLayers <- nil
+			packetsToView <- nil
 			return
 		}
 		packet := shared.BytesToPacket(receivedData)
@@ -44,15 +54,18 @@ func HandlePacketsFromServer(
 			Rest is routed upwards to game layer.
 
 		*/
+		// TODO: Move elsewhere? Should be ping initiated from client also
 		if packet.GetPing() != nil {
 			sent := packet.GetPing().Sent
 			log.Println("Got Ping from server:", sent)
-			pP := shared.BuildPingPacket()
-			toServer <- shared.PacketToBytes(pP)
+
+			// TODO: Move to better place
+			// pP := shared.BuildPingPacket()
+			// toServer <- shared.PacketToBytes(pP)
 
 		} else {
-			// Onwards an upwards!
-			gamePacketsToUpperLayers <- packet
+
+			packetsToView <- packet
 		}
 	}
 }

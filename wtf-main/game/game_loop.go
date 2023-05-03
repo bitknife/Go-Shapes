@@ -39,7 +39,7 @@ func GetGameLoopMetrics() *GameLoopMetrics {
 	return &currentStats
 }
 
-var doerGameGlobal DoerGame
+var doerGameGlobal shared.DoerGame
 
 func UserInputRunner(username string, userInputForGame chan *shared.Packet) {
 	// TODO: Rethink, the global variable theWtfGame is a singleton
@@ -53,7 +53,7 @@ func UserInputRunner(username string, userInputForGame chan *shared.Packet) {
 	}
 }
 
-func Run(gameLoopFps int64, packetBroadCastChannel chan []*shared.Packet, packetsSentChannel chan int, doerGame DoerGame) {
+func Run(gameLoopFps int64, packetBroadCastChannel chan []*shared.Packet, packetsSentChannel chan int, doerGame shared.DoerGame) {
 
 	// TODO: convert all this to a go struct methods (go "class")
 	doerGameGlobal = doerGame

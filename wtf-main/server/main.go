@@ -5,7 +5,7 @@ import (
 	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/server/socketserver"
 	"bitknife.se/wtf/shared"
-	bubbles "dot_game"
+	"bubbles"
 	"fmt"
 	flags "github.com/spf13/pflag"
 	"log"

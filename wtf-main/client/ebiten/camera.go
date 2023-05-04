@@ -71,7 +71,7 @@ func (c *Camera) Reset() {
 	c.ZoomFactor = 0
 }
 
-func (c *Camera) SetCamera() {
+func (c *Camera) SetCamera(x, y int) {
 	panSpeed := 1.0
 	if (c.ZoomFactor) < 0 {
 		// ZoomFactor is negative when "zoomed out", so inverting will make pan faster (in pixels)

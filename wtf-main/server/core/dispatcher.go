@@ -4,6 +4,7 @@ import (
 	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/shared"
 	cmap "github.com/orcaman/concurrent-map/v2"
+	"log"
 )
 
 /**
@@ -49,9 +50,12 @@ func InitClient(username string, toClient chan *[]byte, fromClient chan *[]byte)
 }
 
 func UnRegisterClientChannels(username string) {
+	log.Println("Unregistered", username)
 	ToClientChannelsRegistry.Pop(username)
 	ToClientChannels.Pop(username)
 	FromClientChannels.Pop(username)
+
+	// TODO: Should de-spawn user object etc as well.
 }
 
 func ToClientDispatcher(username string, packet *shared.Packet) int {
@@ -96,16 +100,16 @@ func ToClientDispatcherMultiBytes(username string, bytePackets []*[]byte) int {
 
 func fromClientHandler(username string, fromClient chan *[]byte) {
 	// This is OK, core knows of both game and socket layers,
-	userInputForGame := make(chan *shared.Packet)
-	go game.UserInputRunner(username, userInputForGame)
+	packetsFromClientToGame := make(chan *shared.Packet)
+	go game.UserInputRunner(username, packetsFromClientToGame)
 
 	for {
 		buffer := <-fromClient
 		if buffer == nil {
 			// Means the underlying layer will not send more packets, unregister and return
 			UnRegisterClientChannels(username)
-			userInputForGame <- nil
-			close(userInputForGame)
+			packetsFromClientToGame <- nil
+			close(packetsFromClientToGame)
 			return
 		}
 
@@ -116,7 +120,7 @@ func fromClientHandler(username string, fromClient chan *[]byte) {
 
 		} else {
 			// OK got a packet, send it to
-			userInputForGame <- packet
+			packetsFromClientToGame <- packet
 		}
 	}
 }

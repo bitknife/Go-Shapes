@@ -5,6 +5,7 @@ import (
 	"bitknife.se/wtf/shared"
 	"log"
 	"net"
+	"time"
 )
 
 func handleConnection(conn net.Conn) {
@@ -20,15 +21,15 @@ func handleConnection(conn net.Conn) {
 		return
 	}
 
-	// Disconnect any existing
+	// Will initiate client de-registration of old user if connected
 	playerLogin := shared.BytesToPacket(packageData).GetPlayerLogin()
-	if core.HasChannel(playerLogin.Username) {
-		// TODO: Could close the existing, or close this new one
-		log.Println("Username", playerLogin.Username, "already connected, denying access!")
-		conn.Close()
-		return
+	if _, ok := core.ToClientChannelsRegistry.Get(playerLogin.Username); ok {
+		frC, _ := core.FromClientChannels.Get(playerLogin.Username)
+		frC <- nil
 
-		//core.UnRegisterClientChannels(playerLogin.Username)
+		// TODO: Fix race?
+		//       Need to wait for old connection to close before moving on
+		time.Sleep(time.Duration(100) * time.Millisecond)
 	}
 
 	accessGranted := core.AuthenticateClient(playerLogin)
@@ -56,6 +57,8 @@ func handleConnection(conn net.Conn) {
 	// Main packet sender
 	//go sendPackagesRoutine(conn, toClient)
 	go shared.PacketSenderTCP(conn, toClient)
+
+	log.Println("User", playerLogin.Username, "accepted and setup!")
 }
 
 func makeAndRegisterChannels(playerLogin *shared.PlayerLogin) (chan *[]byte, chan *[]byte) {

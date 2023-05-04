@@ -50,7 +50,7 @@ func main() {
 	username := flags.StringP("username", "u", shared.RandName("user"), "Player name")
 	password := flags.StringP("password", "w", "welcome", "Password")
 	lifetimeSec := flags.IntP("lifetime_sec", "t", 0, "Terminate client after this many seconds")
-	localSim := flags.BoolP("localsim", "l", true, "Run game locally, no server needed.")
+	localSim := flags.BoolP("localsim", "l", false, "Run game locally, no server needed.")
 	flags.Parse()
 
 	// Central objects shared between game engine (server or local) and view, keep it simple for now

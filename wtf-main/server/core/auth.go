@@ -20,7 +20,7 @@ func AuthenticateClient(playerLogin *shared.PlayerLogin) bool {
 		return false
 	} else {
 		if playerLogin.Password == STATIC_PASSWORD {
-			// log.Println("ACCESS GRANTED FOR Username:", playerLogin.Username)
+			// METRIC
 			return true
 		} else {
 			log.Println("ACCESS DENIED FOR Username:", playerLogin.Username, ": Invalid password:", playerLogin.Password)

@@ -70,7 +70,7 @@ func startServer(
 	bubbleGame := bubbles.CreateBubbleGame(-100, 100, nDots)
 	go game.Run(gameLoopFps, packetBroadCastChannel, packetsSentChannel, bubbleGame)
 
-	go CollectAndPrintMetricsRoutine("WTF server", 2)
+	// go CollectAndPrintMetricsRoutine("WTF server", 2)
 
 }
 

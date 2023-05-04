@@ -79,11 +79,11 @@ func CreateGame(toSimulationPackets chan *shared.Packet, worldWidth int, worldHe
 // Update is called every tick (1/60 [s] by default).
 func (g *Game) Update() error {
 
-	// Adjust viewport
-	g.camera.SetCamera()
-
 	// TODO: optimize, maybe no need to send in every tick?
 	scrX, scrY := ebiten.CursorPosition()
+
+	// Adjust viewport
+	g.camera.SetCamera(scrX, scrY)
 
 	// TODO: not the nicest way to adjust coordinates
 	wX, wY := g.camera.ScreenToWorld(scrX, scrY, float64(g.world.Bounds().Max.X), float64(g.world.Bounds().Max.Y))

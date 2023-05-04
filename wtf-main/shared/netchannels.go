@@ -172,7 +172,7 @@ func PacketSenderTCP(conn net.Conn, outgoing chan *[]byte) {
 
 		if wirePacket == nil {
 			// TODO: A bit harsh?
-			log.Println("PacketSenderTCP(): Nil packet from channel. Aborting ")
+			log.Println("PacketSenderTCP(): Nil packet from channel. Closing conn. ")
 			conn.Close()
 			continue
 		}
@@ -185,10 +185,6 @@ func PacketSenderTCP(conn net.Conn, outgoing chan *[]byte) {
 			// NOTE: Packet-loss, note half a packet may have been sent
 			//		 in which case the client would need to re-sync w. first-byte len.
 			atomic.AddInt64(packetsLost, 1)
-
-			// Writing to closed socket
-			// log.Println("PacketSenderTCP(): Error writing packet ")
-			// conn.Close()
 			continue
 		}
 		// log.Println("conn.Write() ok!")

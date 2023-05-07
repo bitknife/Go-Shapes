@@ -103,7 +103,8 @@ func Run(gameLoopFps int64, packetsForFrame chan []*shared.Packet, allComplete c
 		// TODO: Implement much smarter "send to clients" strategy! Ie. group by geoHash etc.
 
 		// Wait for completion, we get an int here len(packets)
-		// <-allComplete
+		// Only use if using doerGame.Update() execution
+		<-allComplete
 
 		t3 := time.Now()
 		sendTime := t3.Sub(t2)

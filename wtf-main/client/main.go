@@ -17,6 +17,7 @@ import (
 )
 
 const (
+	WTFLocalHost     = "localhost"
 	WTFDevServerHost = "wtf-dev-server.bitknife.se"
 	WTFDevServerPort = "7777"
 )
@@ -45,12 +46,12 @@ func setupExitTimer(lifetime_sec int) {
 
 func main() {
 	headless := flags.Bool("headless", false, "Start a client headless.")
-	host := flags.StringP("host", "h", WTFDevServerHost, "Server IP or Hostname")
+	host := flags.StringP("host", "h", WTFLocalHost, "Server IP or Hostname")
 	port := flags.StringP("port", "p", WTFDevServerPort, "Server Port")
 	username := flags.StringP("username", "u", shared.RandName("user"), "Player name")
 	password := flags.StringP("password", "w", "welcome", "Password")
 	lifetimeSec := flags.IntP("lifetime_sec", "t", 0, "Terminate client after this many seconds")
-	localSim := flags.BoolP("localsim", "l", true, "Run game locally, no server needed.")
+	localSim := flags.BoolP("localsim", "l", false, "Run game locally, no server needed.")
 	flags.Parse()
 
 	// Central objects shared between game engine (server or local) and view, keep it simple for now
@@ -59,9 +60,8 @@ func main() {
 	updatesFromSimulation := make(chan *shared.Packet)
 	updatesToSimulation := make(chan *shared.Packet)
 
+	// TODO: This could be streamlined even further, maybe combine server and client even?
 	if *localSim == true {
-		// Create a local game
-		bubbleGame := shapes.CreateGame(-500, 500, 500)
 
 		// Game returns all updates needed for each frame
 		// This is instead of the serverside broadcaster (list of packets to many clients)
@@ -87,7 +87,8 @@ func main() {
 		}()
 
 		// NOTE: This Runs a local simulation and receiving inputs as well!
-		go game.Run(30, packetsForFrame, allComplete, bubbleGame)
+		shapesGame := shapes.CreateGame(-500, 500, 500)
+		go game.Run(30, packetsForFrame, allComplete, shapesGame)
 		go game.UserInputRunner("local", updatesToSimulation)
 
 	} else {

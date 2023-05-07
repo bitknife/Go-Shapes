@@ -12,18 +12,18 @@ const (
 	FPS = 20
 )
 
-type BubbleGameObject struct {
+type ShapesGameObject struct {
 	Id         string
 	GameObject *shared.GameObject
 	Mailbox    *goconcurrentqueue.FIFO
 }
 
-func (dwg *BubbleGameObject) PostMail(mail game.Mail) {
+func (dwg *ShapesGameObject) PostMail(mail game.Mail) {
 	// Note the Mailbox can be of any type
 	dwg.Mailbox.Enqueue(mail)
 }
 
-func (dwg *BubbleGameObject) readMail() {
+func (dwg *ShapesGameObject) readMail() {
 	// Handle all incoming mail
 	for {
 		if dwg.Mailbox.GetLen() == 0 {
@@ -36,7 +36,7 @@ func (dwg *BubbleGameObject) readMail() {
 	}
 }
 
-func (dwg *BubbleGameObject) Start() {
+func (dwg *ShapesGameObject) Start() {
 	// TODO: Call a Generic Doer loop method?
 	ticTime := game.FPSToDuration(FPS)
 
@@ -56,7 +56,7 @@ func (dwg *BubbleGameObject) Start() {
 	}()
 }
 
-func (dwg *BubbleGameObject) Update() {
+func (dwg *ShapesGameObject) Update() {
 	// Artificial load to see how game engine reacts to lengthy calculations
 	// during game loop, comparing job scheduling algorithms etc.
 	//
@@ -76,7 +76,7 @@ func (dwg *BubbleGameObject) Update() {
 	dwg.shake(1)
 }
 
-func (dwg *BubbleGameObject) UpdateGL(doneChan chan string) {
+func (dwg *ShapesGameObject) UpdateGL(doneChan chan string) {
 	/**
 	UpdateGL is the syncronized Update() version called from the Game Loop
 	*/
@@ -86,17 +86,17 @@ func (dwg *BubbleGameObject) UpdateGL(doneChan chan string) {
 	doneChan <- "done"
 }
 
-func (dwg *BubbleGameObject) GetGameObject() *shared.GameObject {
+func (dwg *ShapesGameObject) GetGameObject() *shared.GameObject {
 	return dwg.GameObject
 }
 
-func (dwg *BubbleGameObject) shake(amp int32) {
+func (dwg *ShapesGameObject) shake(amp int32) {
 	dwg.GameObject.X += shared.RandInt(-amp, amp)
 	dwg.GameObject.Y += shared.RandInt(-amp, amp)
 	// gameObject.FlAttrs["radius"] = gameObject.FlAttrs["radius"] + float32(shared.RandInt(-1, 1))
 }
 
-func CreateRandomBubble(min int32, max int32, radius float32) *BubbleGameObject {
+func CreateRandomBubble(min int32, max int32, radius float32) *ShapesGameObject {
 	id := shared.RandName("dot")
 	x := shared.RandInt(min, max)
 	y := shared.RandInt(min, max)
@@ -105,13 +105,13 @@ func CreateRandomBubble(min int32, max int32, radius float32) *BubbleGameObject 
 	G := shared.RandInt(64, 200)
 	B := shared.RandInt(64, 200)
 
-	return CreateBubbleGameObject(id, x, y, radius, R, G, B)
+	return CreateShapesGameObject(id, x, y, radius, R, G, B)
 }
 
-func CreateBubbleGameObject(
+func CreateShapesGameObject(
 	id string,
 	x int32, y int32, radius float32,
-	R int32, G int32, B int32) *BubbleGameObject {
+	R int32, G int32, B int32) *ShapesGameObject {
 
 	gObj := &shared.GameObject{
 		Id: id,
@@ -128,7 +128,7 @@ func CreateBubbleGameObject(
 		},
 		Kind: shared.GameObjectKind_DOT,
 	}
-	return &BubbleGameObject{
+	return &ShapesGameObject{
 		Id:         id,
 		GameObject: gObj,
 		// NOTE: The fixed version is faster

@@ -67,10 +67,10 @@ func startServer(
 	/**
 	Main serverside game loop
 	*/
-	bubbleGame := shapes.CreateGame(-100, 100, nDots)
-	go game.Run(gameLoopFps, packetBroadCastChannel, packetsSentChannel, bubbleGame)
+	shapesGame := shapes.CreateGame(-500, 500, nDots)
+	go game.Run(gameLoopFps, packetBroadCastChannel, packetsSentChannel, shapesGame)
 
-	// go CollectAndPrintMetricsRoutine("WTF server", 2)
+	go CollectAndPrintMetricsRoutine("WTF server", 2)
 
 }
 
@@ -97,7 +97,7 @@ func main() {
 
 	flags.Parse()
 
-	// TODO: global var, not the best.. works for now, singleton?
+	// TODO: global var, not the best.. works for now, singleton config?
 	shared.WriteTimeout = *socketWriteTimeoutMs
 
 	// Spawns everything we need

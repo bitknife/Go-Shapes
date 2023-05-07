@@ -13,13 +13,9 @@ type DoerGame interface {
 }
 
 /*
-Doer: Implements the Actor pattern and is self-sustaining using
-
-	its own go-routine.
-
-	Other Actors post mail to each others mailboxes.
-	Actors are responsible for emptying incoming mail.
-	Mail.
+Doer Implements the Actor pattern and is self-sustaining using its own go-routine.
+Other Actors post mail to each others mailboxes.
+Actors are responsible for emptying incoming mail.
 */
 type Doer interface {
 	Start()
@@ -31,9 +27,8 @@ type Doer interface {
 }
 
 /*
-Mail: Contains data for informing or manipulating the receiving Actor
-
-	in some way. The contents of the Mail can be very Domain specific.
+Mail contains data for informing or manipulating the receiving Actor
+in some way. The contents of the Mail can be very Domain specific.
 */
 type Mail interface {
 }

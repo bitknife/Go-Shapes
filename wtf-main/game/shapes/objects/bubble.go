@@ -105,10 +105,10 @@ func CreateRandomBubble(min int32, max int32, radius float32) *ShapesGameObject 
 	G := shared.RandInt(64, 200)
 	B := shared.RandInt(64, 200)
 
-	return CreateShapesGameObject(id, x, y, radius, R, G, B)
+	return CreateBubbleGameObject(id, x, y, radius, R, G, B)
 }
 
-func CreateShapesGameObject(
+func CreateBubbleGameObject(
 	id string,
 	x int32, y int32, radius float32,
 	R int32, G int32, B int32) *ShapesGameObject {
@@ -127,6 +127,48 @@ func CreateShapesGameObject(
 			"A": 255,
 		},
 		Kind: shared.GameObjectKind_DOT,
+	}
+	return &ShapesGameObject{
+		Id:         id,
+		GameObject: gObj,
+		// NOTE: The fixed version is faster
+		Mailbox: goconcurrentqueue.NewFIFO(),
+	}
+}
+
+func CreateRandomBox(min int32, max int32) *ShapesGameObject {
+	id := shared.RandName("box")
+	x := shared.RandInt(min, max)
+	y := shared.RandInt(min, max)
+	w := shared.RandInt(10, 30)
+	h := shared.RandInt(10, 30)
+
+	R := shared.RandInt(64, 200)
+	G := shared.RandInt(64, 200)
+	B := shared.RandInt(64, 200)
+
+	return CreateBoxGameObject(id, x, y, w, h, R, G, B)
+}
+
+func CreateBoxGameObject(
+	id string,
+	x int32, y int32,
+	w int32, h int32,
+	R int32, G int32, B int32) *ShapesGameObject {
+
+	gObj := &shared.GameObject{
+		Id: id,
+		X:  x,
+		Y:  y,
+		W:  w,
+		H:  h,
+		IntAttrs: map[string]int32{
+			"R": R,
+			"G": G,
+			"B": B,
+			"A": 255,
+		},
+		Kind: shared.GameObjectKind_BOX,
 	}
 	return &ShapesGameObject{
 		Id:         id,

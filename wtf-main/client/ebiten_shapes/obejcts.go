@@ -30,36 +30,37 @@ func (ebObj *EBGameObject) Draw(layer *ebiten.Image) {
 	}
 }
 
-func DrawDot(ebObj *EBGameObject, screen *ebiten.Image) {
+func DrawDot(e *EBGameObject, screen *ebiten.Image) {
 	c := color.RGBA{
-		R: uint8(ebObj.gob.IntAttrs["R"]),
-		G: uint8(ebObj.gob.IntAttrs["G"]),
-		B: uint8(ebObj.gob.IntAttrs["B"]),
-		A: uint8(ebObj.gob.IntAttrs["A"]),
+		R: uint8(e.gob.IntAttrs["R"]),
+		G: uint8(e.gob.IntAttrs["G"]),
+		B: uint8(e.gob.IntAttrs["B"]),
+		A: uint8(e.gob.IntAttrs["A"]),
 	}
 
 	vector.DrawFilledCircle(
 		screen,
-		float32(ebObj.gob.X),
-		float32(ebObj.gob.Y),
-		ebObj.gob.FlAttrs["radius"],
+		float32(e.gob.X),
+		float32(e.gob.Y),
+		e.gob.FlAttrs["radius"],
 		c,
 		false)
 }
 
-func DrawBox(ebObj *EBGameObject, screen *ebiten.Image) {
+func DrawBox(e *EBGameObject, screen *ebiten.Image) {
 	c := color.RGBA{
-		R: uint8(ebObj.gob.IntAttrs["R"]),
-		G: uint8(ebObj.gob.IntAttrs["G"]),
-		B: uint8(ebObj.gob.IntAttrs["B"]),
-		A: uint8(ebObj.gob.IntAttrs["A"]),
+		R: uint8(e.gob.IntAttrs["R"]),
+		G: uint8(e.gob.IntAttrs["G"]),
+		B: uint8(e.gob.IntAttrs["B"]),
+		A: uint8(e.gob.IntAttrs["A"]),
 	}
 
-	vector.DrawFilledCircle(
+	vector.DrawFilledRect(
 		screen,
-		float32(ebObj.gob.X),
-		float32(ebObj.gob.Y),
-		ebObj.gob.FlAttrs["radius"],
+		float32(e.gob.X),
+		float32(e.gob.Y),
+		float32(e.gob.W),
+		float32(e.gob.H),
 		c,
 		false)
 }

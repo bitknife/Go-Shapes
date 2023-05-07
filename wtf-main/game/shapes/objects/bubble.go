@@ -1,8 +1,10 @@
-package bubbles
+package objects
 
 import (
 	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/shared"
+	"fmt"
+	"github.com/enriquebris/goconcurrentqueue"
 	"time"
 )
 
@@ -13,8 +15,25 @@ const (
 type BubbleGameObject struct {
 	Id         string
 	GameObject *shared.GameObject
+	Mailbox    *goconcurrentqueue.FIFO
+}
 
-	// NOTE: And its methods!
+func (dwg *BubbleGameObject) PostMail(mail game.Mail) {
+	// Note the Mailbox can be of any type
+	dwg.Mailbox.Enqueue(mail)
+}
+
+func (dwg *BubbleGameObject) readMail() {
+	// Handle all incoming mail
+	for {
+		if dwg.Mailbox.GetLen() == 0 {
+			break
+		}
+		mail, err := dwg.Mailbox.Dequeue()
+		if err == nil {
+			fmt.Println(dwg.Id, "got Mail:", mail)
+		}
+	}
 }
 
 func (dwg *BubbleGameObject) Start() {
@@ -22,16 +41,22 @@ func (dwg *BubbleGameObject) Start() {
 	ticTime := game.FPSToDuration(FPS)
 
 	go func() {
-		loopStartTime := time.Now()
-		//--- WORK HERE ----
+		for {
+			loopStartTime := time.Now()
 
-		//--- SLEEP HERE ---
-		sleepDur := ticTime - time.Since(loopStartTime)
-		time.Sleep(sleepDur)
+			//--- WORK HERE ----
+			dwg.Update()
+
+			// dwg.readMail()
+
+			//--- SLEEP HERE ---
+			sleepDur := ticTime - time.Since(loopStartTime)
+			time.Sleep(sleepDur)
+		}
 	}()
 }
 
-func (dwg *BubbleGameObject) Update(doneChan chan string) {
+func (dwg *BubbleGameObject) Update() {
 	// Artificial load to see how game engine reacts to lengthy calculations
 	// during game loop, comparing job scheduling algorithms etc.
 	//
@@ -49,6 +74,13 @@ func (dwg *BubbleGameObject) Update(doneChan chan string) {
 
 	// The actual "job"
 	dwg.shake(1)
+}
+
+func (dwg *BubbleGameObject) UpdateGL(doneChan chan string) {
+	/**
+	UpdateGL is the syncronized Update() version called from the Game Loop
+	*/
+	dwg.Update()
 
 	// And report done to game loop
 	doneChan <- "done"
@@ -99,5 +131,7 @@ func CreateBubbleGameObject(
 	return &BubbleGameObject{
 		Id:         id,
 		GameObject: gObj,
+		// NOTE: The fixed version is faster
+		Mailbox: goconcurrentqueue.NewFIFO(),
 	}
 }

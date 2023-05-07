@@ -1,8 +1,10 @@
-package bubbles
+package shapes
 
 import (
+	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/shared"
 	"log"
+	"shapes/objects"
 )
 
 const (
@@ -16,15 +18,15 @@ type BubbleGame struct {
 	GameObjects map[string]*shared.GameObject
 
 	// Note since Doer is an interface, we should _not_ use *Doer, but just Doer.
-	Doers map[string]shared.Doer
+	Doers map[string]game.Doer
 }
 
-func CreateBubbleGame(min int32, max int32, nDots int) *BubbleGame {
+func CreateGame(min int32, max int32, nDots int) *BubbleGame {
 	log.Println("Creating dot world with", nDots, "dots.")
 	// Allocate
 	bubbleGame := BubbleGame{}
 	bubbleGame.GameObjects = make(map[string]*shared.GameObject)
-	bubbleGame.Doers = make(map[string]shared.Doer)
+	bubbleGame.Doers = make(map[string]game.Doer)
 
 	bubbleGame.buildDotWorld(min, max, nDots)
 	return &bubbleGame
@@ -34,9 +36,12 @@ func (bubbleGame *BubbleGame) GetGameObjects() map[string]*shared.GameObject {
 	return bubbleGame.GameObjects
 }
 
-func (bubbleGame *BubbleGame) AddDoer(id string, doer shared.Doer) {
+func (bubbleGame *BubbleGame) AddDoer(id string, doer game.Doer) {
 	bubbleGame.Doers[id] = doer
 	bubbleGame.GameObjects[id] = doer.GetGameObject()
+
+	// Doer pattern, one go routine for each object
+	go doer.Start()
 }
 
 func (bubbleGame *BubbleGame) RemoveDoer(id string) {
@@ -47,20 +52,24 @@ func (bubbleGame *BubbleGame) buildDotWorld(min int32, max int32, nDots int) {
 	// Create a bunch of dots within the bounds
 	for i := 1; i <= nDots; i++ {
 		radius := float32(shared.RandInt(1, 6))
-		pBubble := CreateRandomBubble(min, max, radius)
+		pBubble := objects.CreateRandomBubble(min, max, radius)
 		bubbleGame.AddDoer(pBubble.Id, pBubble)
 	}
 	log.Println("Created", len(bubbleGame.GameObjects), "dots.")
 }
 
 func (bubbleGame *BubbleGame) Update() {
+
 	// TODO use waitGroup?
 	doneChan := make(chan string)
 
-	for _, doer := range bubbleGame.Doers {
-		// IDEA: This could be the "Systems" in ECS maybe?
-		go doer.Update(doneChan)
-	}
+	// IDEA: Just do global work here!
+	// 		 Actions upon objects should be posted to them instead
+	//		 And each object will handle its own update.
+	// for _, doer := range bubbleGame.Doers {
+	// IDEA: This could be the "Systems" in ECS maybe?
+	// go doer.UpdateGL(doneChan)
+	// }
 
 	// And wait for completion
 	for todo := len(bubbleGame.Doers); todo > 0; todo-- {
@@ -77,7 +86,7 @@ func (bubbleGame *BubbleGame) HandleUserInputPacket(
 
 	if _, ok := bubbleGame.GameObjects[playerGobId]; !ok {
 		log.Println("===> SPAWNED PLAYER <===")
-		playerBubble := CreateRandomBubble(0, 0, 15)
+		playerBubble := objects.CreateRandomBubble(0, 0, 15)
 		playerBubble.Id = playerGobId
 		bubbleGame.AddDoer(playerBubble.Id, playerBubble)
 	}

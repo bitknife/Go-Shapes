@@ -7,11 +7,11 @@ import (
 	"bitknife.se/wtf/client/ebiten"
 	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/shared"
-	"bubbles"
 	flags "github.com/spf13/pflag"
 	"log"
 	"os"
 	"os/signal"
+	"shapes"
 	"syscall"
 	"time"
 )
@@ -50,7 +50,7 @@ func main() {
 	username := flags.StringP("username", "u", shared.RandName("user"), "Player name")
 	password := flags.StringP("password", "w", "welcome", "Password")
 	lifetimeSec := flags.IntP("lifetime_sec", "t", 0, "Terminate client after this many seconds")
-	localSim := flags.BoolP("localsim", "l", false, "Run game locally, no server needed.")
+	localSim := flags.BoolP("localsim", "l", true, "Run game locally, no server needed.")
 	flags.Parse()
 
 	// Central objects shared between game engine (server or local) and view, keep it simple for now
@@ -61,7 +61,7 @@ func main() {
 
 	if *localSim == true {
 		// Create a local game
-		bubbleGame := bubbles.CreateBubbleGame(-100, 100, 500)
+		bubbleGame := shapes.CreateGame(-500, 500, 500)
 
 		// Game returns all updates needed for each frame
 		// This is instead of the serverside broadcaster (list of packets to many clients)

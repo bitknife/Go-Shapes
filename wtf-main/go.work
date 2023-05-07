@@ -5,7 +5,7 @@ use (
 	./server/socketserver
 	./server/core
 	./game
-	./game/bubbles
+	./game/shapes
 	./shared
 	./client
 	server

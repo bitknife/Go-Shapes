@@ -39,7 +39,7 @@ func GetGameLoopMetrics() *GameLoopMetrics {
 	return &currentStats
 }
 
-var doerGameGlobal shared.DoerGame
+var doerGameGlobal DoerGame
 
 func UserInputRunner(username string, userInputForGame chan *shared.Packet) {
 	// TODO: Rethink, the global variable theWtfGame is a singleton
@@ -53,7 +53,7 @@ func UserInputRunner(username string, userInputForGame chan *shared.Packet) {
 	}
 }
 
-func Run(gameLoopFps int64, packetsForFrame chan []*shared.Packet, allComplete chan int, doerGame shared.DoerGame) {
+func Run(gameLoopFps int64, packetsForFrame chan []*shared.Packet, allComplete chan int, doerGame DoerGame) {
 
 	// TODO: convert all this to a go struct methods (go "class")
 	doerGameGlobal = doerGame
@@ -86,7 +86,7 @@ func Run(gameLoopFps int64, packetsForFrame chan []*shared.Packet, allComplete c
 		//--- Simulation ---------------------------------------------------
 
 		// Update game logic
-		doerGame.Update()
+		// doerGame.Update()
 
 		t2 := time.Now()
 		simTime := t2.Sub(t1)
@@ -103,7 +103,7 @@ func Run(gameLoopFps int64, packetsForFrame chan []*shared.Packet, allComplete c
 		// TODO: Implement much smarter "send to clients" strategy! Ie. group by geoHash etc.
 
 		// Wait for completion, we get an int here len(packets)
-		<-allComplete
+		// <-allComplete
 
 		t3 := time.Now()
 		sendTime := t3.Sub(t2)

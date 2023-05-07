@@ -5,6 +5,7 @@ go 1.19
 require github.com/c-bata/go-prompt v0.2.6
 
 require (
+	github.com/enriquebris/goconcurrentqueue v0.7.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.18 // indirect

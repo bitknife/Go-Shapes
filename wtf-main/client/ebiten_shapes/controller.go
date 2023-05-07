@@ -1,16 +1,16 @@
-package ebiten
+package ebiten_shapes
 
 import (
 	"bitknife.se/wtf/shared"
 )
 
-type EbitenController struct {
-	gameObjects    map[string]*shared.GameObject
-	fromServerChan chan *shared.Packet
-	ebitenGame     *Game
+type Controller struct {
+	GameObjects    map[string]*shared.GameObject
+	FromServerChan chan *shared.Packet
+	EbitenGame     *Game
 }
 
-func (controller *EbitenController) Run() {
+func (controller *Controller) Run() {
 
 	/*
 		Connects and manages packets received from server
@@ -20,7 +20,7 @@ func (controller *EbitenController) Run() {
 	for {
 
 		// Blocks on the stream of packets
-		packet := <-controller.fromServerChan
+		packet := <-controller.FromServerChan
 
 		controller.hardUpdateStrategy(packet)
 	}
@@ -31,7 +31,7 @@ NOTE: This replaces the gameObject completely.
 
 IDEA: Update single properties etc. look at the action property etc.
 */
-func (controller *EbitenController) hardUpdateStrategy(packet *shared.Packet) {
+func (controller *Controller) hardUpdateStrategy(packet *shared.Packet) {
 
 	var inGob *shared.GameObject
 
@@ -43,13 +43,13 @@ func (controller *EbitenController) hardUpdateStrategy(packet *shared.Packet) {
 		return
 	}
 
-	controller.gameObjects[inGob.Id] = inGob
+	controller.GameObjects[inGob.Id] = inGob
 
-	if _, ok := controller.ebitenGame.remoteEBObjects[inGob.Id]; !ok {
-		controller.ebitenGame.remoteEBObjects[inGob.Id] = &EBGameObject{gob: inGob}
+	if _, ok := controller.EbitenGame.remoteEBObjects[inGob.Id]; !ok {
+		controller.EbitenGame.remoteEBObjects[inGob.Id] = &EBGameObject{gob: inGob}
 	} else {
 		// Update pointer
-		ebGob := controller.ebitenGame.remoteEBObjects[inGob.Id]
+		ebGob := controller.EbitenGame.remoteEBObjects[inGob.Id]
 		ebGob.gob = inGob
 	}
 }

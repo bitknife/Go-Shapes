@@ -1,4 +1,4 @@
-package ebiten
+package ebiten_shapes
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
@@ -6,7 +6,7 @@ import (
 	"image/color"
 )
 
-func drawGrid(layer *ebiten.Image, color color.Color, spacing int) {
+func DrawGrid(layer *ebiten.Image, color color.Color, spacing int) {
 	// Draw vertical lines
 	bounds := layer.Bounds()
 	xMin := bounds.Min.X

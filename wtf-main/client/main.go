@@ -4,7 +4,7 @@ package main
 	https://github.com/spf13/pflag
 */
 import (
-	"bitknife.se/wtf/client/ebiten"
+	"bitknife.se/wtf/client/ebiten_shapes"
 	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/shared"
 	flags "github.com/spf13/pflag"
@@ -53,9 +53,6 @@ func main() {
 	lifetimeSec := flags.IntP("lifetime_sec", "t", 0, "Terminate client after this many seconds")
 	localSim := flags.BoolP("localsim", "l", false, "Run game locally, no server needed.")
 	flags.Parse()
-
-	// Central objects shared between game engine (server or local) and view, keep it simple for now
-	gameObjects := make(map[string]*shared.GameObject)
 
 	updatesFromSimulation := make(chan *shared.Packet)
 	updatesToSimulation := make(chan *shared.Packet)
@@ -131,6 +128,6 @@ func main() {
 
 			https://ebitengine.org/en/documents/cheatsheet.html
 		*/
-		ebiten.RunEbitenApplication(gameObjects, updatesToSimulation, updatesFromSimulation)
+		ebiten_shapes.RunEbitenApplication(updatesToSimulation, updatesFromSimulation)
 	}
 }

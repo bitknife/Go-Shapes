@@ -1,4 +1,4 @@
-package ebiten
+package ebiten_shapes
 
 import (
 	"bitknife.se/wtf/shared"
@@ -102,14 +102,17 @@ func (g *Game) Update() error {
 		posChanged = true
 	}
 
+	mouseRightClick := ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight)
+	mouseLeftClick := ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft)
+
 	// Send to server only if changed
-	if posChanged {
+	if posChanged || mouseRightClick || mouseLeftClick {
 		// fmt.Println("X", localDot.gob.X, "Y", localDot.gob.Y)
 		mouseInput := &shared.MouseInput{
 			MouseX:     newX,
 			MouseY:     newY,
-			RightClick: ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight),
-			LeftClick:  ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft),
+			RightClick: mouseRightClick,
+			LeftClick:  mouseLeftClick,
 		}
 
 		// TODO: Refactor, should send an "Action" to game loop (local or remote!)
@@ -126,7 +129,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// TODO Use correct Image option instead
 	g.world.Clear()
 
-	drawGrid(g.world, colornames.Darkgray, 100)
+	DrawGrid(g.world, colornames.Darkgray, 100)
 
 	// Draw on World (or maybe layers?)
 	for _, ebitenObject := range g.localEBObjects {
@@ -143,5 +146,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 // Layout takes the outside size (e.g., the window size) and returns the (logical) screen size.
 // If you don't have to adjust the screen size with the outside size, just return a fixed size.
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return screenWidth, screenHeight
+	// TODO get from Game
+	return 800, 600
 }

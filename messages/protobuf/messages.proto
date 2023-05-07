@@ -58,7 +58,8 @@ message PlayerAction {
 */
 enum GameObjectKind {
     DOT = 0;
-    DIAMOND = 1;
+    BOX = 1;
+    DIAMOND = 2;
 }
 message GameObject {
     string Id = 1;

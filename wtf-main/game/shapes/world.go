@@ -51,7 +51,7 @@ func (shapesGame *ShapesGame) RemoveDoer(id string) {
 func (shapesGame *ShapesGame) buildShapesGame(min int32, max int32, nDots int) {
 	// Create a bunch of dots within the bounds
 	for i := 1; i <= nDots; i++ {
-		radius := float32(shared.RandInt(1, 6))
+		radius := float32(shared.RandInt(15, 15))
 		pBubble := objects.CreateRandomBubble(min, max, radius)
 		shapesGame.AddDoer(pBubble.Id, pBubble)
 	}
@@ -86,7 +86,7 @@ func (shapesGame *ShapesGame) HandleUserInputPacket(
 
 	if _, ok := shapesGame.GameObjects[playerGobId]; !ok {
 		log.Println("===> SPAWNED PLAYER <===")
-		playerBubble := objects.CreateRandomBubble(0, 0, 15)
+		playerBubble := objects.CreateShapesGameObject(playerGobId, 0, 0, 3, 255, 255, 255)
 		playerBubble.Id = playerGobId
 		shapesGame.AddDoer(playerBubble.Id, playerBubble)
 	}

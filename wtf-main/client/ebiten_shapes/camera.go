@@ -1,4 +1,4 @@
-package ebiten
+package ebiten_shapes
 
 import (
 	"fmt"

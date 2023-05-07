@@ -16,7 +16,8 @@ class GameObjectKind(betterproto.Enum):
     """
 
     DOT = 0
-    DIAMOND = 1
+    BOX = 1
+    DIAMOND = 2
 
 
 @dataclass

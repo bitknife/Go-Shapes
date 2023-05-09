@@ -2,6 +2,7 @@ package shapes
 
 import (
 	"bitknife.se/wtf/server/game"
+	"bitknife.se/wtf/server/game/physics"
 	"bitknife.se/wtf/shared"
 	"github.com/enriquebris/goconcurrentqueue"
 	"strings"
@@ -34,10 +35,25 @@ func (dwg *ShapesGameObject) readMail() {
 		}
 		mail, err := dwg.Mailbox.Dequeue()
 		if err == nil {
+			// IMPROVE? Need to typecast here
 			m := mail.(*game.Mail)
 			if m.Subject == "SET_XY" {
+				for _, other := range dwg.Game.Doers {
+					collides := physics.BoxCollider(dwg.GameObject, other.GetGameObject())
+					if collides {
+						// Message other object
+						mail := game.CreateMail("COLLIDE")
+						other.PostMail(mail)
+					}
+				}
 				dwg.GameObject.X = m.Data["x"].(int32)
 				dwg.GameObject.Y = m.Data["y"].(int32)
+			}
+
+			if m.Subject == "COLLIDE" {
+				dwg.GameObject.IntAttrs["R"] = 255
+				dwg.GameObject.IntAttrs["G"] = 255
+				dwg.GameObject.IntAttrs["B"] = 255
 			}
 		}
 	}
@@ -193,5 +209,6 @@ func CreateBoxGameObject(
 		GameObject: gObj,
 		// NOTE: The fixed version is faster
 		Mailbox: goconcurrentqueue.NewFIFO(),
+		Game:    game,
 	}
 }

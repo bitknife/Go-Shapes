@@ -65,7 +65,7 @@ func (shapesGame *ShapesGame) AddDoer(id string, doer game.Doer) {
 	shapesGame.GameObjects[id] = doer.GetGameObject()
 
 	// Doer pattern, one go routine for each object
-	go doer.Start()
+	// go doer.Start()
 }
 
 func (shapesGame *ShapesGame) RemoveDoer(id string) {
@@ -90,10 +90,9 @@ func (shapesGame *ShapesGame) Update() {
 	// IDEA: Just do global work here!
 	// 		 Actions upon objects should be posted to them instead
 	//		 And each object will handle its own update.
-	// for _, doer := range shapesGame.Doers {
-	// IDEA: This could be the "Systems" in ECS maybe?
-	// go doer.UpdateGL(doneChan)
-	// }
+	for _, doer := range shapesGame.Doers {
+		go doer.UpdateGL(doneChan)
+	}
 
 	// And wait for completion
 	for todo := len(shapesGame.Doers); todo > 0; todo-- {

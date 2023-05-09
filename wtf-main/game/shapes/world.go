@@ -5,7 +5,6 @@ import (
 	"bitknife.se/wtf/shared"
 	"fmt"
 	"log"
-	shapes "shapes/objects"
 )
 
 const (
@@ -77,7 +76,7 @@ func (shapesGame *ShapesGame) buildShapes(min int32, max int32, nObjs int) {
 	// Create a bunch of dots within the bounds
 	for i := 1; i <= nObjs; i++ {
 		// radius := float32(shared.RandInt(15, 15))
-		doerObj := shapes.CreateRandomBox(min, max)
+		doerObj := CreateRandomBox(shapesGame, min, max)
 		shapesGame.AddDoer(doerObj.Id, doerObj)
 	}
 	log.Println("Created", len(shapesGame.GameObjects), "objects.")
@@ -111,7 +110,7 @@ func (shapesGame *ShapesGame) HandleUserInputPacket(
 
 	if _, ok := shapesGame.GameObjects[playerGobId]; !ok {
 		log.Println("===> SPAWNED PLAYER <===")
-		playerBubble := shapes.CreateBoxGameObject(playerGobId, 0, 0, 5, 5, 255, 255, 255)
+		playerBubble := CreateBoxGameObject(shapesGame, playerGobId, 0, 0, 5, 5, 255, 255, 255)
 		playerBubble.Id = playerGobId
 		shapesGame.AddDoer(playerBubble.Id, playerBubble)
 	}

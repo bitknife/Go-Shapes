@@ -3,13 +3,17 @@ package shapes
 import (
 	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/shared"
+	"fmt"
 	"log"
-	"shapes/objects"
+	shapes "shapes/objects"
 )
 
 const (
 	PLAYER_GOB_ID_PREFIX = "PLAYER"
 )
+
+type ShapesAction struct {
+}
 
 type ShapesGame struct {
 	// Implements DoerGame
@@ -17,19 +21,40 @@ type ShapesGame struct {
 	// For external access
 	GameObjects map[string]*shared.GameObject
 
+	// QuadTree quadtree.Tree[*shared.GameObject]
+
 	// Note since Doer is an interface, we should _not_ use *Doer, but just Doer.
 	Doers map[string]game.Doer
+
+	ActionsChannel chan ShapesAction
+
+	Physics game.Physics
 }
 
 func CreateGame(min int32, max int32, nDots int) *ShapesGame {
 	log.Println("Creating dot world with", nDots, "dots.")
+
 	// Allocate
 	shapesGame := ShapesGame{}
 	shapesGame.GameObjects = make(map[string]*shared.GameObject)
+	// shapesGame.QuadTree = *(quadtree.New[*shared.GameObject](-1000, 1000, 4))
 	shapesGame.Doers = make(map[string]game.Doer)
+	shapesGame.ActionsChannel = make(chan ShapesAction)
+	shapesGame.buildShapes(min, max, nDots)
 
-	shapesGame.buildShapesGame(min, max, nDots)
+	// Listen for actions sent to the game
+	go shapesGame.ActionListener()
+
 	return &shapesGame
+}
+
+func (shapesGame *ShapesGame) ActionListener() {
+	for {
+		action := <-shapesGame.ActionsChannel
+		fmt.Println("Got action: ", action)
+
+		// TODO Send to actions handler logic etc..
+	}
 }
 
 func (shapesGame *ShapesGame) GetGameObjects() map[string]*shared.GameObject {
@@ -48,11 +73,11 @@ func (shapesGame *ShapesGame) RemoveDoer(id string) {
 	// TODO: remove from both
 }
 
-func (shapesGame *ShapesGame) buildShapesGame(min int32, max int32, nObjs int) {
+func (shapesGame *ShapesGame) buildShapes(min int32, max int32, nObjs int) {
 	// Create a bunch of dots within the bounds
 	for i := 1; i <= nObjs; i++ {
 		// radius := float32(shared.RandInt(15, 15))
-		doerObj := objects.CreateRandomBox(min, max)
+		doerObj := shapes.CreateRandomBox(min, max)
 		shapesGame.AddDoer(doerObj.Id, doerObj)
 	}
 	log.Println("Created", len(shapesGame.GameObjects), "objects.")
@@ -86,24 +111,22 @@ func (shapesGame *ShapesGame) HandleUserInputPacket(
 
 	if _, ok := shapesGame.GameObjects[playerGobId]; !ok {
 		log.Println("===> SPAWNED PLAYER <===")
-		playerBubble := objects.CreateBubbleGameObject(playerGobId, 0, 0, 3, 255, 255, 255)
+		playerBubble := shapes.CreateBoxGameObject(playerGobId, 0, 0, 5, 5, 255, 255, 255)
 		playerBubble.Id = playerGobId
 		shapesGame.AddDoer(playerBubble.Id, playerBubble)
 	}
 
+	player := shapesGame.Doers[playerGobId]
 	if packet.GetMouseInput() != nil {
 		x := packet.GetMouseInput().MouseX
 		y := packet.GetMouseInput().MouseY
 
-		// TODO: Limit movement, should look at distance from
-		//		 current pos and determine an acceleration up to a limit
-		//		 if this was the real game, such concepts would come
-		//		 into play.
-		playerGob := shapesGame.GameObjects[playerGobId]
-		playerGob.X = x
-		playerGob.Y = y
+		// IDEA: Another solution
+		// shapesGame.ActionsChannel
 
-		// TODO: Continue affect game state elsewhere in code
+		// A bit special for shapes game, this is not how we would do it
+		// when moving a player. That must be done through physics engine etc.
+		MoveByMouse(player, x, y)
 
 	} else if packet.GetPlayerLogout() != nil {
 		// TODO

@@ -1,10 +1,10 @@
-package objects
+package shapes
 
 import (
 	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/shared"
-	"fmt"
 	"github.com/enriquebris/goconcurrentqueue"
+	"strings"
 	"time"
 )
 
@@ -12,26 +12,33 @@ const (
 	FPS = 20
 )
 
+// Implements Doer
 type ShapesGameObject struct {
 	Id         string
 	GameObject *shared.GameObject
 	Mailbox    *goconcurrentqueue.FIFO
+
+	// Private
+	Game *game.DoerGame
 }
 
-func (dwg *ShapesGameObject) PostMail(mail game.Mail) {
-	// Note the Mailbox can be of any type
+func (dwg *ShapesGameObject) PostMail(mail *game.Mail) {
 	dwg.Mailbox.Enqueue(mail)
 }
 
 func (dwg *ShapesGameObject) readMail() {
-	// Handle all incoming mail
+	// Read through all of mailbox
 	for {
 		if dwg.Mailbox.GetLen() == 0 {
 			break
 		}
 		mail, err := dwg.Mailbox.Dequeue()
 		if err == nil {
-			fmt.Println(dwg.Id, "got Mail:", mail)
+			m := mail.(*game.Mail)
+			if m.Subject == "SET_XY" {
+				dwg.GameObject.X = m.Data["x"].(int32)
+				dwg.GameObject.Y = m.Data["y"].(int32)
+			}
 		}
 	}
 }
@@ -46,8 +53,6 @@ func (dwg *ShapesGameObject) Start() {
 
 			//--- WORK HERE ----
 			dwg.Update()
-
-			// dwg.readMail()
 
 			//--- SLEEP HERE ---
 			sleepDur := ticTime - time.Since(loopStartTime)
@@ -73,7 +78,11 @@ func (dwg *ShapesGameObject) Update() {
 	// shared.BurnCPU(1 * million)
 
 	// The actual "job"
-	dwg.shake(1)
+	if !strings.Contains(dwg.Id, "PLAYER") {
+		// dwg.shake(1)
+	}
+
+	dwg.readMail()
 }
 
 func (dwg *ShapesGameObject) UpdateGL(doneChan chan string) {

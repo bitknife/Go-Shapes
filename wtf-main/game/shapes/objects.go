@@ -51,9 +51,10 @@ func (dwg *ShapesGameObject) readMail() {
 			}
 
 			if m.Subject == "COLLIDE" {
-				dwg.GameObject.IntAttrs["R"] = 255
-				dwg.GameObject.IntAttrs["G"] = 255
-				dwg.GameObject.IntAttrs["B"] = 255
+				dwg.GameObject.IntAttrs["R"] = shared.RandInt(0, 255)
+				dwg.GameObject.IntAttrs["G"] = shared.RandInt(0, 255)
+				dwg.GameObject.IntAttrs["B"] = shared.RandInt(0, 255)
+				dwg.shake(3)
 			}
 		}
 	}
@@ -176,9 +177,9 @@ func CreateRandomBox(
 	w := shared.RandInt(10, 30)
 	h := shared.RandInt(10, 30)
 
-	R := shared.RandInt(64, 200)
-	G := shared.RandInt(64, 200)
-	B := shared.RandInt(64, 200)
+	R := shared.RandInt(200, 200)
+	G := shared.RandInt(200, 200)
+	B := shared.RandInt(200, 200)
 
 	return CreateBoxGameObject(game, id, x, y, w, h, R, G, B)
 }

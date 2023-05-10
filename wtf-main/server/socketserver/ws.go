@@ -1,6 +1,7 @@
 package socketserver
 
 import (
+	"bitknife.se/wtf/shared"
 	"log"
 	"net/http"
 
@@ -13,18 +14,16 @@ func RunWS(address string) {
 }
 
 type WebsocketChannels struct {
-	address     string
-	upgrader    websocket.Upgrader
-	messageType int
+	address  string
+	upgrader websocket.Upgrader
 }
 
 func NewWebsocketChannels(
 	address string) *WebsocketChannels {
 
 	wc := WebsocketChannels{
-		address:     address,
-		upgrader:    websocket.Upgrader{},
-		messageType: websocket.BinaryMessage,
+		address:  address,
+		upgrader: websocket.Upgrader{},
 	}
 	return &wc
 }
@@ -40,43 +39,23 @@ func (wc *WebsocketChannels) Run() {
 }
 
 func (wc *WebsocketChannels) packets(w http.ResponseWriter, r *http.Request) {
-	// "CONNECT"-ish
-	c, err := wc.upgrader.Upgrade(w, r, nil)
+	// This is similar to handleConnection() of the TCP variant
+	conn, err := wc.upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Print("upgrade:", err)
 		return
 	}
-	defer c.Close()
+	defer conn.Close()
 
-	_, message, err := c.ReadMessage()
+	// This is the first package
+	_, message, err := conn.ReadMessage()
 
+	// Login and setup channels
 	fromClient, toClient := HandleFirstPacket(&message)
 
 	// TODO: Return correct HTTP status code upon invalid login?
 
-	// Receiver loop
-	go func() {
-		for {
-			_, message, err := c.ReadMessage()
+	go shared.PacketReceiverWS(conn, fromClient)
 
-			fromClient <- &message
-
-			if err != nil {
-				log.Println("read:", err)
-				break
-			}
-		}
-	}()
-
-	// Sender loop
-	go func() {
-		for {
-			message := <-toClient
-			err = c.WriteMessage(wc.messageType, *message)
-			if err != nil {
-				log.Println("write:", err)
-				break
-			}
-		}
-	}()
+	go shared.PacketSenderWS(conn, toClient)
 }

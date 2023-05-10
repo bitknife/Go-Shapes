@@ -52,6 +52,8 @@ func (wc *WebsocketChannels) packets(w http.ResponseWriter, r *http.Request) {
 
 	fromClient, toClient := HandleFirstPacket(&message)
 
+	// TODO: Return correct HTTP status code upon invalid login?
+
 	// Receiver loop
 	go func() {
 		for {

@@ -40,7 +40,9 @@ func printSplash() {
 func startServer(
 	gameLoopFps int64,
 	nDots int,
-	pingIntervalMsec int) {
+	pingIntervalMsec int,
+	enableTCP bool,
+	enableWebsockets bool) {
 
 	printSplash()
 
@@ -51,13 +53,17 @@ func startServer(
 	  Handles the TCP connections, moving messages through
 	  the channels and to/from each socket.
 	*/
-	tcpAddress := HOST + ":" + TCP_PORT
-	log.Println("Starting TCP server on", tcpAddress)
-	go socketserver.RunTCP(tcpAddress)
+	if enableTCP {
+		tcpAddress := HOST + ":" + TCP_PORT
+		log.Println("Starting TCP server on", tcpAddress)
+		go socketserver.RunTCP(tcpAddress)
+	}
 
-	wsAddress := HOST + ":" + WS_PORT
-	log.Println("Starting WebSocket server on", wsAddress)
-	go socketserver.RunWS(wsAddress)
+	if enableWebsockets {
+		wsAddress := HOST + ":" + WS_PORT
+		log.Println("Starting WebSocket server on", wsAddress)
+		go socketserver.RunWS(wsAddress)
+	}
 
 	log.Println("Ping interval is", pingIntervalMsec, "msec.")
 	// go PingAllClients(*pingIntervalMsec)
@@ -96,7 +102,11 @@ func waitForExitSignals() {
 func main() {
 	gameLoopFps := flags.Int64P("fps", "f", 30, "Game loop FPS")
 	nDots := flags.IntP("dots", "d", 500, "Dots to spawn.")
-	socketWriteTimeoutMs := flags.IntP("socketWriteTimeoutMs", "s", 10, "TCP Socket write timeout in ms")
+
+	enableTCP := flags.BoolP("tcpServer", "t", true, "Enable TCP server")
+	enableWS := flags.BoolP("websocketServer", "w", true, "Enable WebSocket server")
+	socketWriteTimeoutMs := flags.IntP("socketWriteTimeoutMs", "s", 10, "Socket write timeout in ms")
+
 	pingIntervalMsec := flags.IntP("ping_interval_msec", "p", 10000,
 		"Interval in milliseconds to ping clients.")
 
@@ -106,7 +116,7 @@ func main() {
 	shared.WriteTimeout = *socketWriteTimeoutMs
 
 	// Spawns everything we need
-	startServer(*gameLoopFps, *nDots, *pingIntervalMsec)
+	startServer(*gameLoopFps, *nDots, *pingIntervalMsec, *enableTCP, *enableWS)
 
 	// Waits for SIGINT and SIGTERM to perform shutdown
 	waitForExitSignals()

@@ -15,9 +15,9 @@ import (
 )
 
 const (
-	HOST = "0.0.0.0"
-	PORT = "7777"
-	TYPE = "tcp"
+	HOST     = "0.0.0.0"
+	TCP_PORT = "7777"
+	WS_PORT  = "8888"
 )
 
 var Commit string = "dev"
@@ -51,8 +51,13 @@ func startServer(
 	  Handles the TCP connections, moving messages through
 	  the channels and to/from each socket.
 	*/
-	log.Println("Starting server on", HOST, ":", PORT)
-	go socketserver.Run(HOST, PORT)
+	tcpAddress := HOST + ":" + TCP_PORT
+	log.Println("Starting TCP server on", tcpAddress)
+	go socketserver.RunTCP(tcpAddress)
+
+	wsAddress := HOST + ":" + WS_PORT
+	log.Println("Starting WebSocket server on", wsAddress)
+	go socketserver.RunWS(wsAddress)
 
 	log.Println("Ping interval is", pingIntervalMsec, "msec.")
 	// go PingAllClients(*pingIntervalMsec)

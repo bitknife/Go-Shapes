@@ -2,7 +2,6 @@ package shapes
 
 import (
 	"bitknife.se/wtf/server/game"
-	"bitknife.se/wtf/server/game/physics"
 	"bitknife.se/wtf/shared"
 	"github.com/enriquebris/goconcurrentqueue"
 	"strings"
@@ -14,20 +13,21 @@ const (
 )
 
 // Implements Doer
-type ShapesGameObject struct {
+type ShapesDoer struct {
 	Id         string
 	GameObject *shared.GameObject
 	Mailbox    *goconcurrentqueue.FIFO
 
-	// Private
+	// Reference to Game for interaction with other parts of the game
+	// from inside the Doers
 	Game *ShapesGame
 }
 
-func (dwg *ShapesGameObject) PostMail(mail *game.Mail) {
+func (dwg *ShapesDoer) PostMail(mail *game.Mail) {
 	dwg.Mailbox.Enqueue(mail)
 }
 
-func (dwg *ShapesGameObject) readMail() {
+func (dwg *ShapesDoer) readMail() {
 	// Read through all of mailbox
 	for {
 		if dwg.Mailbox.GetLen() == 0 {
@@ -35,32 +35,15 @@ func (dwg *ShapesGameObject) readMail() {
 		}
 		mail, err := dwg.Mailbox.Dequeue()
 		if err == nil {
-			// IMPROVE? Need to typecast here
 			m := mail.(*game.Mail)
-			if m.Subject == "SET_XY" {
-				for _, other := range dwg.Game.Doers {
-					collides := physics.BoxCollider(dwg.GameObject, other.GetGameObject())
-					if collides {
-						// Message other object
-						mail := game.CreateMail("COLLIDE")
-						other.PostMail(mail)
-					}
-				}
-				dwg.GameObject.X = m.Data["x"].(int32)
-				dwg.GameObject.Y = m.Data["y"].(int32)
-			}
 
-			if m.Subject == "COLLIDE" {
-				dwg.GameObject.IntAttrs["R"] = shared.RandInt(0, 255)
-				dwg.GameObject.IntAttrs["G"] = shared.RandInt(0, 255)
-				dwg.GameObject.IntAttrs["B"] = shared.RandInt(0, 255)
-				dwg.shake(3)
-			}
+			// This is big
+			HandleMail(dwg, m)
 		}
 	}
 }
 
-func (dwg *ShapesGameObject) Start() {
+func (dwg *ShapesDoer) Start() {
 	// TODO: Call a Generic Doer loop method?
 	ticTime := game.FPSToDuration(FPS)
 
@@ -78,7 +61,7 @@ func (dwg *ShapesGameObject) Start() {
 	}()
 }
 
-func (dwg *ShapesGameObject) Update() {
+func (dwg *ShapesDoer) Update() {
 	// Artificial load to see how game engine reacts to lengthy calculations
 	// during game loop, comparing job scheduling algorithms etc.
 	//
@@ -102,7 +85,7 @@ func (dwg *ShapesGameObject) Update() {
 	dwg.readMail()
 }
 
-func (dwg *ShapesGameObject) UpdateGL(doneChan chan string) {
+func (dwg *ShapesDoer) UpdateGL(doneChan chan string) {
 	/**
 	UpdateGL is the syncronized Update() version called from the Game Loop
 	*/
@@ -112,11 +95,11 @@ func (dwg *ShapesGameObject) UpdateGL(doneChan chan string) {
 	doneChan <- "done"
 }
 
-func (dwg *ShapesGameObject) GetGameObject() *shared.GameObject {
+func (dwg *ShapesDoer) GetGameObject() *shared.GameObject {
 	return dwg.GameObject
 }
 
-func (dwg *ShapesGameObject) shake(amp int32) {
+func (dwg *ShapesDoer) shake(amp int32) {
 	dwg.GameObject.X += shared.RandInt(-amp, amp)
 	dwg.GameObject.Y += shared.RandInt(-amp, amp)
 	// gameObject.FlAttrs["radius"] = gameObject.FlAttrs["radius"] + float32(shared.RandInt(-1, 1))
@@ -124,7 +107,7 @@ func (dwg *ShapesGameObject) shake(amp int32) {
 
 func CreateRandomBubble(
 	game *ShapesGame,
-	min int32, max int32, radius float32) *ShapesGameObject {
+	min int32, max int32, radius float32) *ShapesDoer {
 
 	id := shared.RandName("dot")
 	x := shared.RandInt(min, max)
@@ -141,7 +124,7 @@ func CreateBubbleGameObject(
 	game *ShapesGame,
 	id string,
 	x int32, y int32, radius float32,
-	R int32, G int32, B int32) *ShapesGameObject {
+	R int32, G int32, B int32) *ShapesDoer {
 
 	gObj := &shared.GameObject{
 		Id: id,
@@ -158,7 +141,7 @@ func CreateBubbleGameObject(
 		},
 		Kind: shared.GameObjectKind_DOT,
 	}
-	return &ShapesGameObject{
+	return &ShapesDoer{
 		Game:       game,
 		Id:         id,
 		GameObject: gObj,
@@ -169,7 +152,7 @@ func CreateBubbleGameObject(
 func CreateRandomBox(
 	game *ShapesGame,
 	min int32,
-	max int32) *ShapesGameObject {
+	max int32) *ShapesDoer {
 
 	id := shared.RandName("box")
 	x := shared.RandInt(min, max)
@@ -189,7 +172,7 @@ func CreateBoxGameObject(
 	id string,
 	x int32, y int32,
 	w int32, h int32,
-	R int32, G int32, B int32) *ShapesGameObject {
+	R int32, G int32, B int32) *ShapesDoer {
 
 	gObj := &shared.GameObject{
 		Id: id,
@@ -205,7 +188,7 @@ func CreateBoxGameObject(
 		},
 		Kind: shared.GameObjectKind_BOX,
 	}
-	return &ShapesGameObject{
+	return &ShapesDoer{
 		Id:         id,
 		GameObject: gObj,
 		// NOTE: The fixed version is faster

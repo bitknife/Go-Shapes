@@ -92,7 +92,7 @@ func ConnectClient(protocol string, host string,
 			os.Exit(1)
 		}
 
-		// Start send and receive routines
+		// Separate send and receive routines works as conn is thread-safe
 		go PacketReceiverTCP(conn, fromServer)
 		go PacketSenderTCP(conn, toServer)
 
@@ -109,9 +109,8 @@ func ConnectClient(protocol string, host string,
 			log.Fatal("dial:", err)
 		}
 
+		// WS connections are not thread safe, see comments in the method
 		go WSPacketWorker(conn, fromServer, toServer)
-		// go PacketSenderWS(conn, fromServer)
-		// go PacketReceiverWS(conn, toServer)
 	}
 }
 

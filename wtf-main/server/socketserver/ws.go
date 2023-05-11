@@ -61,6 +61,4 @@ func (wc *WebsocketChannels) packets(w http.ResponseWriter, r *http.Request) {
 	// NOTE: We do this slighly different than TCP due to the nature of the Websocket connection
 	go shared.WSPacketWorker(conn, fromClient, toClient)
 
-	// go shared.PacketReceiverWS(conn, fromClient)
-	// go shared.PacketSenderWS(conn, toClient)
 }

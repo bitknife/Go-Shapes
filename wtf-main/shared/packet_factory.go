@@ -29,10 +29,7 @@ func PacketToBytes(packet *Packet) *[]byte {
 	if err != nil {
 		return nil
 	}
-	header := make([]byte, 1)
-	header[0] = byte(len(marshal))
-	wirePacket := append(header, marshal...)
-	return &wirePacket
+	return &marshal
 }
 
 func BuildPingPacket() *Packet {

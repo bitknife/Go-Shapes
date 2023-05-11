@@ -80,21 +80,30 @@ func PacketSenderTCP(conn net.Conn, outgoing chan *[]byte) {
 
 	for {
 		// Wait for packets
-		wirePacket := <-outgoing
+		packet := <-outgoing
 
 		//------------------------------
 		start := time.Now()
 
-		if wirePacket == nil {
+		if packet == nil {
 			// TODO: A bit harsh?
 			log.Println("PacketSenderTCP(): Nil packet from channel. Closing conn. ")
 			conn.Close()
 			continue
 		}
 
+		// Append the length as a single byte
+		if len(*packet) > 256 {
+			panic("Packet size larger than 256 bytes!")
+		}
+
+		header := make([]byte, 1)
+		header[0] = byte(len(*packet))
+		wirePacket := append(header, *packet...)
+
 		conn.SetWriteDeadline(time.Now().Add(time.Duration(WriteTimeout) * time.Millisecond))
 
-		_, err := conn.Write(*wirePacket)
+		_, err := conn.Write(wirePacket)
 
 		if err != nil {
 			// NOTE: Packet-loss, note half a packet may have been sent
@@ -108,7 +117,7 @@ func PacketSenderTCP(conn net.Conn, outgoing chan *[]byte) {
 
 		// Metrics
 		atomic.AddInt64(packetsSent, 1)
-		atomic.AddInt64(bytesSent, int64(len(*wirePacket)))
+		atomic.AddInt64(bytesSent, int64(len(wirePacket)))
 
 		if int64(sendTimeMs) < *minSendTimeMs {
 			// fmt.Println("New Max send time", sendTime)

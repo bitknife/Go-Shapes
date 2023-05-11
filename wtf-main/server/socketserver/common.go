@@ -29,6 +29,7 @@ func HandleFirstPacket(packageData *[]byte) (chan *[]byte, chan *[]byte) {
 
 	accessGranted := core.AuthenticateClient(playerLogin)
 	if accessGranted == false {
+		log.Println("Access denied for", playerLogin.Username)
 		return nil, nil
 	}
 

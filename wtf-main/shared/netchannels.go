@@ -2,13 +2,22 @@ package shared
 
 import (
 	"encoding/hex"
+	"github.com/gorilla/websocket"
+	"log"
 	"net"
+	"net/url"
 	"sync/atomic"
 )
 
 import (
 	"fmt"
 	"os"
+)
+
+const (
+	TCP_PORT        = "7777"
+	WS_PORT         = "8888"
+	WS_PACKETS_PATH = "/packets"
 )
 
 /*
@@ -58,7 +67,7 @@ func GetNetChannelsStats() *NetChannelsMetrics {
 	return &currentStats
 }
 
-func ConnectClient(protocol string, host string, port string,
+func ConnectClient(protocol string, host string,
 	fromServer chan *[]byte, toServer chan *[]byte) {
 	/*
 		Purpose: Connect and set up the provided channels
@@ -72,9 +81,12 @@ func ConnectClient(protocol string, host string, port string,
 		atomic.StoreInt64(totalSendTimeMs, 0)
 	}
 
-	if protocol == "tcp" || protocol == "udp" {
+	if protocol == "tcp" {
 		// Connect to server
-		conn, err := net.Dial(protocol, host+":"+port)
+		tcpAddr := host + ":" + TCP_PORT
+		log.Println("Connecting to TCP game server using", tcpAddr)
+
+		conn, err := net.Dial(protocol, tcpAddr)
 		if err != nil {
 			fmt.Println("Error connecting:", err.Error())
 			os.Exit(1)
@@ -84,7 +96,21 @@ func ConnectClient(protocol string, host string, port string,
 		go PacketReceiverTCP(conn, fromServer)
 		go PacketSenderTCP(conn, toServer)
 
+	} else if protocol == "udp" {
+		// Same Dial as TCP , but would need other logic due to no connection
+
 	} else if protocol == "websocket" {
+		wsAddr := host + ":" + WS_PORT
+		log.Println("Connecting to Websocket game server using", wsAddr)
+
+		u := url.URL{Scheme: "ws", Host: wsAddr, Path: WS_PACKETS_PATH}
+		conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+		if err != nil {
+			log.Fatal("dial:", err)
+		}
+
+		go PacketSenderWS(conn, fromServer)
+		go PacketSenderWS(conn, toServer)
 	}
 }
 

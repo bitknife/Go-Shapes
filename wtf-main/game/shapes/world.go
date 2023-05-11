@@ -79,7 +79,6 @@ func (shapesGame *ShapesGame) buildShapes(min int32, max int32, nObjs int) {
 		doerObj := CreateRandomBox(shapesGame, min, max)
 		shapesGame.AddDoer(doerObj.Id, doerObj)
 	}
-	log.Println("Created", len(shapesGame.GameObjects), "objects.")
 }
 
 func (shapesGame *ShapesGame) Update() {

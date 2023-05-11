@@ -5,9 +5,9 @@ import (
 	"log"
 )
 
-func PacketReceiverWS(c *websocket.Conn, fromClient chan *[]byte) {
+func PacketReceiverWS(conn *websocket.Conn, fromClient chan *[]byte) {
 	for {
-		_, message, err := c.ReadMessage()
+		_, message, err := conn.ReadMessage()
 
 		fromClient <- &message
 
@@ -18,10 +18,10 @@ func PacketReceiverWS(c *websocket.Conn, fromClient chan *[]byte) {
 	}
 }
 
-func PacketSenderWS(c *websocket.Conn, toClient chan *[]byte) {
+func PacketSenderWS(conn *websocket.Conn, toClient chan *[]byte) {
 	for {
 		message := <-toClient
-		err := c.WriteMessage(websocket.BinaryMessage, *message)
+		err := conn.WriteMessage(websocket.BinaryMessage, *message)
 		if err != nil {
 			log.Println("write:", err)
 			break

@@ -47,7 +47,6 @@ func setupExitTimer(lifetime_sec int) {
 func main() {
 	headless := flags.Bool("headless", false, "Start a client headless.")
 	host := flags.StringP("host", "h", WTFLocalHost, "Server IP or Hostname")
-	port := flags.StringP("port", "p", WTFDevServerPort, "Server Port")
 	username := flags.StringP("username", "u", shared.RandName("user"), "Player name")
 	password := flags.StringP("password", "w", "welcome", "Password")
 	lifetimeSec := flags.IntP("lifetime_sec", "t", 0, "Terminate client after this many seconds")
@@ -90,7 +89,7 @@ func main() {
 
 	} else {
 		// Connects and returns two channels for communication to  a remote server
-		fromServer, toServer := SetUpNetworking("tcp", *host, *port, *username, *password)
+		fromServer, toServer := SetUpNetworking("tcp", *host, *username, *password)
 
 		// Connects the packets to/from a remote server based simulation
 		go DeliverPacketsToServer(toServer, updatesToSimulation)

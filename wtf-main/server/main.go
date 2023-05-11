@@ -15,9 +15,7 @@ import (
 )
 
 const (
-	HOST     = "0.0.0.0"
-	TCP_PORT = "7777"
-	WS_PORT  = "8888"
+	HOST = "0.0.0.0"
 )
 
 var Commit string = "dev"
@@ -42,7 +40,8 @@ func startServer(
 	nDots int,
 	pingIntervalMsec int,
 	enableTCP bool,
-	enableWebsockets bool) {
+	enableWebsockets bool,
+	printMetrics bool) {
 
 	printSplash()
 
@@ -54,18 +53,17 @@ func startServer(
 	  the channels and to/from each socket.
 	*/
 	if enableTCP {
-		tcpAddress := HOST + ":" + TCP_PORT
+		tcpAddress := HOST + ":" + shared.TCP_PORT
 		log.Println("Starting TCP server on", tcpAddress)
 		go socketserver.RunTCP(tcpAddress)
 	}
 
 	if enableWebsockets {
-		wsAddress := HOST + ":" + WS_PORT
+		wsAddress := HOST + ":" + shared.WS_PORT
 		log.Println("Starting WebSocket server on", wsAddress)
 		go socketserver.RunWS(wsAddress)
 	}
 
-	log.Println("Ping interval is", pingIntervalMsec, "msec.")
 	// go PingAllClients(*pingIntervalMsec)
 
 	/**
@@ -81,8 +79,9 @@ func startServer(
 	shapesGame := shapes.CreateGame(-500, 500, nDots)
 	go game.Run(gameLoopFps, packetBroadCastChannel, packetsSentChannel, shapesGame)
 
-	go CollectAndPrintMetricsRoutine("WTF server", 2)
-
+	if printMetrics {
+		go CollectAndPrintMetricsRoutine("WTF server", 2)
+	}
 }
 
 func stopServer() {
@@ -107,8 +106,10 @@ func main() {
 	enableWS := flags.BoolP("websocketServer", "w", true, "Enable WebSocket server")
 	socketWriteTimeoutMs := flags.IntP("socketWriteTimeoutMs", "s", 10, "Socket write timeout in ms")
 
-	pingIntervalMsec := flags.IntP("ping_interval_msec", "p", 10000,
+	pingIntervalMsec := flags.IntP("pingIntervalMsec", "i", 10000,
 		"Interval in milliseconds to ping clients.")
+
+	printMetrics := flags.BoolP("printMetrics", "p", false, "Print metrics to stdout")
 
 	flags.Parse()
 
@@ -116,7 +117,7 @@ func main() {
 	shared.WriteTimeout = *socketWriteTimeoutMs
 
 	// Spawns everything we need
-	startServer(*gameLoopFps, *nDots, *pingIntervalMsec, *enableTCP, *enableWS)
+	startServer(*gameLoopFps, *nDots, *pingIntervalMsec, *enableTCP, *enableWS, *printMetrics)
 
 	// Waits for SIGINT and SIGTERM to perform shutdown
 	waitForExitSignals()

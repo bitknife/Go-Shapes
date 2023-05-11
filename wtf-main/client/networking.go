@@ -5,14 +5,13 @@ import (
 	"log"
 )
 
-func SetUpNetworking(protocol string, host string, port string, username string, password string) (chan *[]byte, chan *[]byte) {
+func SetUpNetworking(protocol string, host string, username string, password string) (chan *[]byte, chan *[]byte) {
 
 	fromServer := make(chan *[]byte)
 	toServer := make(chan *[]byte)
 
 	// Connects
-	log.Println("Connecting to game server at", host+":"+port, "as", username)
-	shared.ConnectClient(protocol, host, port, fromServer, toServer)
+	shared.ConnectClient(protocol, host, fromServer, toServer)
 
 	// Login
 	pPacket := shared.BuildLoginPacket(username, password)

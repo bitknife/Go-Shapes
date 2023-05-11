@@ -32,7 +32,7 @@ func (wc *WebsocketChannels) Run() {
 	// TODO: Set Write timeout
 
 	// Register a handler function for given pattern
-	http.HandleFunc("/packets", wc.packets)
+	http.HandleFunc(shared.WS_PACKETS_PATH, wc.packets)
 
 	// NOTE: Blocks!
 	log.Fatal(http.ListenAndServe(wc.address, nil))

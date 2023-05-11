@@ -106,7 +106,7 @@ func PacketSenderTCP(conn net.Conn, outgoing chan *[]byte) {
 
 		sendTimeMs := time.Since(start) / 1000000
 
-		// Stats
+		// Metrics
 		atomic.AddInt64(packetsSent, 1)
 		atomic.AddInt64(bytesSent, int64(len(*wirePacket)))
 

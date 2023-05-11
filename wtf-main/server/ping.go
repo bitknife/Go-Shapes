@@ -25,6 +25,8 @@ func PingAllClients(pingIntervalMsec int) {
 
 func broadCastPing(pingIntervalMsec int) {
 
+	log.Println("Ping interval is", pingIntervalMsec, "msec.")
+
 	for {
 		time.Sleep(time.Duration(pingIntervalMsec) * time.Millisecond)
 

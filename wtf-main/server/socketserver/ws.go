@@ -2,10 +2,10 @@ package socketserver
 
 import (
 	"bitknife.se/wtf/shared"
+	"context"
 	"log"
 	"net/http"
-
-	"github.com/gorilla/websocket"
+	"nhooyr.io/websocket"
 )
 
 func RunWS(address string) {
@@ -14,16 +14,14 @@ func RunWS(address string) {
 }
 
 type WebsocketChannels struct {
-	address  string
-	upgrader websocket.Upgrader
+	address string
 }
 
 func NewWebsocketChannels(
 	address string) *WebsocketChannels {
 
 	wc := WebsocketChannels{
-		address:  address,
-		upgrader: websocket.Upgrader{},
+		address: address,
 	}
 	return &wc
 }
@@ -40,21 +38,19 @@ func (wc *WebsocketChannels) Run() {
 
 func (wc *WebsocketChannels) packets(w http.ResponseWriter, r *http.Request) {
 	// This is similar to handleConnection() of the TCP variant
-	conn, err := wc.upgrader.Upgrade(w, r, nil)
+	conn, err := websocket.Accept(w, r, nil)
 	if err != nil {
-		log.Print("upgrade:", err)
-		return
+		// ...
 	}
 
 	// This is the first package
-	_, message, err := conn.ReadMessage()
+	_, message, err := conn.Read(context.TODO())
 
 	// Login and setup channels
 	fromClient, toClient := HandleFirstPacket(&message)
 
 	if fromClient == nil {
-		log.Println("Firstpacket failed")
-		conn.Close()
+		conn.Close(websocket.StatusAbnormalClosure, "First packet failed")
 	}
 	// TODO: Return correct HTTP status code upon invalid login?
 

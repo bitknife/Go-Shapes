@@ -1,7 +1,8 @@
 package shared
 
 import (
-	"github.com/gorilla/websocket"
+	"context"
+	"nhooyr.io/websocket"
 )
 
 func WSPacketWorker(conn *websocket.Conn, incoming chan *[]byte, outgoing chan *[]byte) {
@@ -11,13 +12,11 @@ func WSPacketWorker(conn *websocket.Conn, incoming chan *[]byte, outgoing chan *
 	unbufRecChan := make(chan *[]byte)
 	go wsPacketsToChannel(conn, unbufRecChan)
 
-	defer conn.Close()
-
 	for {
 		select {
 		case packet := <-outgoing:
 
-			err := conn.WriteMessage(websocket.BinaryMessage, *packet)
+			err := conn.Write(context.TODO(), websocket.MessageBinary, *packet)
 
 			if err != nil {
 				// Client disconnect most likely, send nil to clean up
@@ -33,7 +32,9 @@ func WSPacketWorker(conn *websocket.Conn, incoming chan *[]byte, outgoing chan *
 func wsPacketsToChannel(conn *websocket.Conn, unbufRecChan chan *[]byte) {
 
 	for {
-		_, message, err := conn.ReadMessage()
+		// NOTE: Would have preferred to to "canRead" on this, or select directly
+		//		 dunno how to do that, but this model seem to work anyway.
+		_, message, err := conn.Read(context.TODO())
 
 		unbufRecChan <- &message
 

@@ -1,5 +1,5 @@
 cd ../client
-GOOS=js GOARCH=wasm go build -o ../wasm/webroot/main.wasm
+GOOS=js GOARCH=wasm go build -o ../wasm/main.wasm
 cd ../wasm
 
 #GOOS=js GOARCH=wasm go build -o .

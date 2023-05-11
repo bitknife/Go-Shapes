@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	addr := "localhost:8080"
+	addr := "0.0.0.0:8080"
 	fmt.Print("Serving at http://", addr)
 	fmt.Print("\n")
 	http.ListenAndServe(addr, http.FileServer(http.Dir(".")))

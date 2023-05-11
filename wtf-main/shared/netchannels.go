@@ -1,11 +1,11 @@
 package shared
 
 import (
+	"context"
 	"encoding/hex"
-	"github.com/gorilla/websocket"
 	"log"
 	"net"
-	"net/url"
+	"nhooyr.io/websocket"
 	"sync/atomic"
 )
 
@@ -103,8 +103,8 @@ func ConnectClient(protocol string, host string,
 		wsAddr := host + ":" + WS_PORT
 		log.Println("Connecting to Websocket game server using", wsAddr)
 
-		u := url.URL{Scheme: "ws", Host: wsAddr, Path: WS_PACKETS_PATH}
-		conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+		// u := url.URL{Scheme: "ws", Host: wsAddr, Path: WS_PACKETS_PATH}
+		conn, _, err := websocket.Dial(context.TODO(), "ws://"+wsAddr+WS_PACKETS_PATH, nil)
 		if err != nil {
 			log.Fatal("dial:", err)
 		}

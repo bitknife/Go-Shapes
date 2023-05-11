@@ -45,12 +45,10 @@ func (wc *WebsocketChannels) packets(w http.ResponseWriter, r *http.Request) {
 		log.Print("upgrade:", err)
 		return
 	}
-	log.Println("Accepted Websocket connection.. waiting for login.")
 
 	// This is the first package
 	_, message, err := conn.ReadMessage()
 
-	log.Println(".... got", message)
 	// Login and setup channels
 	fromClient, toClient := HandleFirstPacket(&message)
 
@@ -60,7 +58,9 @@ func (wc *WebsocketChannels) packets(w http.ResponseWriter, r *http.Request) {
 	}
 	// TODO: Return correct HTTP status code upon invalid login?
 
-	go shared.PacketReceiverWS(conn, fromClient)
+	// NOTE: We do this slighly different than TCP due to the nature of the Websocket connection
+	go shared.WSPacketWorker(conn, fromClient, toClient)
 
-	go shared.PacketSenderWS(conn, toClient)
+	// go shared.PacketReceiverWS(conn, fromClient)
+	// go shared.PacketSenderWS(conn, toClient)
 }

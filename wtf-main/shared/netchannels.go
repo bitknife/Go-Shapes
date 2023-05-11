@@ -109,8 +109,9 @@ func ConnectClient(protocol string, host string,
 			log.Fatal("dial:", err)
 		}
 
-		go PacketSenderWS(conn, fromServer)
-		go PacketSenderWS(conn, toServer)
+		go WSPacketWorker(conn, fromServer, toServer)
+		// go PacketSenderWS(conn, fromServer)
+		// go PacketReceiverWS(conn, toServer)
 	}
 }
 

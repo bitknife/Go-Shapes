@@ -89,7 +89,7 @@ func main() {
 
 	} else {
 		// Connects and returns two channels for communication to  a remote server
-		fromServer, toServer := SetUpNetworking("tcp", *host, *username, *password)
+		fromServer, toServer := SetUpNetworking("websocket", *host, *username, *password)
 
 		// Connects the packets to/from a remote server based simulation
 		go DeliverPacketsToServer(toServer, updatesToSimulation)

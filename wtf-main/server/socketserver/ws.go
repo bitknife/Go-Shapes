@@ -30,15 +30,22 @@ func (wc *WebsocketChannels) Run() {
 	// TODO: Set Write timeout
 
 	// Register a handler function for given pattern
-	http.HandleFunc(shared.WS_PACKETS_PATH, wc.packets)
+	http.HandleFunc(shared.WS_PACKETS_PATH, wc.packetsHandler)
 
 	// NOTE: Blocks!
 	log.Fatal(http.ListenAndServe(wc.address, nil))
 }
 
-func (wc *WebsocketChannels) packets(w http.ResponseWriter, r *http.Request) {
+func (wc *WebsocketChannels) packetsHandler(w http.ResponseWriter, r *http.Request) {
 	// This is similar to handleConnection() of the TCP variant
-	conn, err := websocket.Accept(w, r, nil)
+	ao := websocket.AcceptOptions{
+		Subprotocols:         nil,
+		InsecureSkipVerify:   true,
+		OriginPatterns:       nil,
+		CompressionMode:      0,
+		CompressionThreshold: 0,
+	}
+	conn, err := websocket.Accept(w, r, &ao)
 	if err != nil {
 		// ...
 	}

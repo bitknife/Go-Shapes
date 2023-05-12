@@ -38,7 +38,7 @@ func RunEbitenApplication(
 	ebitenController := Controller{gameObjects, fromSimulation, ebitenGame}
 	go ebitenController.Run()
 
-	ebiten.SetCursorMode(ebiten.CursorModeHidden)
+	// ebiten.SetCursorMode(ebiten.CursorModeHidden)
 
 	// NOTE: Blocks!
 	if err := ebiten.RunGame(ebitenGame); err != nil {

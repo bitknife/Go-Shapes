@@ -75,6 +75,8 @@ Also found his own ge "util" repo:
 https://github.com/quasilyte/ge
 
 Ebiten game template: https://github.com/sinisterstuf/ebitengine-game-template nice!
+also contains github workflows for integrating with itch.io.
+
 ### Shared
 The [./shared](./common) directory contains the shared message model.
 

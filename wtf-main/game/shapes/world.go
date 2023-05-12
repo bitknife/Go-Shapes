@@ -5,6 +5,7 @@ import (
 	"bitknife.se/wtf/shared"
 	"fmt"
 	"log"
+	"sync"
 )
 
 const (
@@ -16,6 +17,7 @@ type ShapesAction struct {
 
 type ShapesGame struct {
 	// Implements DoerGame
+	Mutex sync.Mutex
 
 	// For external access
 	GameObjects map[string]*shared.GameObject
@@ -23,6 +25,9 @@ type ShapesGame struct {
 	// QuadTree quadtree.Tree[*shared.GameObject]
 
 	// Note since Doer is an interface, we should _not_ use *Doer, but just Doer.
+	// TODO: Access need to be protected for add/remove etc (but not reading?)
+	//		 actually, we maybe need a more managed way of working with different
+	//		 data structures for the game objects/Doers
 	Doers map[string]game.Doer
 
 	ActionsChannel chan ShapesAction
@@ -35,9 +40,13 @@ func CreateGame(min int32, max int32, nDots int) *ShapesGame {
 
 	// Allocate
 	shapesGame := ShapesGame{}
+
+	// Acquire before modifying the collections below:
+	shapesGame.Mutex = sync.Mutex{}
 	shapesGame.GameObjects = make(map[string]*shared.GameObject)
-	// shapesGame.QuadTree = *(quadtree.New[*shared.GameObject](-1000, 1000, 4))
 	shapesGame.Doers = make(map[string]game.Doer)
+	// shapesGame.QuadTree = *(quadtree.New[*shared.GameObject](-1000, 1000, 4))
+
 	shapesGame.ActionsChannel = make(chan ShapesAction)
 	shapesGame.buildShapes(min, max, nDots)
 
@@ -61,8 +70,10 @@ func (shapesGame *ShapesGame) GetGameObjects() map[string]*shared.GameObject {
 }
 
 func (shapesGame *ShapesGame) AddDoer(id string, doer game.Doer) {
+	shapesGame.Mutex.Lock()
 	shapesGame.Doers[id] = doer
 	shapesGame.GameObjects[id] = doer.GetGameObject()
+	shapesGame.Mutex.Unlock()
 
 	// Doer pattern, one go routine for each object
 	// go doer.Start()
@@ -89,9 +100,11 @@ func (shapesGame *ShapesGame) Update() {
 	// IDEA: Just do global work here!
 	// 		 Actions upon objects should be posted to them instead
 	//		 And each object will handle its own update.
+	shapesGame.Mutex.Lock()
 	for _, doer := range shapesGame.Doers {
 		go doer.UpdateGL(doneChan)
 	}
+	shapesGame.Mutex.Unlock()
 
 	// And wait for completion
 	for todo := len(shapesGame.Doers); todo > 0; todo-- {

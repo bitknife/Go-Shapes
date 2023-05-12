@@ -193,9 +193,9 @@ jobs:
         with:
           name: wasm-client
           path: |
-            wasm/index.html
-            wasm/main.wasm
-            wasm/wasm_exec.js
+            wtf-main/wasm/index.html
+            wtf-main/wasm/main.wasm
+            wtf-main/wasm/wasm_exec.js
 
   wasm-client-itchio-upload:
     name: Upload WASM client to Itch.io

@@ -5,6 +5,7 @@ name: Build Executables
 on: [push]
 
 env:
+  itchio_user: Hanserfaust
   itchio_project: Hanserfaust/wtf
 
 jobs:
@@ -170,6 +171,53 @@ jobs:
           path: client
           project: ${{ env.itchio_project }}
           channel: mac
+          version: ${{ env.version }}
+          api-key: ${{ secrets.ITCHIO_API_KEY }}
+
+  build-wasm-client:
+    name: Build WASM client
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: Build
+        shell: bash
+        working-directory: wtf-main/client
+        run: ./build_wasm.sh
+      - name: Upload Web build
+        uses: actions/upload-artifact@v3
+        with:
+          name: wasm-client
+          path: |
+            wasm/index.html
+            wasm/main.wasm
+            wasm/wasm_exec.js
+
+  wasm-client-itchio-upload:
+    name: Upload WASM client to Itch.io
+    needs: build-wasm-client
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: wasm-client
+      - name: Display structure of downloaded files
+        run: ls -R
+      - name: Set Version
+        run: |
+          echo "version=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+      - name: Upload to itch.io project
+        # https://github.com/marketplace/actions/itch-io-upload
+        uses: robpc/itchio-upload-action@v1
+        with:
+          path: wasm-client
+          project: ${{ env.itchio_project }}
+          channel: web
           version: ${{ env.version }}
           api-key: ${{ secrets.ITCHIO_API_KEY }}
 

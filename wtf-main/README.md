@@ -48,8 +48,7 @@ Include git version (server only for now)
 
     ./server/ $ go build -ldflags="-X main.Commit=$(git rev-parse HEAD)"
 
-Build for windows, wont work on MAC as long as syscall is used unless
-https://justen.codes/breaking-all-the-rules-using-go-to-call-windows-api-2cbfd8c79724
+Build for windows:
 
     GOOS=windows GOARCH=amd64 go build
 

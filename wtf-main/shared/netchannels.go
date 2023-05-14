@@ -1,7 +1,6 @@
 package shared
 
 import (
-	"context"
 	"encoding/hex"
 	"log"
 	"net"
@@ -106,14 +105,14 @@ func ConnectClient(
 		wsAddr := host + ":" + wsPort
 		log.Println("Connecting to Websocket game server using", wsAddr)
 
+		// TODO: Implement ServerContext handling timeouts etc?
+		clientWSContext := PacketContext()
+
 		// u := url.URL{Scheme: "ws", Host: wsAddr, Path: WS_PACKETS_PATH}
-		conn, _, err := websocket.Dial(context.TODO(), protocol+"://"+wsAddr+WS_PACKETS_PATH, nil)
+		conn, _, err := websocket.Dial(clientWSContext, protocol+"://"+wsAddr+WS_PACKETS_PATH, nil)
 		if err != nil {
 			log.Fatal("dial:", err)
 		}
-
-		// TODO: Implement ServerContext handling timeouts etc?
-		clientWSContext := PacketContext()
 
 		// Differs from TCP case above since WS connections are not thread safe
 		//, see comments in the method

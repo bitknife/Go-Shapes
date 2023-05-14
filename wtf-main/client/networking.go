@@ -5,13 +5,19 @@ import (
 	"log"
 )
 
-func SetUpNetworking(protocol string, host string, username string, password string) (chan *[]byte, chan *[]byte) {
+func SetUpNetworking(
+	protocol string,
+	host string,
+	tcpPort string,
+	wsPort string,
+	username string,
+	password string) (chan *[]byte, chan *[]byte) {
 
 	fromServer := make(chan *[]byte)
 	toServer := make(chan *[]byte)
 
 	// Connects
-	shared.ConnectClient(protocol, host, fromServer, toServer)
+	shared.ConnectClient(protocol, host, tcpPort, wsPort, fromServer, toServer)
 
 	// Login
 	pPacket := shared.BuildLoginPacket(username, password)

@@ -15,8 +15,6 @@ import (
 )
 
 const (
-	TCP_PORT        = "7777"
-	WS_PORT         = "8888"
 	WS_PACKETS_PATH = "/packets"
 )
 
@@ -67,8 +65,13 @@ func GetNetChannelsStats() *NetChannelsMetrics {
 	return &currentStats
 }
 
-func ConnectClient(protocol string, host string,
-	fromServer chan *[]byte, toServer chan *[]byte) {
+func ConnectClient(
+	protocol string,
+	host string,
+	tcpPort string,
+	wsPort string,
+	fromServer chan *[]byte,
+	toServer chan *[]byte) {
 	/*
 		Purpose: Connect and set up the provided channels
 		 		vs the underlying network protocol
@@ -83,7 +86,7 @@ func ConnectClient(protocol string, host string,
 
 	if protocol == "tcp" {
 		// Connect to server
-		tcpAddr := host + ":" + TCP_PORT
+		tcpAddr := host + ":" + tcpPort
 		log.Println("Connecting to TCP game server using", tcpAddr)
 
 		conn, err := net.Dial(protocol, tcpAddr)
@@ -99,12 +102,12 @@ func ConnectClient(protocol string, host string,
 	} else if protocol == "udp" {
 		// Same Dial as TCP , but would need other logic due to no connection
 
-	} else if protocol == "websocket" {
-		wsAddr := host + ":" + WS_PORT
+	} else if protocol == "ws" || protocol == "wss" {
+		wsAddr := host + ":" + wsPort
 		log.Println("Connecting to Websocket game server using", wsAddr)
 
 		// u := url.URL{Scheme: "ws", Host: wsAddr, Path: WS_PACKETS_PATH}
-		conn, _, err := websocket.Dial(context.TODO(), "ws://"+wsAddr+WS_PACKETS_PATH, nil)
+		conn, _, err := websocket.Dial(context.TODO(), protocol+"://"+wsAddr+WS_PACKETS_PATH, nil)
 		if err != nil {
 			log.Fatal("dial:", err)
 		}

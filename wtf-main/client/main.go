@@ -16,11 +16,14 @@ import (
 	"time"
 )
 
-const (
-	WTFLocalHost     = "localhost"
-	WTFDevServerHost = "wtf-dev-server.bitknife.se"
-	WTFDevServerPort = "7777"
-)
+/*
+Typically modified compiler LD-flags, ie:
+-ldflags="-X main.WsPort=888 -X main.WTFHost=wtf-dev-server.bitknife.se"
+*/
+var WTFHost = "localhost"
+var TcpPort = "7777"
+var WsPort = "8888"
+var Protocol = "ws"
 
 func waitForExitSignals(toServer chan *shared.Packet) {
 	exitSignal := make(chan os.Signal)
@@ -46,10 +49,10 @@ func setupExitTimer(lifetime_sec int) {
 
 func main() {
 	headless := flags.Bool("headless", false, "Start a client headless.")
-	host := flags.StringP("host", "h", WTFDevServerHost, "Server IP or Hostname")
+	host := flags.StringP("host", "h", WTFHost, "Server IP or Hostname")
 	username := flags.StringP("username", "u", shared.RandName("user"), "Player name")
 	password := flags.StringP("password", "w", "welcome", "Password")
-	protocol := flags.StringP("protocol", "p", "websocket", "Network protocol: websocket or tcp")
+	protocol := flags.StringP("protocol", "p", Protocol, "Network protocol: websocket or tcp")
 	lifetimeSec := flags.IntP("lifetime_sec", "t", 0, "Terminate client after this many seconds")
 	localSim := flags.BoolP("localsim", "l", false, "Run game locally, no server needed.")
 	flags.Parse()
@@ -90,7 +93,7 @@ func main() {
 
 	} else {
 		// Connects and returns two channels for communication to  a remote server
-		fromServer, toServer := SetUpNetworking(*protocol, *host, *username, *password)
+		fromServer, toServer := SetUpNetworking(*protocol, *host, TcpPort, WsPort, *username, *password)
 
 		// Connects the packets to/from a remote server based simulation
 		go DeliverPacketsToServer(toServer, updatesToSimulation)

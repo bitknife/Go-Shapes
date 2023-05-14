@@ -14,11 +14,10 @@ import (
 	"syscall"
 )
 
-const (
-	HOST = "0.0.0.0"
-)
-
 var Commit string = "dev"
+var Host string = "0.0.0.0"
+var TcpPort = "7777"
+var WsPort = "8888"
 
 func printSplash() {
 	// Read entire file content, giving us little control but
@@ -53,13 +52,13 @@ func startServer(
 	  the channels and to/from each socket.
 	*/
 	if enableTCP {
-		tcpAddress := HOST + ":" + shared.TCP_PORT
+		tcpAddress := Host + ":" + TcpPort
 		log.Println("Starting TCP server on", tcpAddress)
 		go socketserver.RunTCP(tcpAddress)
 	}
 
 	if enableWebsockets {
-		wsAddress := HOST + ":" + shared.WS_PORT
+		wsAddress := Host + ":" + WsPort
 		log.Println("Starting WebSocket server on", wsAddress)
 		go socketserver.RunWS(wsAddress)
 	}

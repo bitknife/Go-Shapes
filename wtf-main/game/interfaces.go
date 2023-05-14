@@ -5,9 +5,11 @@ import "bitknife.se/wtf/shared"
 type DoerGame interface {
 	Update()
 
+	Lock()
 	AddDoer(id string, doer Doer)
 	RemoveDoer(id string)
 	GetGameObjects() map[string]*shared.GameObject
+	Unlock()
 
 	HandleUserInputPacket(username string, packet *shared.Packet)
 }

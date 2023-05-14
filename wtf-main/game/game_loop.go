@@ -95,7 +95,9 @@ func Run(gameLoopFps int64, packetsForFrame chan []*shared.Packet, allComplete c
 		//--- Send ---------------------------------------------------
 
 		// Package and send game objects
+		doerGame.Lock()
 		packets := shared.BuildGameObjectPackets(tick, doerGame.GetGameObjects())
+		doerGame.Unlock()
 
 		// Broadcast packets, this will eat all packets
 		packetsForFrame <- packets

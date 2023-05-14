@@ -17,7 +17,7 @@ type ShapesAction struct {
 
 type ShapesGame struct {
 	// Implements DoerGame
-	Mutex sync.Mutex
+	mutex sync.Mutex
 
 	// For external access
 	GameObjects map[string]*shared.GameObject
@@ -42,7 +42,7 @@ func CreateGame(min int32, max int32, nDots int) *ShapesGame {
 	shapesGame := ShapesGame{}
 
 	// Acquire before modifying the collections below:
-	shapesGame.Mutex = sync.Mutex{}
+	shapesGame.mutex = sync.Mutex{}
 	shapesGame.GameObjects = make(map[string]*shared.GameObject)
 	shapesGame.Doers = make(map[string]game.Doer)
 	// shapesGame.QuadTree = *(quadtree.New[*shared.GameObject](-1000, 1000, 4))
@@ -54,6 +54,14 @@ func CreateGame(min int32, max int32, nDots int) *ShapesGame {
 	go shapesGame.ActionListener()
 
 	return &shapesGame
+}
+
+func (shapesGame *ShapesGame) Lock() {
+	shapesGame.mutex.Lock()
+}
+
+func (shapesGame *ShapesGame) Unlock() {
+	shapesGame.mutex.Unlock()
 }
 
 func (shapesGame *ShapesGame) ActionListener() {
@@ -70,16 +78,18 @@ func (shapesGame *ShapesGame) GetGameObjects() map[string]*shared.GameObject {
 }
 
 func (shapesGame *ShapesGame) AddDoer(id string, doer game.Doer) {
-	shapesGame.Mutex.Lock()
+	shapesGame.Lock()
 	shapesGame.Doers[id] = doer
 	shapesGame.GameObjects[id] = doer.GetGameObject()
-	shapesGame.Mutex.Unlock()
+	shapesGame.Unlock()
 
 	// Doer pattern, one go routine for each object
 	// go doer.Start()
 }
 
 func (shapesGame *ShapesGame) RemoveDoer(id string) {
+	shapesGame.Lock()
+	shapesGame.Unlock()
 	// TODO: remove from both
 }
 
@@ -100,11 +110,11 @@ func (shapesGame *ShapesGame) Update() {
 	// IDEA: Just do global work here!
 	// 		 Actions upon objects should be posted to them instead
 	//		 And each object will handle its own update.
-	shapesGame.Mutex.Lock()
+	shapesGame.Lock()
 	for _, doer := range shapesGame.Doers {
 		go doer.UpdateGL(doneChan)
 	}
-	shapesGame.Mutex.Unlock()
+	shapesGame.Unlock()
 
 	// And wait for completion
 	for todo := len(shapesGame.Doers); todo > 0; todo-- {

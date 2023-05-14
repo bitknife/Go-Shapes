@@ -224,7 +224,7 @@ jobs:
           api-key: ${{ secrets.ITCHIO_API_KEY }}
 
   build-linux-server:
-    name: Build Linux Server
+    name: Build And Upload Linux Server
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

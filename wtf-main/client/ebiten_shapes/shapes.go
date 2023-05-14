@@ -129,7 +129,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// TODO Use correct Image option instead
 	g.world.Clear()
 
-	DrawGrid(g.world, colornames.Darkgray, 100)
+	DrawGrid(g.world, colornames.Darkgray, 100, colornames.White)
 
 	// Draw on World (or maybe layers?)
 	for _, ebitenObject := range g.localEBObjects {

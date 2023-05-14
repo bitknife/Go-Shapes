@@ -6,7 +6,7 @@ import (
 	"image/color"
 )
 
-func DrawGrid(layer *ebiten.Image, color color.Color, spacing int) {
+func DrawGrid(layer *ebiten.Image, color color.Color, spacing int, axisColor color.Color) {
 	// Draw vertical lines
 	bounds := layer.Bounds()
 	xMin := bounds.Min.X
@@ -21,4 +21,9 @@ func DrawGrid(layer *ebiten.Image, color color.Color, spacing int) {
 	for i := yMin; i < yMax; i += spacing {
 		vector.StrokeLine(layer, float32(xMin), float32(i), float32(layer.Bounds().Dx()), float32(i), 1, color, true)
 	}
+
+	// Draw Axis
+	vector.StrokeLine(layer, float32(0), float32(yMin), float32(0), float32(layer.Bounds().Dy()), 3, axisColor, true)
+	vector.StrokeLine(layer, float32(xMin), float32(0), float32(layer.Bounds().Dx()), float32(0), 3, axisColor, true)
+
 }

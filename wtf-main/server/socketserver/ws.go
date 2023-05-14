@@ -15,6 +15,7 @@ func RunWS(address string) {
 
 type WebsocketChannels struct {
 	address string
+	context context.Context
 }
 
 func NewWebsocketChannels(
@@ -22,6 +23,7 @@ func NewWebsocketChannels(
 
 	wc := WebsocketChannels{
 		address: address,
+		context: shared.PacketContext(),
 	}
 	return &wc
 }
@@ -62,6 +64,7 @@ func (wc *WebsocketChannels) packetsHandler(w http.ResponseWriter, r *http.Reque
 	// TODO: Return correct HTTP status code upon invalid login?
 
 	// NOTE: We do this slighly different than TCP due to the nature of the Websocket connection
-	go shared.WSPacketWorker(conn, fromClient, toClient)
+	serverWSContext := shared.PacketContext()
+	go shared.WSPacketWorker(serverWSContext, conn, fromClient, toClient)
 
 }

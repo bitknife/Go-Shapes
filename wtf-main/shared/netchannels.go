@@ -109,8 +109,12 @@ func ConnectClient(protocol string, host string,
 			log.Fatal("dial:", err)
 		}
 
-		// WS connections are not thread safe, see comments in the method
-		go WSPacketWorker(conn, fromServer, toServer)
+		// TODO: Implement ServerContext handling timeouts etc?
+		clientWSContext := PacketContext()
+
+		// Differs from TCP case above since WS connections are not thread safe
+		//, see comments in the method
+		go WSPacketWorker(clientWSContext, conn, fromServer, toServer)
 	}
 }
 

@@ -42,7 +42,7 @@ func SendPacketsToUsername(username string, bPackets []*[]byte, doneChan chan st
 	}
 
 	// Report done
-	doneChan <- username
+	// doneChan <- username
 }
 
 func broadCastPackets(packets []*shared.Packet) {

@@ -41,7 +41,7 @@ func startServer(
 	pingIntervalMsec int,
 	enableTCP bool,
 	enableWebsockets bool,
-	printMetrics bool) {
+	metricsInterval int) {
 
 	printSplash()
 
@@ -79,8 +79,8 @@ func startServer(
 	shapesGame := shapes.CreateGame(-500, 500, nDots)
 	go game.Run(gameLoopFps, packetBroadCastChannel, packetsSentChannel, shapesGame)
 
-	if printMetrics {
-		go CollectAndPrintMetricsRoutine("WTF server", 2)
+	if metricsInterval > 0 {
+		go CollectAndPrintMetricsRoutine("WTF server", metricsInterval)
 	}
 }
 
@@ -109,7 +109,7 @@ func main() {
 	pingIntervalMsec := flags.IntP("pingIntervalMsec", "i", 10000,
 		"Interval in milliseconds to ping clients.")
 
-	printMetrics := flags.BoolP("printMetrics", "p", true, "Print metrics to stdout")
+	metricsInterval := flags.IntP("metricsInterval", "p", 0, "Print metrics to stdout, 0 = disabled")
 
 	flags.Parse()
 
@@ -117,7 +117,7 @@ func main() {
 	shared.WriteTimeout = *socketWriteTimeoutMs
 
 	// Spawns everything we need
-	startServer(*gameLoopFps, *nDots, *pingIntervalMsec, *enableTCP, *enableWS, *printMetrics)
+	startServer(*gameLoopFps, *nDots, *pingIntervalMsec, *enableTCP, *enableWS, *metricsInterval)
 
 	// Waits for SIGINT and SIGTERM to perform shutdown
 	waitForExitSignals()

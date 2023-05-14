@@ -46,7 +46,7 @@ func setupExitTimer(lifetime_sec int) {
 
 func main() {
 	headless := flags.Bool("headless", false, "Start a client headless.")
-	host := flags.StringP("host", "h", WTFLocalHost, "Server IP or Hostname")
+	host := flags.StringP("host", "h", WTFDevServerHost, "Server IP or Hostname")
 	username := flags.StringP("username", "u", shared.RandName("user"), "Player name")
 	password := flags.StringP("password", "w", "welcome", "Password")
 	protocol := flags.StringP("protocol", "p", "websocket", "Network protocol: websocket or tcp")

@@ -72,7 +72,7 @@ func broadCastPackets(packets []*shared.Packet) {
 	// TODO: Use WaitGroup instead!
 	for todo := len(usernames); todo > 0; todo-- {
 		// Wait for all clients to complete
-		<-doneChan
+		// <-doneChan
 	}
 }
 
@@ -84,6 +84,6 @@ func PacketBroadCaster(packetBroadCastChannel chan []*shared.Packet, packetsSent
 
 		// Just send the number of packages meant to send, not multiplied by
 		// receivers
-		packetsSentChannel <- len(packets)
+		// packetsSentChannel <- len(packets)
 	}
 }

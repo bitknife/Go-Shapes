@@ -106,7 +106,9 @@ func Run(gameLoopFps int64, packetsForFrame chan []*shared.Packet, allComplete c
 
 		// Wait for completion, we get an int here len(packets)
 		// Only use if using doerGame.Update() execution
-		<-allComplete
+
+		// Maybe do this one go routine to just detect
+		//<-allComplete
 
 		t3 := time.Now()
 		sendTime := t3.Sub(t2)

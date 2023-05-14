@@ -203,9 +203,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/download-artifact@v3
         with:
           name: wasm-client
+          path: dist/wasm
       - name: Display structure of downloaded files
         run: ls -R
       - name: Set Version
@@ -215,7 +217,7 @@ jobs:
         # https://github.com/marketplace/actions/itch-io-upload
         uses: robpc/itchio-upload-action@v1
         with:
-          path: wasm-client
+          path: dist/wasm
           project: ${{ env.itchio_project }}
           channel: web
           version: ${{ env.version }}

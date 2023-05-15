@@ -102,14 +102,14 @@ func ConnectClient(
 		// Same Dial as TCP , but would need other logic due to no connection
 
 	} else if protocol == "ws" || protocol == "wss" {
-		wsAddr := host + ":" + wsPort
+		wsAddr := protocol + "://" + host + ":" + wsPort + WS_PACKETS_PATH
 		log.Println("Connecting to Websocket game server using", wsAddr)
 
 		// TODO: Implement ServerContext handling timeouts etc?
 		clientWSContext := PacketContext()
 
 		// u := url.URL{Scheme: "ws", Host: wsAddr, Path: WS_PACKETS_PATH}
-		conn, _, err := websocket.Dial(clientWSContext, protocol+"://"+wsAddr+WS_PACKETS_PATH, nil)
+		conn, _, err := websocket.Dial(clientWSContext, wsAddr, nil)
 		if err != nil {
 			log.Fatal("dial:", err)
 		}

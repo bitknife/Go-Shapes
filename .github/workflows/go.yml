@@ -188,7 +188,7 @@ jobs:
         shell: bash
         working-directory: wtf-main/client
         # Connect to 888 for dev builds
-        run: GOOS=js GOARCH=wasm go build -ldflags="-X main.WsPort=888 -X main.WTFHost=wtf-dev-server.bitknife.se -X main.Protocol=wss" -v -ldflags "-w -s" -o ../wasm/main.wasm
+        run: GOOS=js GOARCH=wasm go build -ldflags="-X 'main.Protocol=wss' -X 'main.WTFHost=wtf-dev-server.bitknife.se' -X 'main.WsPort=888' -w -s" -v -o ../wasm/main.wasm
       - name: Upload Web build
         uses: actions/upload-artifact@v3
         with:

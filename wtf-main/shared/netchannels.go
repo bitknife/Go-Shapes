@@ -105,7 +105,7 @@ func ConnectClient(
 		wsAddr := protocol + "://" + host + ":" + wsPort + WS_PACKETS_PATH
 		log.Println("Connecting to Websocket game server using", wsAddr)
 
-		// TODO: Implement ServerContext handling timeouts etc?
+		// TODO: Implement ClientContext handling timeouts etc?
 		clientWSContext := PacketContext()
 
 		// u := url.URL{Scheme: "ws", Host: wsAddr, Path: WS_PACKETS_PATH}

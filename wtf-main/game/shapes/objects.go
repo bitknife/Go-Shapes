@@ -102,18 +102,21 @@ func (dwg *ShapesDoer) shake(amp int32) {
 	dwg.GameObject.X += shared.RandInt(-amp, amp)
 	dwg.GameObject.Y += shared.RandInt(-amp, amp)
 
-	if dwg.GameObject.X > 1000 || dwg.GameObject.X < -1000 || dwg.GameObject.Y > 1000 || dwg.GameObject.Y < -1000 {
-		dwg.GameObject.X = 0
-		dwg.GameObject.Y = 0
+	if dwg.GameObject.X > 500 || dwg.GameObject.X < -500 || dwg.GameObject.Y > 500 || dwg.GameObject.Y < -500 {
+		dwg.ToCenter()
 
 		// Make grey again:
 		shadeOfGrey := shared.RandInt(100, 255)
 		dwg.GameObject.IntAttrs["R"] = shadeOfGrey
 		dwg.GameObject.IntAttrs["G"] = shadeOfGrey
 		dwg.GameObject.IntAttrs["B"] = shadeOfGrey
-
 	}
 	// gameObject.FlAttrs["radius"] = gameObject.FlAttrs["radius"] + float32(shared.RandInt(-1, 1))
+}
+
+func (dwg *ShapesDoer) ToCenter() {
+	dwg.GameObject.X = 0
+	dwg.GameObject.Y = 0
 }
 
 func (dwg *ShapesDoer) handleMail(mail *game.Mail) {
@@ -135,9 +138,9 @@ func (dwg *ShapesDoer) handleMail(mail *game.Mail) {
 	}
 
 	if mail.Subject == "COLLIDE" {
+		dwg.ToCenter()
 		dwg.GameObject.IntAttrs["R"] = shared.RandInt(0, 255)
 		dwg.GameObject.IntAttrs["G"] = shared.RandInt(0, 255)
 		dwg.GameObject.IntAttrs["B"] = shared.RandInt(0, 255)
-		// dwg.shake(3)
 	}
 }

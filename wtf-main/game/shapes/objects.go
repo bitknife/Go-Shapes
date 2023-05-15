@@ -101,6 +101,14 @@ func (dwg *ShapesDoer) GetGameObject() *shared.GameObject {
 func (dwg *ShapesDoer) shake(amp int32) {
 	dwg.GameObject.X += shared.RandInt(-amp, amp)
 	dwg.GameObject.Y += shared.RandInt(-amp, amp)
+
+	if dwg.GameObject.X > 1000 || dwg.GameObject.X < -1000 {
+		dwg.GameObject.X = 0
+	}
+	if dwg.GameObject.Y > 1000 || dwg.GameObject.Y < -1000 {
+		dwg.GameObject.Y = 0
+	}
+
 	// gameObject.FlAttrs["radius"] = gameObject.FlAttrs["radius"] + float32(shared.RandInt(-1, 1))
 }
 

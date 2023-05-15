@@ -78,7 +78,7 @@ func (dwg *ShapesDoer) Update() {
 
 	// The actual "job"
 	if !strings.Contains(dwg.Id, "PLAYER") {
-		dwg.shake(1)
+		dwg.shake(3)
 	}
 
 	dwg.readMail()
@@ -102,13 +102,17 @@ func (dwg *ShapesDoer) shake(amp int32) {
 	dwg.GameObject.X += shared.RandInt(-amp, amp)
 	dwg.GameObject.Y += shared.RandInt(-amp, amp)
 
-	if dwg.GameObject.X > 1000 || dwg.GameObject.X < -1000 {
+	if dwg.GameObject.X > 1000 || dwg.GameObject.X < -1000 || dwg.GameObject.Y > 1000 || dwg.GameObject.Y < -1000 {
 		dwg.GameObject.X = 0
-	}
-	if dwg.GameObject.Y > 1000 || dwg.GameObject.Y < -1000 {
 		dwg.GameObject.Y = 0
-	}
 
+		// Make grey again:
+		shadeOfGrey := shared.RandInt(100, 255)
+		dwg.GameObject.IntAttrs["R"] = shadeOfGrey
+		dwg.GameObject.IntAttrs["G"] = shadeOfGrey
+		dwg.GameObject.IntAttrs["B"] = shadeOfGrey
+
+	}
 	// gameObject.FlAttrs["radius"] = gameObject.FlAttrs["radius"] + float32(shared.RandInt(-1, 1))
 }
 

@@ -57,8 +57,8 @@ func CreateRandomBox(
 	id := shared.RandName("box")
 	x := shared.RandInt(min, max)
 	y := shared.RandInt(min, max)
-	w := shared.RandInt(10, 30)
-	h := shared.RandInt(10, 30)
+	w := shared.RandInt(10, 50)
+	h := shared.RandInt(10, 50)
 
 	R := shared.RandInt(200, 200)
 	G := shared.RandInt(200, 200)

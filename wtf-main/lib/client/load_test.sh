@@ -8,6 +8,6 @@ HOSTNAME=$4
 go build .
 
 for i in {1..${N_CLIENTS}}; do
-  ./client --headless --lifetime_sec ${LIFETIME} --host ${HOSTNAME} &
+  ./client --protocol tcp --headless --lifetime_sec ${LIFETIME} --host ${HOSTNAME} &
   sleep $3
 done

@@ -13,7 +13,7 @@ const (
 	FPS = 20
 )
 
-// Implements Doer
+// ShapesDoer Implements Doer
 type ShapesDoer struct {
 	Id         string
 	GameObject *shared.GameObject

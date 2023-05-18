@@ -2,11 +2,13 @@ go 1.19
 
 use (
 	.
+	./server
 	./server/socketserver
 	./server/core
-	./game
-	./game/shapes
-	./shared
-	./client
-	server
+	./lib/game
+	./lib/game/shapes
+	./lib/shared
+	./lib/client
+	./ebiten_client
+	./headless_client
 )

@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func SetUpNetworking(
+func SetUpClientCommunication(
 	protocol string,
 	host string,
 	tcpPort string,

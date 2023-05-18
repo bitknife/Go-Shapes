@@ -34,7 +34,9 @@ func wsPacketsToChannel(ctx context.Context, conn *websocket.Conn, unbufRecChan 
 
 	for {
 		// NOTE: Would have preferred to to "canRead" on this, or select directly
-		//		 dunno how to do that, but this model seem to work anyway.
+		//		 dunno how to do that, but this model seem to work but is a
+		//		 potential bottle neck?
+		//
 		_, message, err := conn.Read(ctx)
 
 		unbufRecChan <- &message

@@ -11,8 +11,11 @@ import (
 func PacketReceiverTCP(conn net.Conn, incoming chan *[]byte) {
 
 	for {
-		// Blocks
+		// NOTE Blocks
 		packageData := ReceivePackageDataFromTCPConnection(conn)
+
+		// Ok got a valid message, pass that to the dispatcher
+		incoming <- packageData
 
 		if packageData == nil {
 			// Communication error, broken pipe etc
@@ -23,20 +26,9 @@ func PacketReceiverTCP(conn net.Conn, incoming chan *[]byte) {
 
 			// NOTE: Writer/Sender closes channels in Go!
 			close(incoming)
-
 			conn.Close()
-
 			return
 		}
-
-		// "Nice" disconnect will be handeled by above layer
-
-		// Ok got a valid message, pass that to the dispatcher
-		incoming <- packageData
-
-		// packet := BytesToPacket(packageData)
-		// dm := core.DispatcherMessage{SourceID: playerLogin.Username, Packet: packet}
-		// fromClient <- dm
 	}
 }
 

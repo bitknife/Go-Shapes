@@ -6,7 +6,7 @@ import (
 	"net"
 )
 
-func RunTCP(address string) {
+func ServeTCP(address string) {
 	// TODO: Refactor (TCP version?) to align more with WS variant
 	//		 containing all data on a struct and then "Run()"
 

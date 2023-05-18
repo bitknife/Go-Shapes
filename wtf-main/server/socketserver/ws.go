@@ -53,7 +53,7 @@ func (wc *WebsocketChannels) packetsHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	// This is the first package
-	_, message, err := conn.Read(context.TODO())
+	_, message, err := conn.Read(wc.context)
 
 	// Login and setup channels
 	fromClient, toClient := HandleFirstPacket(&message)
@@ -63,8 +63,7 @@ func (wc *WebsocketChannels) packetsHandler(w http.ResponseWriter, r *http.Reque
 	}
 	// TODO: Return correct HTTP status code upon invalid login?
 
-	// NOTE: We do this slighly different than TCP due to the nature of the Websocket connection
-	serverWSContext := shared.PacketContext()
-	go shared.WSPacketWorker(serverWSContext, conn, fromClient, toClient)
+	// NOTE: We do this slightly different than TCP due to the nature of the Websocket connection
+	go shared.WSPacketWorker(wc.context, conn, fromClient, toClient)
 
 }

@@ -54,7 +54,7 @@ func startServer(
 	if enableTCP {
 		tcpAddress := Host + ":" + TcpPort
 		log.Println("Starting TCP server on", tcpAddress)
-		go socketserver.RunTCP(tcpAddress)
+		go socketserver.ServeTCP(tcpAddress)
 	}
 
 	if enableWebsockets {

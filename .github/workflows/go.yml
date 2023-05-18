@@ -186,7 +186,7 @@ jobs:
           go-version: 1.19
       - name: Build
         shell: bash
-        working-directory: wtf-main/client
+        working-directory: wtf-main/gui-client
         # Connect to 888 for dev builds
         run: GOOS=js GOARCH=wasm go build -ldflags="-X 'main.Protocol=wss' -X 'main.WTFHost=wtf-dev-server.bitknife.se' -X 'main.WsPort=888' -w -s" -v -o ../wasm/main.wasm
       - name: Upload Web build

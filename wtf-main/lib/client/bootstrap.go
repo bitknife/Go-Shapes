@@ -67,7 +67,7 @@ func BootstrapFromCommandLine() (chan *shared.Packet, chan *shared.Packet, int) 
 	} else {
 
 		// Connects and returns two channels for communication to  a remote server
-		fromServer, toServer := SetUpNetworking(*protocol, *host, TcpPort, WsPort, *username, *password)
+		fromServer, toServer := SetUpClientCommunication(*protocol, *host, TcpPort, WsPort, *username, *password)
 
 		// Connects the packets to/from a remote server based simulation
 		go DeliverPacketsToServer(toServer, updatesToSimulation)

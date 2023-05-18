@@ -2,6 +2,7 @@ package ebiten_shapes
 
 import (
 	"bitknife.se/wtf/shared"
+	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/colornames"
 	"golang.org/x/image/math/f64"
@@ -42,8 +43,8 @@ func CreateGame(toSimulationPackets chan *shared.Packet, worldWidth int, worldHe
 		world: ebiten.NewImageWithOptions(bounds, options),
 
 		camera: Camera{
-			ViewPort: f64.Vec2{0, 0},
-			Position: f64.Vec2{float64(halfW / 2), float64(halfH / 2)},
+			ViewPort: f64.Vec2{float64(worldWidth), float64(worldHeight)},
+			Position: f64.Vec2{float64(600), float64(700)},
 		},
 
 		toSimulationPackets: toSimulationPackets,
@@ -84,6 +85,7 @@ func (g *Game) Update() error {
 
 	// Adjust viewport
 	g.camera.SetCamera(scrX, scrY)
+	fmt.Println(g.camera.String())
 
 	// TODO: not the nicest way to adjust coordinates
 	wX, wY := g.camera.ScreenToWorld(scrX, scrY, float64(g.world.Bounds().Max.X), float64(g.world.Bounds().Max.Y))

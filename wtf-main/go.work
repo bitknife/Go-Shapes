@@ -9,6 +9,6 @@ use (
 	./lib/game/shapes
 	./lib/shared
 	./lib/client
-	./ebiten_client
-	./headless_client
+	./gui-client
+	./headless-client
 )

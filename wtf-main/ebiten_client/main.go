@@ -8,6 +8,6 @@ import (
 
 func main() {
 	log.Println("Starting Ebitengine client")
-	updatesToSimulation, updatesFromSimulation, _, _ := client.BootstrapFromCommandLine()
+	updatesToSimulation, updatesFromSimulation, _ := client.BootstrapFromCommandLine()
 	ebiten_shapes.RunEbitenApplication(updatesToSimulation, updatesFromSimulation)
 }

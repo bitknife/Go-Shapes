@@ -63,6 +63,6 @@ func startHeadlessClient(
 
 func main() {
 	log.Println("Starting headless client")
-	updatesToSimulation, updatesFromSimulation, _, lifetimeSec := client.BootstrapFromCommandLine()
+	updatesToSimulation, updatesFromSimulation, lifetimeSec := client.BootstrapFromCommandLine()
 	startHeadlessClient(lifetimeSec, updatesToSimulation, updatesFromSimulation)
 }

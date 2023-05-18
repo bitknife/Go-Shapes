@@ -10,22 +10,22 @@ import (
 	"shapes"
 )
 
-/*
-Typically modified compiler LD-flags, ie:
--ldflags="-X main.WsPort=888 -X main.WTFHost=wtf-dev-server.bitknife.se"
-*/
+// Typically modified compiler LD-flags, ie:
+// -ldflags="-X main.WsPort=888 -X main.WTFHost=wtf-dev-server.bitknife.se"
+
 var WTFHost = "localhost"
 var TcpPort = "7777"
 var WsPort = "8888"
 var Protocol = "ws"
 
-func BootstrapFromCommandLine() (chan *shared.Packet, chan *shared.Packet, bool, int) {
-	headless := flags.Bool("headless", false, "Start a client headless.")
+func BootstrapFromCommandLine() (chan *shared.Packet, chan *shared.Packet, int) {
 	host := flags.StringP("host", "h", WTFHost, "Server IP or Hostname")
 	username := flags.StringP("username", "u", shared.RandName("user"), "Player name")
 	password := flags.StringP("password", "w", "welcome", "Password")
 	protocol := flags.StringP("protocol", "p", Protocol, "Network protocol: websocket or tcp")
+
 	lifetimeSec := flags.IntP("lifetime_sec", "t", 0, "Terminate client after this many seconds")
+
 	localSim := flags.BoolP("localsim", "l", false, "Run game locally, no server needed.")
 	flags.Parse()
 
@@ -33,7 +33,7 @@ func BootstrapFromCommandLine() (chan *shared.Packet, chan *shared.Packet, bool,
 	updatesToSimulation := make(chan *shared.Packet)
 
 	// TODO: This could be streamlined even further, maybe combine server and client even?
-	if *localSim == true {
+	if *localSim {
 
 		// Game returns all updates needed for each frame
 		// This is instead of the serverside broadcaster (list of packets to many clients)
@@ -65,6 +65,7 @@ func BootstrapFromCommandLine() (chan *shared.Packet, chan *shared.Packet, bool,
 		go game.UserInputRunner("local", updatesToSimulation)
 
 	} else {
+
 		// Connects and returns two channels for communication to  a remote server
 		fromServer, toServer := SetUpNetworking(*protocol, *host, TcpPort, WsPort, *username, *password)
 
@@ -78,5 +79,5 @@ func BootstrapFromCommandLine() (chan *shared.Packet, chan *shared.Packet, bool,
 		https://pkg.go.dev/github.com/hajimehoshi/ebiten/v2
 		https://ebitengine.org/en/documents/cheatsheet.html
 	*/
-	return updatesToSimulation, updatesFromSimulation, *headless, *lifetimeSec
+	return updatesToSimulation, updatesFromSimulation, *lifetimeSec
 }

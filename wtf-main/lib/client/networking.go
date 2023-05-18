@@ -20,8 +20,8 @@ func SetUpNetworking(
 	shared.ConnectClient(protocol, host, tcpPort, wsPort, fromServer, toServer)
 
 	// Login
-	pPacket := shared.BuildLoginPacket(username, password)
-	wirePacket := shared.PacketToBytes(pPacket)
+	loginPacket := shared.BuildLoginPacket(username, password)
+	wirePacket := shared.PacketToBytes(loginPacket)
 	toServer <- wirePacket
 	log.Println("Login successful!")
 

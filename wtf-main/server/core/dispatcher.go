@@ -8,7 +8,7 @@ import (
 )
 
 /**
-NOTE: The all mighty registry mapping a USERNAME to a CHANNEL
+NOTE: The central registry mapping a USERNAME to a CHANNEL
 
 TODO: Rethink if Username is a good key or not, it has its merits (ie if connection lost
 	  we could just re-attach the new connection and channel and move on). It would also
@@ -74,7 +74,7 @@ func ToClientDispatcher(username string, packet *shared.Packet) int {
 	}
 }
 
-func ToClientDispatcherMultiBytes(username string, bytePackets []*[]byte) int {
+func ToClientDispatcherMultiBytes(username string, bytePackets []*[]byte) bool {
 	// Look up the channel in the registry, and then send message, we POP to ensure it is not used twice
 	//  two writers _can_ use the same channel but for the broadcast case, we do not want that
 	toClientChannel, ok := ToClientChannels.Pop(username)
@@ -91,10 +91,10 @@ func ToClientDispatcherMultiBytes(username string, bytePackets []*[]byte) int {
 			toClientChannel <- packet
 		}
 		ToClientChannels.Set(username, toClientChannel)
-		return 0
+		return false
 	} else {
 		// Means the channel was busy!
-		return 1
+		return true
 	}
 }
 

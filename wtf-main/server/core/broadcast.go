@@ -24,25 +24,22 @@ func GetBroadcastStats() *BroadcastStats {
 	return &currentStats
 }
 
-func SendPacketsToUsername(username string, bPackets []*[]byte, doneChan chan string) {
+func SendPacketsToUsername(username string, bPackets []*[]byte) {
+	/*
+		NOTE: This function is called from each frame of the game loop!
+			  Meaning, this must finish before the next frame is ready to send
+			  else the client will experience loss of frames from the server.
+	*/
 
 	busy := ToClientDispatcherMultiBytes(username, bPackets)
 
-	if busy != 0 {
+	if busy {
 		/*
-			When this happens a new call was made to the same client
+			When this happens a new frame was sent to the _same_ client
 			without having finished delivered the first one.
-
-			Dabbled w. a retry. Better to drop I think.
-
-			This is the bad thing with sending batches this way.
 		*/
-		// log.Println("Dropping", len(packets), "packets for", username)
 		atomic.AddInt64(busyChannelDrops, int64(len(bPackets)))
 	}
-
-	// Report done
-	// doneChan <- username
 }
 
 func broadCastPackets(packets []*shared.Packet) {
@@ -62,21 +59,20 @@ func broadCastPackets(packets []*shared.Packet) {
 		bytePackets[n] = shared.PacketToBytes(packet)
 	}
 
-	doneChan := make(chan string)
 	for _, username := range usernames {
 		// NOTE: We "go" here to do this concurrently and parallel if multiple CPUs
 		//       as this is quite work intensive.
-		go SendPacketsToUsername(username, bytePackets, doneChan)
-	}
-
-	// TODO: Use WaitGroup instead!
-	for todo := len(usernames); todo > 0; todo-- {
-		// Wait for all clients to complete
-		// <-doneChan
+		go SendPacketsToUsername(username, bytePackets)
 	}
 }
 
-func PacketBroadCaster(packetBroadCastChannel chan []*shared.Packet, packetsSentChannel chan int) {
+/*
+var GameLoopSend = new(float32)
+GameLoopSend      float32
+GameLoopSend:      *GameLoopSend,
+*GameLoopSend = float32(aggregatedSendTime) / statsDivideBy
+*/
+func PacketBroadCaster(packetBroadCastChannel chan []*shared.Packet) {
 
 	for {
 		packets := <-packetBroadCastChannel

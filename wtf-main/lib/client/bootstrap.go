@@ -38,7 +38,6 @@ func BootstrapFromCommandLine() (chan *shared.Packet, chan *shared.Packet, int) 
 		// Game returns all updates needed for each frame
 		// This is instead of the serverside broadcaster (list of packets to many clients)
 		packetsForFrame := make(chan []*shared.Packet)
-		allComplete := make(chan int)
 
 		// This code adapts the game.Run() logic that is built to
 		// send updates to all clients for each frame.
@@ -53,15 +52,12 @@ func BootstrapFromCommandLine() (chan *shared.Packet, chan *shared.Packet, int) 
 					//		 For now: we receive all as that is the strategy
 					updatesFromSimulation <- packet
 				}
-				// NOTE: must use if synced game loop (signal that the local client received all)
-				//       we sometimes experiemnt with this not used.
-				// allComplete <- 1
 			}
 		}()
 
 		// NOTE: This Runs a local simulation and receiving inputs as well!
-		shapesGame := shapes.CreateGame(-500, 500, 500)
-		go game.Run(30, packetsForFrame, allComplete, shapesGame)
+		shapesGame := shapes.CreateGame(-1000, 1000, 250)
+		go game.Run(30, packetsForFrame, shapesGame)
 		go game.UserInputRunner("local", updatesToSimulation)
 
 	} else {

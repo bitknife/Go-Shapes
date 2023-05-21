@@ -10,5 +10,5 @@ use (
 	./lib/shared
 	./lib/client
 	./gui-client
-	./headless-client
+	./hl-client
 )

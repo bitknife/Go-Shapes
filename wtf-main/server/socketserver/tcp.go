@@ -30,11 +30,11 @@ func ServeTCP(address string) {
 		}
 
 		// log.Println("Client connected from", conn.RemoteAddr())
-		go handleConnection(conn)
+		go handleTCPConnection(conn)
 	}
 }
 
-func handleConnection(conn net.Conn) {
+func handleTCPConnection(conn net.Conn) {
 	// shared.PlayerLogin{}
 
 	/**
@@ -47,7 +47,9 @@ func handleConnection(conn net.Conn) {
 		return
 	}
 
-	fromClient, toClient := HandleFirstPacket(packageData)
+	fromClient, toClient, playerLogin := HandleFirstPacket(packageData)
+
+	log.Println("TCP: User", playerLogin.Username, "logged in.")
 
 	// Main packet receiver
 	go shared.PacketReceiverTCP(conn, fromClient)

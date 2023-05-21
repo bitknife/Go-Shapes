@@ -90,10 +90,11 @@ func ToClientDispatcherMultiBytes(username string, bytePackets []*[]byte) bool {
 			}
 			toClientChannel <- packet
 		}
+		// Done, return channel
 		ToClientChannels.Set(username, toClientChannel)
 		return false
 	} else {
-		// Means the channel was busy!
+		// Means the channel was busy and will lose this frame!
 		return true
 	}
 }

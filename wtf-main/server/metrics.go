@@ -33,7 +33,7 @@ func CollectAndPrintMetricsRoutine(label string, intervalSec int) {
 		plPerc := string("?")
 		// gllSim := fmt.Sprintf("%.1f %%", glS.GameLoopSim)
 		gllSim := fmt.Sprintf("%.2f", glS.GameLoopSim)
-		gllSend := fmt.Sprintf("%.2f", glS.GameLoopSend)
+		//gllSend := fmt.Sprintf("%.2f", glS.GameLoopSend)
 		gllSleep := fmt.Sprintf("%.2f", glS.GameLoopSleep)
 
 		if nS.PacketsSent > 0 {
@@ -45,12 +45,12 @@ func CollectAndPrintMetricsRoutine(label string, intervalSec int) {
 		log.Println("Clients ........................", bS.NumberOfClients)
 		log.Println("Heap Alloc / Max............(kB)", gS["heapAllocKB"], "/", gS["TotalAllocKB"])
 		log.Println("Go routines ....................", gS["numGoroutines"])
-		log.Println("GL: Sim / Send / Sleep .........", gllSim, "/", gllSend, "/", gllSleep)
+		log.Println("GL: Sim / Sleep ................", gllSim, "/", gllSleep)
 		log.Println("GL: Actual FPS .................", glS.GameLoopActualFPS)
+		log.Println("BC: Busy drops .................", bS.BusyChannelDrops)
 		log.Println("Net: Sent / Rec ............(kB)", nS.BytesSent/1000, "/", nS.BytesReceived/1000)
 		log.Println("Net: Send Min / Avg / Max ..(ms)", nS.MinSendTimeMs, "/", avgSendTime, "/", nS.MaxSendTimeMs)
 		log.Println("Net: Packets sent ..............", nS.PacketsSent)
 		log.Println("Net: Packets loss ..............", nS.PacketsLost, "(", plPerc, ")")
-		log.Println("Net: Busy drops ................", bS.BusyChannelDrops)
 	}
 }

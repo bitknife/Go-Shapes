@@ -77,9 +77,5 @@ func PacketBroadCaster(packetBroadCastChannel chan []*shared.Packet) {
 	for {
 		packets := <-packetBroadCastChannel
 		broadCastPackets(packets)
-
-		// Just send the number of packages meant to send, not multiplied by
-		// receivers
-		// packetsSentChannel <- len(packets)
 	}
 }

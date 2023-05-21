@@ -39,7 +39,7 @@ func (wc *WebsocketChannels) Run() {
 }
 
 func (wc *WebsocketChannels) packetsHandler(w http.ResponseWriter, r *http.Request) {
-	// This is similar to handleConnection() of the TCP variant
+	// This is similar to handleTCPConnection() of the TCP variant
 	ao := websocket.AcceptOptions{
 		Subprotocols:         nil,
 		InsecureSkipVerify:   true,
@@ -56,7 +56,9 @@ func (wc *WebsocketChannels) packetsHandler(w http.ResponseWriter, r *http.Reque
 	_, message, err := conn.Read(wc.context)
 
 	// Login and setup channels
-	fromClient, toClient := HandleFirstPacket(&message)
+	fromClient, toClient, playerLogin := HandleFirstPacket(&message)
+
+	log.Println("WebSocket: User", playerLogin.Username, "logged in.")
 
 	if fromClient == nil {
 		conn.Close(websocket.StatusAbnormalClosure, "First packet failed")

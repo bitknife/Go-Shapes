@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-func HandleFirstPacket(packageData *[]byte) (chan *[]byte, chan *[]byte) {
+func HandleFirstPacket(packageData *[]byte) (chan *[]byte, chan *[]byte, *shared.PlayerLogin) {
 
 	// Will initiate client de-registration of old user if connected
 	packet := shared.BytesToPacket(packageData)
 
 	if packet == nil {
-		return nil, nil
+		return nil, nil, nil
 	}
 
 	playerLogin := packet.GetPlayerLogin()
@@ -30,7 +30,7 @@ func HandleFirstPacket(packageData *[]byte) (chan *[]byte, chan *[]byte) {
 	accessGranted := core.AuthenticateClient(playerLogin)
 	if accessGranted == false {
 		log.Println("Access denied for", playerLogin.Username)
-		return nil, nil
+		return nil, nil, nil
 	}
 
 	/**
@@ -50,7 +50,5 @@ func HandleFirstPacket(packageData *[]byte) (chan *[]byte, chan *[]byte) {
 	// And register channels on the Dispatcher in the core layer
 	core.InitClient(playerLogin.Username, toClient, fromClient)
 
-	log.Println("User", playerLogin.Username, "accepted and setup!")
-
-	return fromClient, toClient
+	return fromClient, toClient, playerLogin
 }

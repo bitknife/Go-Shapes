@@ -13,16 +13,18 @@ import (
 // Typically modified compiler LD-flags, ie:
 // -ldflags="-X main.WsPort=888 -X main.WTFHost=wtf-dev-server.bitknife.se"
 
-var WTFHost = "localhost"
 var TcpPort = "7777"
 var WsPort = "8888"
-var Protocol = "ws"
 
-func BootstrapFromCommandLine() (chan *shared.Packet, chan *shared.Packet, int) {
-	host := flags.StringP("host", "h", WTFHost, "Server IP or Hostname")
+/*
+BootstrapFromCommandLine The default values are typically hard set from the caller at build time.
+*/
+func BootstrapFromCommandLine(defaultWTFProtocol, defaultWTFHost string) (chan *shared.Packet, chan *shared.Packet, int) {
+	protocol := flags.StringP("protocol", "p", defaultWTFProtocol, "Network protocol: [ws|wss|tcp]")
+	host := flags.StringP("host", "h", defaultWTFHost, "Server IP or Hostname")
+
 	username := flags.StringP("username", "u", shared.RandName("user"), "Player name")
 	password := flags.StringP("password", "w", "welcome", "Password")
-	protocol := flags.StringP("protocol", "p", Protocol, "Network protocol: websocket or tcp")
 
 	lifetimeSec := flags.IntP("lifetime_sec", "t", 0, "Terminate client after this many seconds")
 

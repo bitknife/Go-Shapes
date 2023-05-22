@@ -107,9 +107,7 @@ func (shapesGame *ShapesGame) Update() {
 	// TODO use waitGroup?
 	doneChan := make(chan string)
 
-	// IDEA: Just do global work here!
-	// 		 Actions upon objects should be posted to them instead
-	//		 And each object will handle its own update.
+	// Lock as to not have objects added or removed during update
 	shapesGame.Lock()
 	for _, doer := range shapesGame.Doers {
 		go doer.UpdateGL(doneChan)

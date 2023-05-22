@@ -14,12 +14,11 @@ import (
 // -ldflags="-X main.WsPort=888 -X main.WTFHost=wtf-dev-server.bitknife.se"
 
 var TcpPort = "7777"
-var WsPort = "8888"
 
 /*
 BootstrapFromCommandLine The default values are typically hard set from the caller at build time.
 */
-func BootstrapFromCommandLine(defaultWTFProtocol, defaultWTFHost string) (chan *shared.Packet, chan *shared.Packet, int) {
+func BootstrapFromCommandLine(defaultWTFProtocol, defaultWTFHost, defaultWsPort string) (chan *shared.Packet, chan *shared.Packet, int) {
 	protocol := flags.StringP("protocol", "p", defaultWTFProtocol, "Network protocol: [ws|wss|tcp]")
 	host := flags.StringP("host", "h", defaultWTFHost, "Server IP or Hostname")
 
@@ -65,7 +64,7 @@ func BootstrapFromCommandLine(defaultWTFProtocol, defaultWTFHost string) (chan *
 	} else {
 
 		// Connects and returns two channels for communication to  a remote server
-		fromServer, toServer := SetUpClientCommunication(*protocol, *host, TcpPort, WsPort, *username, *password)
+		fromServer, toServer := SetUpClientCommunication(*protocol, *host, TcpPort, defaultWsPort, *username, *password)
 
 		// Connects the packets to/from a remote server based simulation
 		go DeliverPacketsToServer(toServer, updatesToSimulation)

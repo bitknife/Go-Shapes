@@ -15,6 +15,7 @@ import (
 
 var Protocol = "tcp"
 var WTFHost = "localhost"
+var WsPort = "8888"
 
 func waitForExitSignals(toServer chan *shared.Packet) {
 	exitSignal := make(chan os.Signal)
@@ -66,6 +67,6 @@ func startHeadlessClient(
 
 func main() {
 	log.Println("Starting headless client")
-	updatesToSimulation, updatesFromSimulation, lifetimeSec := client.BootstrapFromCommandLine(Protocol, WTFHost)
+	updatesToSimulation, updatesFromSimulation, lifetimeSec := client.BootstrapFromCommandLine(Protocol, WTFHost, WsPort)
 	startHeadlessClient(lifetimeSec, updatesFromSimulation, updatesToSimulation)
 }

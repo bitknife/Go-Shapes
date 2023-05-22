@@ -8,9 +8,10 @@ import (
 
 var Protocol = "ws"
 var WTFHost = "localhost"
+var WsPort = "8888"
 
 func main() {
 	log.Println("Starting Ebitengine client")
-	updatesToSimulation, updatesFromSimulation, _ := client.BootstrapFromCommandLine(Protocol, WTFHost)
+	updatesToSimulation, updatesFromSimulation, _ := client.BootstrapFromCommandLine(Protocol, WTFHost, WsPort)
 	ebiten_shapes.RunEbitenApplication(updatesToSimulation, updatesFromSimulation)
 }

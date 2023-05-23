@@ -13,12 +13,14 @@ func HandleFirstPacket(packageData *[]byte) (chan *[]byte, chan *[]byte, *shared
 	packet := shared.BytesToPacket(packageData)
 
 	if packet == nil {
+		log.Println("Invalid first packet.")
 		return nil, nil, nil
 	}
 
 	playerLogin := packet.GetPlayerLogin()
 
 	if _, ok := core.ToClientChannelsRegistry.Get(playerLogin.Username); ok {
+		log.Println("User", playerLogin.Username, "already logged in.")
 		frC, _ := core.FromClientChannels.Get(playerLogin.Username)
 		frC <- nil
 

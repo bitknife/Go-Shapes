@@ -42,12 +42,17 @@ func handleTCPConnection(conn net.Conn) {
 	*/
 	packageData := shared.ReceivePackageDataFromTCPConnection(conn)
 	if packageData == nil {
-		log.Print("Got nil from connection, closing!")
+		log.Print("Got nil from TCP connection while connecting, closing.")
 		conn.Close()
 		return
 	}
 
 	fromClient, toClient, playerLogin := HandleFirstPacket(packageData)
+	if playerLogin == nil {
+		log.Print("Invalid first packet for TCP connection attempt, closing.")
+		conn.Close()
+		return
+	}
 
 	log.Println("TCP: User", playerLogin.Username, "logged in.")
 

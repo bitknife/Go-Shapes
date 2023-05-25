@@ -57,7 +57,7 @@ func BootstrapFromCommandLine(defaultWTFProtocol, defaultWTFHost, defaultWsPort 
 		}()
 
 		// NOTE: This Runs a local simulation and receiving inputs as well!
-		shapesGame := shapes.CreateGame(0, 0, 300)
+		shapesGame := shapes.CreateGame(0, 0, 200)
 		go game.Run(30, packetsForFrame, shapesGame)
 		go game.UserInputRunner("local", updatesToSimulation)
 

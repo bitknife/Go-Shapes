@@ -176,8 +176,9 @@ func (dwg *ShapesDoer) handleMail(mail *game.Mail) {
 	case "SET_XY":
 		dwg.GameObject.X = mail.Data["x"].(int32)
 		dwg.GameObject.Y = mail.Data["y"].(int32)
+		dwg.checkCollisions(true)
 
 	case "COLLIDE":
-		dwg.shake(1)
+		dwg.ToCenter()
 	}
 }

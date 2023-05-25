@@ -74,7 +74,8 @@ func startServer(
 	/**
 	Main serverside game loop
 	*/
-	shapesGame := shapes.CreateGame(-500, 500, nDots)
+	// Note, coord is where to spread at start
+	shapesGame := shapes.CreateGame(0, 0, nDots)
 	go game.Run(gameLoopFps, packetBroadCastChannel, shapesGame)
 
 	if metricsInterval > 0 {
@@ -98,7 +99,7 @@ func waitForExitSignals() {
 
 func main() {
 	gameLoopFps := flags.Int64P("fps", "f", 30, "Game loop FPS")
-	nDots := flags.IntP("dots", "d", 100, "Dots to spawn.")
+	nDots := flags.IntP("dots", "d", 200, "Dots to spawn.")
 
 	enableTCP := flags.BoolP("tcpServer", "t", true, "Enable TCP server")
 	enableWS := flags.BoolP("websocketServer", "w", true, "Enable WebSocket server")

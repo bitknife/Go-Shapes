@@ -83,7 +83,7 @@ func Run(gameLoopFps int64, packetsForFrame chan []*shared.Packet, doerGame Doer
 		//--- Simulation ---------------------------------------------------
 
 		// Update game logic
-		doerGame.Update()
+		// doerGame.Update()
 
 		t2 := time.Now()
 		simTime := t2.Sub(t1)

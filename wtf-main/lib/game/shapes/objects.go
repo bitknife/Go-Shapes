@@ -10,7 +10,10 @@ import (
 )
 
 const (
-	FPS = 20
+	FPS                = 20
+	AiBaseIntervalMsec = 100
+
+	MaxDistance = 500
 )
 
 // ShapesDoer Implements Doer
@@ -23,6 +26,8 @@ type ShapesDoer struct {
 	// Back-reference to Game for interaction with other parts of the game
 	// from inside the Doers
 	Game *ShapesGame
+
+	AiIntervalMsec int32
 }
 
 func (dwg *ShapesDoer) PostMail(mail *game.Mail) {
@@ -44,8 +49,16 @@ func (dwg *ShapesDoer) readMail() {
 }
 
 func (dwg *ShapesDoer) Start() {
+	// This is a variant, instead of using a single game loop, let
+	// each doer maintain its own life through their own loop. This
+	// would decouple all objects action from each other by frame and
+	// instead only by time.
+
 	// TODO: Call a Generic Doer loop method?
 	ticTime := game.FPSToDuration(FPS)
+
+	// Start the AI
+	dwg.AI()
 
 	go func() {
 		for {
@@ -58,6 +71,25 @@ func (dwg *ShapesDoer) Start() {
 			sleepDur := ticTime - time.Since(loopStartTime)
 			time.Sleep(sleepDur)
 		}
+	}()
+}
+
+func (dwg *ShapesDoer) AI() {
+	// Whenever called, will deliver a decision based on the current state
+	// NOTE: This method never updates the state of the doer.
+	// Also, this does not have to occur in every frame
+
+	// IDEA:
+	// 	- move at direction until not colliding.
+	if dwg.checkCollisions(false) {
+		dwg.shake(shared.RandInt(1, 100))
+	}
+
+	// --- And call again at a later time ---
+	aiTimer := time.NewTimer(100 * time.Millisecond)
+	go func() {
+		<-aiTimer.C
+		dwg.AI()
 	}()
 }
 
@@ -79,9 +111,10 @@ func (dwg *ShapesDoer) Update() {
 
 	// The actual "job"
 	if !strings.Contains(dwg.Id, "PLAYER") {
-		dwg.shake(3)
-	}
+		dwg.shake(0)
 
+		dwg.returnToCenter()
+	}
 	dwg.readMail()
 }
 
@@ -102,17 +135,16 @@ func (dwg *ShapesDoer) GetGameObject() *shared.GameObject {
 func (dwg *ShapesDoer) shake(amp int32) {
 	dwg.GameObject.X += shared.RandInt(-amp, amp)
 	dwg.GameObject.Y += shared.RandInt(-amp, amp)
+}
 
-	if dwg.GameObject.X > 500 || dwg.GameObject.X < -500 || dwg.GameObject.Y > 500 || dwg.GameObject.Y < -500 {
+func (dwg *ShapesDoer) returnToCenter() {
+
+	if dwg.GameObject.X > MaxDistance ||
+		dwg.GameObject.X < -MaxDistance ||
+		dwg.GameObject.Y > MaxDistance ||
+		dwg.GameObject.Y < -MaxDistance {
 		dwg.ToCenter()
-
-		// Make grey again:
-		shadeOfGrey := shared.RandInt(100, 255)
-		dwg.GameObject.IntAttrs["R"] = shadeOfGrey
-		dwg.GameObject.IntAttrs["G"] = shadeOfGrey
-		dwg.GameObject.IntAttrs["B"] = shadeOfGrey
 	}
-	// gameObject.FlAttrs["radius"] = gameObject.FlAttrs["radius"] + float32(shared.RandInt(-1, 1))
 }
 
 func (dwg *ShapesDoer) ToCenter() {
@@ -120,29 +152,32 @@ func (dwg *ShapesDoer) ToCenter() {
 	dwg.GameObject.Y = 0
 }
 
+func (dwg *ShapesDoer) checkCollisions(notifyOther bool) bool {
+	collides := false
+	collidedOnce := false
+	for _, other := range dwg.Game.Doers {
+		collides = physics.BoxCollider(dwg.GameObject, other.GetGameObject())
+		if collides && notifyOther {
+			// Message other object
+			mailOut := game.CreateMail("COLLIDE")
+			other.PostMail(mailOut)
+		}
+		if collides {
+			collidedOnce = true
+		}
+	}
+	return collidedOnce
+}
+
 func (dwg *ShapesDoer) handleMail(mail *game.Mail) {
 
 	switch mail.Subject {
 
 	case "SET_XY":
-		collides := false
-		for _, other := range dwg.Game.Doers {
-			collides = physics.BoxCollider(dwg.GameObject, other.GetGameObject())
-			if collides {
-				// Message other object
-				mailOut := game.CreateMail("COLLIDE")
-				other.PostMail(mailOut)
-			}
-		}
-		if !collides {
-			dwg.GameObject.X = mail.Data["x"].(int32)
-			dwg.GameObject.Y = mail.Data["y"].(int32)
-		}
+		dwg.GameObject.X = mail.Data["x"].(int32)
+		dwg.GameObject.Y = mail.Data["y"].(int32)
 
 	case "COLLIDE":
-		dwg.ToCenter()
-		dwg.GameObject.IntAttrs["R"] = shared.RandInt(0, 255)
-		dwg.GameObject.IntAttrs["G"] = shared.RandInt(0, 255)
-		dwg.GameObject.IntAttrs["B"] = shared.RandInt(0, 255)
+		dwg.shake(1)
 	}
 }

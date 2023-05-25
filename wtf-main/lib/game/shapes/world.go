@@ -104,7 +104,7 @@ func (shapesGame *ShapesGame) buildShapes(min int32, max int32, nObjs int) {
 
 func (shapesGame *ShapesGame) Update() {
 
-	// TODO use waitGroup?
+	// NOTE: Tried waitgroup
 	doneChan := make(chan string)
 
 	// Lock as to not have objects added or removed during update
@@ -129,7 +129,7 @@ func (shapesGame *ShapesGame) HandleUserInputPacket(
 
 	if _, ok := shapesGame.GameObjects[playerGobId]; !ok {
 		log.Println("===> SPAWNED PLAYER <===")
-		playerBubble := CreateBoxGameObject(shapesGame, playerGobId, 0, 0, 5, 5, 255, 255, 255)
+		playerBubble := CreateBoxDoer(shapesGame, playerGobId, 0, 0, 20, 20, 255, 255, 255)
 		playerBubble.Id = playerGobId
 		shapesGame.AddDoer(playerBubble.Id, playerBubble)
 	}

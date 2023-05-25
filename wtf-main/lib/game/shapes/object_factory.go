@@ -60,14 +60,14 @@ func CreateRandomBox(
 	w := shared.RandInt(10, 50)
 	h := shared.RandInt(10, 50)
 
-	R := shared.RandInt(200, 200)
-	G := shared.RandInt(200, 200)
-	B := shared.RandInt(200, 200)
+	R := shared.RandInt(100, 255)
+	G := shared.RandInt(100, 255)
+	B := shared.RandInt(100, 255)
 
-	return CreateBoxGameObject(game, id, x, y, w, h, R, G, B)
+	return CreateBoxDoer(game, id, x, y, w, h, R, G, B)
 }
 
-func CreateBoxGameObject(
+func CreateBoxDoer(
 	game *ShapesGame,
 	id string,
 	x int32, y int32,
@@ -88,11 +88,15 @@ func CreateBoxGameObject(
 		},
 		Kind: shared.GameObjectKind_BOX,
 	}
-	return &ShapesDoer{
+
+	doer := &ShapesDoer{
 		Id:         id,
 		GameObject: gObj,
 		// NOTE: The fixed version is faster
-		Mailbox: goconcurrentqueue.NewFIFO(),
-		Game:    game,
+		Mailbox:        goconcurrentqueue.NewFIFO(),
+		Game:           game,
+		AiIntervalMsec: AiBaseIntervalMsec + shared.RandInt(0, 100),
 	}
+	doer.Start()
+	return doer
 }

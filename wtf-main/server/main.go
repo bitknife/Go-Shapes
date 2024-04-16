@@ -99,7 +99,7 @@ func waitForExitSignals() {
 
 func main() {
 	gameLoopFps := flags.Int64P("fps", "f", 30, "Game loop FPS")
-	nDots := flags.IntP("dots", "d", 200, "Dots to spawn.")
+	nDots := flags.IntP("dots", "d", 50, "Dots to spawn.")
 
 	enableTCP := flags.BoolP("tcpServer", "t", true, "Enable TCP server")
 	enableWS := flags.BoolP("websocketServer", "w", true, "Enable WebSocket server")

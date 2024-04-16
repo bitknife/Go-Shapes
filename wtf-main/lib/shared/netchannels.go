@@ -94,7 +94,7 @@ func ConnectClient(
 			os.Exit(1)
 		}
 
-		// Separate send and receive routines works as conn is thread-safe
+		// Separate send and receive routines works as conn IS thread-safe
 		go PacketReceiverTCP(conn, fromServer)
 		go PacketSenderTCP(conn, toServer)
 

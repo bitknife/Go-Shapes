@@ -53,3 +53,8 @@ Build for windows:
     GOOS=windows GOARCH=amd64 go build
 
 Better is to make a github actions workflow for windows work.
+
+## Update packages
+Do this to update all packages in the GOPATH
+
+    go get -u all

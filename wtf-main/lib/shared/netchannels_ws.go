@@ -2,7 +2,6 @@ package shared
 
 import (
 	"context"
-	"log"
 	"nhooyr.io/websocket"
 	"time"
 )
@@ -20,7 +19,7 @@ func WSPacketWorker(ctx context.Context, conn *websocket.Conn, incoming chan *[]
 
 			err := conn.Write(ctx, websocket.MessageBinary, *packet)
 
-			//log.Println("Sending WS packet of len", len(*packet))
+			// log.Println("Sending WS packet of len", len(*packet))
 
 			if err != nil {
 				// Client disconnect most likely, send nil to clean up
@@ -50,7 +49,7 @@ func wsPacketsToChannel(ctx context.Context, conn *websocket.Conn, unbufRecChan 
 			break
 		}
 
-		log.Println("Got WS packet of len", len(message))
+		// log.Println("Got WS packet of len", len(message))
 
 		unbufRecChan <- &message
 	}

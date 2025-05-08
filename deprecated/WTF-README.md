@@ -1,10 +1,15 @@
 # We The Forsaken (WTF!)
 
+## Deprecation note.
+Project WTF not continued on this code-base.
+
+The working bits of the proto-game was refactored/renamed to Go-Shapes-Server-Client. See new main README.md in root.
+
 ## Introduction
 WTF is an attempt to make an online multiplayer dungeon brawler / roguelike.
 
 ## Go Game Source - wtf-main
-The [](wtf-main) directory contains both the go-based server and the client(s).
+The [](../wtf-main) directory contains both the go-based server and the client(s).
 
 The first version of the client was writen using Ebitengine for Go.
 

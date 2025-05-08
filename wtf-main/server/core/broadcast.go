@@ -66,12 +66,6 @@ func broadCastPackets(packets []*shared.Packet) {
 	}
 }
 
-/*
-var GameLoopSend = new(float32)
-GameLoopSend      float32
-GameLoopSend:      *GameLoopSend,
-*GameLoopSend = float32(aggregatedSendTime) / statsDivideBy
-*/
 func PacketBroadCaster(packetBroadCastChannel chan []*shared.Packet) {
 
 	for {

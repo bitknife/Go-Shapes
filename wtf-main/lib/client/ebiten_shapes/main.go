@@ -16,7 +16,7 @@ const (
 RunEbitenApplication takes as argument the shared structure gameObjects (for now). That
 structure is updated by the Server. Ebiten reads what it needs from that.
 
-toServer is used by the client to notify the server of user-inputs etc.
+toSimulation is used by the client to notify the server of user-inputs etc.
 
 https://github.com/sedyh/awesome-ebitengine
 */

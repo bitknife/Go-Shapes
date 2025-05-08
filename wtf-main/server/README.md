@@ -1,4 +1,7 @@
-# Dev server
+# Dev WASM server cheat sheet
+Notes taken during set-up of self hosted WASM server.
+
+## Login
 
     $ ssh wtfserver@hannibal -p 9339
 
@@ -9,7 +12,6 @@ Commands, test and restart nginx
 
     $ nginx -t
     $ service nginx restart
-
 
 ### Skapa först self-signed på servern:
 

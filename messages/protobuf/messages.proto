@@ -89,7 +89,7 @@ message GameObject {
 
 /*
     https://protobuf.dev/programming-guides/proto3/#maps
- */
+*/
 message SetGameObjectAttributes {
     string id = 1;
     map<string, string> attributes = 2;

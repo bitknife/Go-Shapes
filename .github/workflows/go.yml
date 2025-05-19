@@ -24,15 +24,15 @@ jobs:
 #          go-version: 1.19
 #
 #      - name: Test Shared
-#        working-directory: wtf-main/lib/shared
+#        working-directory: go-root/lib/shared
 #        run: go test -v
 #
 #      - name: Test Client
-#        working-directory: wtf-main/lib/client
+#        working-directory: go-root/lib/client
 #        run: go test -v
 #
 #      - name: Test Server
-#        working-directory: wtf-main/server
+#        working-directory: go-root/server
 #        run: go test -v
 
 #  build-win-client:
@@ -46,13 +46,13 @@ jobs:
 #        with:
 #          go-version: 1.19
 #      - name: Build Windows exe
-#        working-directory: wtf-main/client
+#        working-directory: go-root/client
 #        shell: bash
 #        run: go build -ldflags="-X main.Commit=$(git rev-parse HEAD)"
 #      - name: Upload Windows exe
 #        uses: actions/upload-artifact@v3
 #        with:
-#          path: wtf-main/client/client.exe
+#          path: go-root/client/client.exe
 #          name: windows-client
 #
 #  win-client-itchio-upload:
@@ -93,13 +93,13 @@ jobs:
 #        shell: bash
 #        run: sudo apt-get update && sudo apt-get -y install libgl1-mesa-dev xorg-dev libasound2-dev
 #      - name: Build Linux Client
-#        working-directory: wtf-main/client
+#        working-directory: go-root/client
 #        run: go build -v -ldflags="-X main.Commit=$(git rev-parse HEAD)"
 #      - name: Upload Ubuntu Client Artefact
 #        uses: actions/upload-artifact@v3.1.2
 #        with:
 #          name: linux-client
-#          path: wtf-main/client/client
+#          path: go-root/client/client
 #
 #  linux-client-itchio-upload:
 #    name: Upload Linux client to Itch.io
@@ -137,17 +137,17 @@ jobs:
 #          go-version: 1.19
 #      - name: Build Mac Client
 #        shell: bash
-#        working-directory: wtf-main/client
+#        working-directory: go-root/client
 #        run: go build -ldflags="-X main.Commit=$(git rev-parse HEAD)"
 #      - name: Chmod on binary
 #        shell: bash
-#        working-directory: wtf-main/client
+#        working-directory: go-root/client
 #        run: chmod +x client
 #      - name: Upload Mac Bundle
 #        uses: actions/upload-artifact@v3
 #        with:
 #          name: mac-client
-#          path: wtf-main/client/client
+#          path: go-root/client/client
 #
 #  mac-client-itchio-upload:
 #    name: Upload Mac client to Itch.io
@@ -186,7 +186,7 @@ jobs:
           go-version: 1.19
       - name: Build
         shell: bash
-        working-directory: wtf-main/gui-client
+        working-directory: go-root/gui-client
         # Connect to 888 for dev builds
         run: GOOS=js GOARCH=wasm go build -ldflags="-X 'main.Protocol=wss' -X 'main.WTFHost=wtf-dev-server.bitknife.se' -X 'main.WsPort=888' -w -s" -v -o ../wasm/main.wasm
       - name: Upload Web build
@@ -194,9 +194,9 @@ jobs:
         with:
           name: wasm-client
           path: |
-            wtf-main/wasm/index.html
-            wtf-main/wasm/main.wasm
-            wtf-main/wasm/wasm_exec.js
+            go-root/wasm/index.html
+            go-root/wasm/main.wasm
+            go-root/wasm/wasm_exec.js
 
   wasm-client-itchio-upload:
     name: Upload WASM client to Itch.io
@@ -237,14 +237,14 @@ jobs:
         shell: bash
         run: sudo apt-get update && sudo apt-get -y install libgl1-mesa-dev xorg-dev libasound2-dev
       - name: Build Linux server
-        working-directory: wtf-main/server
+        working-directory: go-root/server
         run: go build -v -ldflags="-X main.Commit=$(git rev-parse HEAD)"
 
       - name: Upload Linux Server Artefact
         uses: actions/upload-artifact@v3.1.2
         with:
           name: linux-server
-          path: wtf-main/server/server
+          path: go-root/server/server
 
 #  install-linux-dev-server:
 #    name: Install Linux Server
@@ -259,7 +259,7 @@ jobs:
           username: ${{ secrets.DEV_USERNAME }}
           password: ${{ secrets.DEV_PASSWORD }}
           port: ${{ secrets.DEV_PORT }}
-          source: "wtf-main/server/server,wtf-main/server/motif.txt"
+          source: "go-root/server/server,go-root/server/motif.txt"
           target: ~/wtf-dev-server/
           # Removes two levels of directories
           strip_components: 2

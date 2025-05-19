@@ -1,0 +1,100 @@
+# ====================
+# Go-related ignores
+# ====================
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go workspace file
+go.work
+go.work.sum
+
+# Go build directories
+/bin/
+/pkg/
+
+# Coverage & test result files
+*.coverprofile
+*.testlog
+*.log
+
+# IDE/editor files
+.vscode/
+.idea/
+
+# ====================
+# Python-related ignores
+# ====================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a Python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Pytest
+.cache/
+*.cover
+*.coverage
+coverage.xml
+*.log
+
+# MyPy
+.mypy_cache/
+
+# Pylint, Bandit
+.pylint.d/
+.bandit/
+
+# VSCode and PyCharm
+.vscode/
+.idea/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# MacOS
+.DS_Store
+
+# ====================
+# General
+# ====================
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+*~

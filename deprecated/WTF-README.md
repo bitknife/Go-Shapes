@@ -3,7 +3,7 @@
 ## Deprecation note.
 Project WTF not continued on this code-base.
 
-The working bits of the proto-game was refactored/renamed to Go-Shapes-Server-Client. See new main README.md in root.
+The working bits of the proto-game was refactored/renamed to Go-Shapes-Client-Server. See new main README.md in root.
 
 ## Introduction
 WTF is an attempt to make an online multiplayer dungeon brawler / roguelike.

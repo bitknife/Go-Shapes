@@ -130,3 +130,11 @@ See details in go-root/wasm directory and also .github/workflows/go.yml.
 
 ## Build
 For more complex build examples, see the ![GitHub actions definition file](.github/workflows/go.yml).
+
+## Load test the server
+In the hl-client sub-directory, there is a script to start many head-less clients at once
+
+For example, this will start 20 clients, each living 10 seconds with a start delay of 0.1s vs localhost:
+
+    $ cd hl-client
+    $ ./load_test.sh 20 10 0.1 localhost

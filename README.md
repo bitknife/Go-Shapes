@@ -89,18 +89,44 @@ To update all modules, do
 ## Development Run
 
 ### Local client only
+Most simple case, just do this from the root.
 
     $ go run gui-client/main.go --localsim
 
 ### Gui client vs. local dev server
-First start the local server:
+First start the local server, preferably from a separate console to watch its output (text only)
 
+    $ cd server
     $ go run server/main.go -p wss
 
-Then connect a local client using secure web-socket protocol (wss):
+Then connect one (or a few) local client(s)
 
-    $ go run gui-client/main.go -h localhost -p wss
+    $ go run gui-client/main.go &
+    $ go run gui-client/main.go &
+    $ go run gui-client/main.go &
 
+Then move the mouse pointer over the windows, and watch all three getting the updates from the server.
+
+Below are screenshots of what the server console looks like and the three clients.
+
+![Server console](img/shapes-server.png)
+
+![Screenshot](img/shapes-client-server.png)
+
+The server has a bunch of options you can experiment with:
+
+    $ go run main.go --help
+    Usage of /Users/hanseklund/Library/Caches/go-build/a4/a408efb6379a821dabce15f3eb608aa1d2cae7aa8cf0b4c3ccb8ba70e00d631c-d/main:
+    -d, --dots int                   Dots to spawn. (default 50)
+    -f, --fps int                    Game loop FPS (default 30)
+    -p, --metricsInterval int        Print metrics to stdout, 0 = disabled
+    -i, --pingIntervalMsec int       Interval in milliseconds to ping clients. (default 10000)
+    -s, --socketWriteTimeoutMs int   Socket write timeout in ms (default 10)
+    -t, --tcpServer                  Enable TCP server (default true)
+    -w, --websocketServer            Enable WebSocket server (default true)
+
+### WASM Client using Secure webSockets
+See details in go-root/wasm directory and also .github/workflows/go.yml.
 
 ## Build
-For complex build examples, see the ![GitHub actions definition file](.github/workflows/go.yml).
+For more complex build examples, see the ![GitHub actions definition file](.github/workflows/go.yml).

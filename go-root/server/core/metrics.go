@@ -1,7 +1,6 @@
-package main
+package core
 
 import (
-	"bitknife.se/wtf/server/core"
 	"bitknife.se/wtf/server/game"
 	"bitknife.se/wtf/shared"
 	"fmt"
@@ -26,7 +25,7 @@ func CollectAndPrintMetricsRoutine(label string, intervalSec int) {
 
 		gS = shared.CollectGoStats()
 		nS := shared.GetNetChannelsStats()
-		bS := core.GetBroadcastStats()
+		bS := GetBroadcastStats()
 		glS := game.GetGameLoopMetrics()
 
 		avgSendTime := string("?")

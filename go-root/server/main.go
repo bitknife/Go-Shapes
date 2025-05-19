@@ -79,7 +79,7 @@ func startServer(
 	go game.Run(gameLoopFps, packetBroadCastChannel, shapesGame)
 
 	if metricsInterval > 0 {
-		go CollectAndPrintMetricsRoutine("WTF server", metricsInterval)
+		go core.CollectAndPrintMetricsRoutine("WTF server", metricsInterval)
 	}
 }
 

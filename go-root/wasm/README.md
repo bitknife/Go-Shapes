@@ -1,10 +1,15 @@
 # WTF Client
 
 ## Build and Run
-Simply do:
+If needed (if not present), first go into the gui-client to build the main.wasm binary.
 
-    ./build.sh
-    go run runserver.go
+    $ cd gui-client
+    $ build_wasm.sh
+
+Then head to the wasm directory
+
+    $ cd wasm
+    $ go run runserver.go
 
 And surf to http://localhost:8080
 

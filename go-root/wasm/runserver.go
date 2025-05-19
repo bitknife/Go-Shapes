@@ -1,13 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 )
 
 func main() {
-	addr := "0.0.0.0:8080"
-	fmt.Print("Serving at http://", addr)
-	fmt.Print("\n")
-	http.ListenAndServe(addr, http.FileServer(http.Dir(".")))
+	fs := http.FileServer(http.Dir("."))
+	http.Handle("/", fs)
+
+	log.Println("Serving on http://localhost:8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
